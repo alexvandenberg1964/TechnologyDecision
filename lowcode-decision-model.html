@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostNL — Platform Decision Model v4.1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#FF6200;--orange-dk:#E05500;--orange-lt:rgba(255,98,0,.10);--orange-xlt:rgba(255,98,0,.05);
+  --bg:#F4F4F4;--surface:#FFF;--surface2:#FAFAFA;--border:#E0E0E0;--border2:#EDEDED;
+  --text:#1A1A1A;--muted:#757575;--muted2:#B8B8B8;
+  --lc:#0064D2;--lc-dim:rgba(0,100,210,.08);
+  --hy:#7B3FBE;--hy-dim:rgba(123,63,190,.08);
+  --hc:#007A5E;--hc-dim:rgba(0,122,94,.08);
+  --danger:#DC2626;--danger-dim:rgba(220,38,38,.08);--danger-lt:rgba(220,38,38,.14);
+  --warn:#B45309;--warn-dim:rgba(180,83,9,.08);--warn-lt:rgba(180,83,9,.12);
+  --ok:#15803D;--ok-dim:rgba(21,128,61,.08);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:14px}
+
+/* ─ HEADER ─ */
+.header{background:var(--surface);border-bottom:3px solid var(--orange);padding:0 24px;display:flex;align-items:center;gap:14px;height:56px;flex-shrink:0;z-index:20}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.hdiv{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.header-title{font-size:13px;font-weight:500;color:var(--muted);flex:1}
+.mode-toggle{display:flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
+.mode-btn{padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .14s;white-space:nowrap}
+.mode-btn.active{background:var(--orange);color:#fff}
+.mode-btn:hover:not(.active){background:var(--bg)}
+.header-badge{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--orange);background:var(--orange-lt);border:1px solid rgba(255,98,0,.22);padding:3px 9px;border-radius:4px}
+
+/* ─ LAYOUT ─ */
+.main{display:grid;grid-template-columns:1fr 330px;flex:1;overflow:hidden}
+
+/* ─ WIZARD ─ */
+.wizard-panel{display:flex;flex-direction:column;overflow:hidden}
+.wizard-topbar{padding:12px 32px 10px;background:var(--surface);border-bottom:1px solid var(--border2);flex-shrink:0}
+.wizard-category{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:99px}
+.tag-qs{background:rgba(180,83,9,.10);color:var(--warn);border:1px solid rgba(180,83,9,.20)}
+.tag-new{background:var(--hc-dim);color:var(--hc);border:1px solid rgba(0,122,94,.20)}
+.tag-layer{background:var(--lc-dim);color:var(--lc);border:1px solid rgba(0,100,210,.20)}
+.wizard-progress-row{display:flex;align-items:center;gap:12px}
+.wizard-progress-track{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden}
+.wizard-progress-fill{height:100%;background:var(--orange);border-radius:99px;transition:width .35s ease;width:0%}
+.wizard-step-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap}
+.dot-map{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.dmi{width:10px;height:10px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .15s;flex-shrink:0}
+.dmi:hover{border-color:var(--muted2)}
+.dmi.answered{background:var(--orange);border-color:var(--orange)}
+.dmi.current{border-color:var(--orange);background:var(--orange-lt);transform:scale(1.3)}
+.dmi.answered.current{background:var(--orange);transform:scale(1.3)}
+.dmi.qs{border-color:var(--warn)}
+.dmi.qs.answered{background:var(--warn);border-color:var(--warn)}
+.dmi.qs.current{border-color:var(--warn);background:var(--warn-lt)}
+.dmi.qs.answered.current{background:var(--warn)}
+.dot-sep{width:1px;height:10px;background:var(--border2);flex-shrink:0;align-self:center}
+
+/* ─ CONSTRAINT BANNER ─ */
+.constraint-banner{display:none;margin:0 32px;margin-top:10px;padding:11px 16px;border-radius:8px;border:1.5px solid var(--danger);background:var(--danger-dim);flex-shrink:0}
+.constraint-banner.warn-level{border-color:var(--warn);background:var(--warn-dim)}
+.constraint-banner.block-level{border-color:var(--danger);background:var(--danger-dim)}
+.constraint-banner.visible{display:flex;gap:12px;align-items:flex-start}
+.cb-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.cb-content{}
+.cb-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;color:var(--danger)}
+.constraint-banner.warn-level .cb-title{color:var(--warn)}
+.cb-body{font-size:12px;line-height:1.55;color:var(--text)}
+
+/* ─ QUESTION ─ */
+.wizard-body{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px 32px}
+.question-card{width:100%;max-width:640px;animation:slideIn .22s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.q-meta{font-size:11px;font-weight:600;color:var(--muted2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.weight-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;border:1px solid;cursor:pointer;transition:all .2s}
+.weight-badge.w1{background:rgba(180,180,180,.12);color:var(--muted);border-color:var(--border)}
+.weight-badge.w2{background:var(--orange-lt);color:var(--orange-dk);border-color:rgba(255,98,0,.25)}
+.weight-badge.w3{background:rgba(255,98,0,.18);color:var(--orange-dk);border-color:rgba(255,98,0,.40)}
+.layer-label{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid}
+.layer-1{background:var(--danger-lt);color:var(--danger);border-color:rgba(220,38,38,.3)}
+.layer-2{background:var(--lc-dim);color:var(--lc);border-color:rgba(0,100,210,.25)}
+.layer-3{background:var(--hy-dim);color:var(--hy);border-color:rgba(123,63,190,.25)}
+.q-text{font-size:18px;font-weight:700;letter-spacing:-.02em;line-height:1.35;margin-bottom:8px}
+.q-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:7px}
+.option-btn{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .14s;text-align:left;width:100%}
+.option-btn:hover{background:var(--bg);border-color:var(--muted2);transform:translateX(2px)}
+.option-btn.selected{border-color:var(--orange);background:var(--orange-lt);color:var(--orange-dk);font-weight:600}
+.option-btn.knock{border-color:rgba(220,38,38,.35);background:var(--danger-dim)}
+.option-btn.knock.selected{border-color:var(--danger);background:var(--danger-dim);color:var(--danger);font-weight:600}
+
+.opt-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all .14s;background:var(--surface2)}
+.option-btn.selected .opt-dot{background:var(--orange);border-color:var(--orange)}
+.option-btn.knock.selected .opt-dot{background:var(--danger);border-color:var(--danger)}
+.knock-tag{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:3px;background:var(--danger-lt);color:var(--danger);border:1px solid rgba(220,38,38,.25);flex-shrink:0;margin-left:auto}
+
+/* ─ NAV ─ */
+.wizard-nav{padding:14px 32px;background:var(--surface);border-top:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.nav-btn{padding:10px 22px;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .14s}
+.btn-prev{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-prev:hover:not(:disabled){background:var(--bg);border-color:var(--muted2);color:var(--text)}
+.btn-prev:disabled{opacity:.35;cursor:not-allowed}
+.btn-next{background:var(--orange);color:#fff;border:none}
+.btn-next:hover{background:var(--orange-dk)}
+
+
+/* ─ FINISH ─ */
+.finish-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;flex:1;overflow-y:auto}
+.finish-screen.active{display:flex}
+.finish-icon{width:52px;height:52px;background:var(--orange-lt);border:2px solid var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;flex-shrink:0}
+.finish-title{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.finish-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:460px}
+.finish-actions{display:flex;flex-direction:column;gap:9px;width:280px}
+.finish-btn{padding:11px 20px;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .14s}
+.finish-btn-primary{background:var(--orange);color:#fff;border:none}
+.finish-btn-primary:hover{background:var(--orange-dk)}
+.finish-btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border)}
+.finish-btn-ghost:hover{background:var(--bg);color:var(--text);border-color:var(--muted2)}
+.qs-result-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:18px;width:100%;max-width:500px;text-align:left}
+.qs-result-verdict{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.qs-result-why{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.qs-result-val{font-size:12px;line-height:1.6;padding:10px 12px;background:var(--orange-xlt);border-left:3px solid var(--orange);border-radius:0 5px 5px 0}
+
+/* ─ SIDEBAR ─ */
+.sidebar{background:var(--surface);border-left:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+.sc{border-radius:8px;padding:12px 13px;border:1px solid var(--border);background:var(--surface)}
+.sc-title{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.score-label{font-size:11px;font-weight:600;width:72px;flex-shrink:0}
+.score-track{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.score-fill{height:100%;border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1);width:0%}
+.score-val{font-family:'JetBrains Mono',monospace;font-size:11px;width:24px;text-align:right;color:var(--muted)}
+.conf-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)}
+.conf-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.conf-val{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:99px}
+.cv-low{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,38,38,.2)}
+.cv-med{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.2)}
+.cv-high{background:var(--ok-dim);color:var(--ok);border:1px solid rgba(21,128,61,.2)}
+
+/* VIABILITY BADGE */
+.viability-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid var(--border2)}
+.viab-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.viab-val{font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px}
+.vv-valid{background:var(--ok-dim);color:var(--ok);border:1px solid rgba(21,128,61,.25)}
+.vv-cond{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.25)}
+.vv-not{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,38,38,.25)}
+
+/* REC BOX */
+.rec-box{border-radius:8px;padding:13px;border:1px solid var(--border);background:var(--surface);transition:all .3s ease}
+.rec-label{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rec-verdict{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px;color:var(--muted)}
+.rec-reason{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:0}
+.rec-val{font-size:10.5px;color:var(--text);line-height:1.5;margin-top:7px;padding:7px 10px;background:var(--orange-xlt);border-left:2px solid var(--orange);border-radius:0 4px 4px 0;display:none}
+.rec-val.show{display:block}
+.rec-lc{border-color:var(--lc);background:var(--lc-dim)}.rec-lc .rec-verdict{color:var(--lc)}
+.rec-hy{border-color:var(--hy);background:var(--hy-dim)}.rec-hy .rec-verdict{color:var(--hy)}
+.rec-hc{border-color:var(--hc);background:var(--hc-dim)}.rec-hc .rec-verdict{color:var(--hc)}
+.rec-ko{border-color:var(--danger);background:var(--danger-dim)}.rec-ko .rec-verdict{color:var(--danger)}.rec-ko .rec-label{color:var(--danger)}
+.rec-warn-hy{border-color:var(--warn);background:var(--warn-dim)}.rec-warn-hy .rec-verdict{color:var(--warn)}
+.rec-blocked{border-color:var(--danger);background:var(--danger-dim)}.rec-blocked .rec-verdict{color:var(--danger)}.rec-blocked .rec-label{color:var(--danger)}
+.rec-tie{border-color:var(--border);background:var(--surface2)}.rec-tie .rec-verdict{color:var(--text)}
+
+/* ARCH PATTERN */
+.arch-pattern{border-radius:8px;padding:12px 13px;border:1.5px solid var(--hy);background:var(--hy-dim);display:none}
+.arch-pattern.show{display:block}
+.ap-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--hy);margin-bottom:8px}
+.ap-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
+.ap-icon{width:20px;text-align:center;flex-shrink:0}
+.ap-text{flex:1;line-height:1.4}
+.ap-sep{height:1px;background:rgba(123,63,190,.15);margin:4px 0}
+
+/* HYBRID READINESS */
+.hr-section{margin-top:8px;padding-top:8px;border-top:1px solid rgba(123,63,190,.15)}
+.hr-title{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hy);margin-bottom:5px}
+.hr-bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.hr-track{flex:1;height:5px;background:rgba(123,63,190,.15);border-radius:99px;overflow:hidden}
+.hr-fill{height:100%;border-radius:99px;transition:width .45s ease;background:var(--hy)}
+.hr-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--hy);width:32px;text-align:right}
+.hr-note{font-size:10.5px;color:var(--muted);line-height:1.45}
+
+/* RISKS */
+.risks-card{border-radius:8px;padding:12px 13px;border:1px solid var(--border);background:var(--surface);display:none}
+.risks-card.show{display:block}
+.risk-item{display:flex;align-items:flex-start;gap:7px;padding:3px 0;border-bottom:1px solid var(--border2);font-size:11px;line-height:1.45}
+.risk-item:last-child{border-bottom:none;padding-bottom:0}
+.rdot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.r-h .rdot{background:var(--danger)}.r-m .rdot{background:var(--warn)}.r-l .rdot{background:var(--muted2)}
+
+/* SIGNALS */
+.sc.signals{display:none}.sc.signals.show{display:block}
+.criteria-breakdown{font-size:10.5px;color:var(--muted)}
+.ci{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--border2);gap:7px}
+.ci span{flex:1;line-height:1.3}
+.flag{font-family:'JetBrains Mono',monospace;font-size:8.5px;padding:2px 5px;border-radius:3px;font-weight:700;flex-shrink:0}
+.fl{background:var(--lc-dim);color:var(--lc);border:1px solid rgba(0,100,210,.2)}
+.fh{background:var(--hy-dim);color:var(--hy);border:1px solid rgba(123,63,190,.2)}
+.fc{background:var(--hc-dim);color:var(--hc);border:1px solid rgba(0,122,94,.2)}
+
+/* SIDEBAR BUTTONS */
+.sb-btn{width:100%;padding:9px 13px;border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .14s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--orange);color:#fff;border:none}.btn-primary:hover{background:var(--orange-dk)}.btn-primary:disabled{background:var(--border);color:var(--muted2);cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg);color:var(--text);border-color:var(--muted2)}
+.btn-ghost-warn{background:transparent;color:var(--warn);border:1px solid rgba(180,83,9,.25)}.btn-ghost-warn:hover{background:var(--warn-dim);border-color:rgba(180,83,9,.45)}
+.meta-wrap{display:flex;flex-direction:column;gap:9px;padding:12px 13px;border:1px solid var(--border);border-radius:8px}
+.meta-row{display:flex;flex-direction:column;gap:4px}
+.meta-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.meta-inp{border:1px solid var(--border);border-radius:5px;padding:6px 9px;font-family:'Inter',sans-serif;font-size:12px;color:var(--text);background:var(--surface2);outline:none;transition:border-color .14s;width:100%}
+.meta-inp:focus{border-color:var(--orange);background:var(--surface)}.meta-inp::placeholder{color:var(--muted2)}
+.wcb{display:none;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.25);margin-left:4px}
+.wcb.v{display:inline-block}
+.disclaimer{font-size:10px;color:var(--muted2);line-height:1.5;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-style:italic}
+
+/* ─ COST DRAWER ─ */
+.cost-section{margin-bottom:18px}
+.cost-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:7px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;user-select:none;transition:background .14s}
+.cost-section-hdr:hover{background:var(--bg);border-color:var(--muted2)}
+.cost-section-hdr.open{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;background:var(--bg)}
+.cost-section-title{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700}
+.cost-section-icon{font-size:15px}
+.cost-section-chevron{font-size:11px;color:var(--muted2);transition:transform .2s}
+.cost-section-hdr.open .cost-section-chevron{transform:rotate(180deg)}
+.cost-section-body{display:none;padding:12px 14px;border:1px solid var(--border2);border-top:none;border-radius:0 0 7px 7px;background:var(--surface)}
+.cost-section-body.open{display:block}
+.cost-driver-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;margin-top:10px}
+.cost-driver-title:first-child{margin-top:0}
+.cost-driver-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.cost-driver-list li{display:flex;align-items:flex-start;gap:7px;font-size:12px;line-height:1.45;color:var(--text)}
+.cost-driver-list li::before{content:'·';color:var(--muted2);flex-shrink:0;margin-top:0}
+.cost-caveat{margin-top:12px;padding:9px 12px;border-radius:6px;font-size:11.5px;line-height:1.55;border-left:3px solid}
+.cost-caveat.warn{border-color:var(--warn);background:var(--warn-dim);color:var(--text)}
+.cost-caveat.ok{border-color:var(--ok);background:var(--ok-dim);color:var(--text)}
+.cost-caveat strong{font-weight:700}
+.cost-boundary-diagram{display:flex;gap:0;margin:10px 0;border-radius:7px;overflow:hidden;border:1px solid var(--border)}
+.cbd-side{flex:1;padding:10px 12px}
+.cbd-mendix{background:var(--lc-dim);border-right:2px dashed rgba(0,100,210,.25)}
+.cbd-hc{background:var(--hc-dim)}
+.cbd-label{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.cbd-mendix .cbd-label{color:var(--lc)}
+.cbd-hc .cbd-label{color:var(--hc)}
+.cbd-items{font-size:11px;line-height:1.6;color:var(--muted)}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.30);z-index:50}
+.drawer-overlay.open{display:block}
+.wd{position:fixed;top:0;right:-520px;width:480px;max-width:96vw;height:100vh;background:var(--surface);box-shadow:-4px 0 24px rgba(0,0,0,.15);display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);z-index:51}
+.wd.open{right:0}
+.wd-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.wd-title{font-size:15px;font-weight:700;margin-bottom:3px}
+.wd-sub{font-size:12px;color:var(--muted);line-height:1.4}
+.wd-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;padding:2px 6px;border-radius:4px}
+.wd-close:hover{background:var(--bg);color:var(--text)}
+.wd-body{flex:1;overflow-y:auto;padding:16px 22px}
+.wcat{margin-bottom:22px}
+.wcat-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.wcat-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.wrow{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);margin-bottom:6px;transition:border-color .15s}
+.wrow:hover{border-color:var(--muted2)}
+.wrow-lbl{flex:1;font-size:12px;line-height:1.35;color:var(--text)}
+.wrow-id{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);display:block;margin-top:2px}
+.wsg{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.w-btn{width:24px;height:24px;border-radius:5px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;line-height:1;padding:0;font-family:'Inter',sans-serif}
+.w-btn:hover:not(:disabled){border-color:var(--orange);color:var(--orange);background:var(--orange-lt)}.w-btn:disabled{opacity:.28;cursor:not-allowed}
+.wv{width:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;transition:color .2s}
+.wv.v1{color:var(--muted)}.wv.v2{color:var(--orange-dk)}.wv.v3{color:var(--orange)}
+.wpips{display:flex;gap:3px}
+.wpip{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .15s}
+.wpip.on{background:var(--orange)}
+.wd-footer{padding:13px 22px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:space-between;flex-shrink:0}
+.wd-footer .sb-btn{width:auto;padding:8px 16px}
+
+/* ─ MODAL ─ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.40);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:10px;width:720px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.20)}
+.modal-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hdr-title{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;padding:2px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-pre{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.65;background:#F8F8F8;border:1px solid var(--border);border-radius:6px;padding:14px 16px;white-space:pre-wrap;word-break:break-word;color:#2a2a2a;max-height:480px;overflow-y:auto}
+.modal-ftr{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+.modal-ftr .sb-btn{width:auto;padding:8px 16px}
+.saved-badge{font-size:9.5px;color:var(--ok);font-family:'JetBrains Mono',monospace;padding:4px 0 0;display:none;text-align:center;letter-spacing:.02em}
+.btn-ghost-danger{background:transparent;color:var(--danger);border:1px solid rgba(220,38,38,.25)}.btn-ghost-danger:hover{background:var(--danger-dim);border-color:rgba(220,38,38,.45)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg width="40" height="38" viewBox="0 0 40 38" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g1" x1="10%" y1="0%" x2="90%" y2="100%">
+          <stop offset="0%" stop-color="#FFB800"/>
+          <stop offset="100%" stop-color="#FF6200"/>
+        </linearGradient>
+      </defs>
+      <!-- Grey border shield -->
+      <path d="M20,1 C28,1 36,5 38,13 C40,21 34,33 20,37 C6,33 0,21 2,13 C4,5 12,1 20,1Z" fill="#BCBCBC"/>
+      <!-- Orange shield -->
+      <path d="M20,3 C27,3 34,7 36,14 C38,21 32,32 20,35 C8,32 2,21 4,14 C6,7 13,3 20,3Z" fill="url(#g1)"/>
+      <!-- Crown top center spike -->
+      <rect x="19" y="9" width="2" height="5" rx="1" fill="white"/>
+      <!-- Crown left spike -->
+      <rect x="13" y="11" width="2" height="3" rx="1" fill="white"/>
+      <!-- Crown right spike -->
+      <rect x="25" y="11" width="2" height="3" rx="1" fill="white"/>
+      <!-- Crown base -->
+      <path d="M12,14 L14,11 L16,13 L20,10 L24,13 L26,11 L28,14Z" fill="white"/>
+      <rect x="12" y="14" width="16" height="2" rx="1" fill="white"/>
+      <!-- "post" in dark blue bold -->
+      <text x="11" y="28" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="8.5" fill="#1A2DAA" letter-spacing="0">post</text>
+      <!-- "nl" in white normal -->
+      <text x="28" y="28" font-family="Arial,sans-serif" font-weight="400" font-size="8.5" fill="white">nl</text>
+    </svg>
+  </div>
+  <div class="hdiv"></div>
+  <div class="header-title">Platform Decision Model — Low-Code vs High-Code</div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeQuick" onclick="setMode('quick')">⚡ Quick scan (5)</button>
+    <button class="mode-btn" id="modeFull" onclick="setMode('full')">Full assessment (26)</button>
+  </div>
+  <div class="header-badge">v4.1 · Engineering Governance</div>
+</div>
+
+<div class="main">
+  <div class="wizard-panel">
+    <div class="wizard-topbar">
+      <div class="wizard-category" id="wizCat">—</div>
+      <div class="wizard-progress-row">
+        <div class="wizard-progress-track"><div class="wizard-progress-fill" id="wizFill"></div></div>
+        <div class="wizard-step-label" id="wizStepLabel">1 / 5</div>
+      </div>
+      <div class="dot-map" id="dotMap"></div>
+    </div>
+    <div class="constraint-banner" id="conBanner">
+      <div class="cb-icon" id="conIcon">🚫</div>
+      <div class="cb-content">
+        <div class="cb-title" id="conTitle"></div>
+        <div class="cb-body" id="conBody"></div>
+      </div>
+    </div>
+    <div class="wizard-body" id="wizardBody">
+      <div class="question-card" id="questionCard"></div>
+    </div>
+    <div class="finish-screen" id="finishScreen">
+      <div class="finish-icon" id="finishIcon">✓</div>
+      <div class="finish-title" id="finishTitle">Assessment complete</div>
+      <div class="finish-sub" id="finishSub"></div>
+      <div id="qsResultBox"></div>
+      <div class="finish-actions" id="finishActions"></div>
+    </div>
+    <div class="wizard-nav" id="wizardNav">
+      <button class="nav-btn btn-prev" id="btnPrev" onclick="navigate(-1)" disabled>← Back</button>
+      <button class="nav-btn btn-next" id="btnNext" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="meta-wrap">
+      <div class="sc-title" style="margin-bottom:2px">Project context</div>
+      <div class="meta-row"><div class="meta-lbl">Project / App name</div><input class="meta-inp" id="metaProject" type="text" placeholder="e.g. Parcel Track &amp; Trace v2"></div>
+      <div class="meta-row"><div class="meta-lbl">Assessed by</div><input class="meta-inp" id="metaAuthor" type="text" placeholder="e.g. Alex de Vries"></div>
+    </div>
+
+    <div class="sc">
+      <div class="sc-title">Score breakdown</div>
+      <div class="score-row"><div class="score-label" style="color:var(--lc)">Mendix LC</div><div class="score-track"><div class="score-fill" id="lcBar" style="background:var(--lc)"></div></div><div class="score-val" id="lcVal">0</div></div>
+      <div class="score-row"><div class="score-label" style="color:var(--hy)">Hybrid</div><div class="score-track"><div class="score-fill" id="hyBar" style="background:var(--hy)"></div></div><div class="score-val" id="hyVal">0</div></div>
+      <div class="score-row"><div class="score-label" style="color:var(--hc)">High-Code</div><div class="score-track"><div class="score-fill" id="hcBar" style="background:var(--hc)"></div></div><div class="score-val" id="hcVal">0</div></div>
+      <div class="conf-row"><span class="conf-lbl">Confidence</span><span class="conf-val cv-low" id="confBadge">—</span></div>
+      <div class="viability-row"><span class="viab-lbl">Viability</span><span class="viab-val vv-valid" id="viabBadge" style="display:none">—</span></div>
+    </div>
+
+    <div class="rec-box" id="recBox">
+      <div class="rec-label" id="recLabel">Recommendation</div>
+      <div class="rec-verdict" id="recVerdict">—</div>
+      <div class="rec-reason" id="recReason">Answer the criteria to receive a recommendation.</div>
+      <div class="rec-val" id="recVal"></div>
+    </div>
+
+    <!-- Architecture pattern (shown for Hybrid) -->
+    <div class="arch-pattern" id="archPattern">
+      <div class="ap-title">🟣 Architecture Pattern</div>
+      <div class="ap-row"><div class="ap-icon">🔵</div><div class="ap-text"><strong>Mendix</strong> — Process, UI, workflow, approvals</div></div>
+      <div class="ap-sep"></div>
+      <div class="ap-row"><div class="ap-icon">🟢</div><div class="ap-text"><strong>High-Code</strong> — Integrations, events, scale, backend logic</div></div>
+      <div class="ap-sep"></div>
+      <div class="hr-section">
+        <div class="hr-title">Hybrid Readiness</div>
+        <div class="hr-bar-wrap"><div class="hr-track"><div class="hr-fill" id="hrFill" style="width:0%"></div></div><div class="hr-val" id="hrVal">0%</div></div>
+        <div class="hr-note" id="hrNote"></div>
+      </div>
+    </div>
+
+    <div class="risks-card" id="risksCard">
+      <div class="sc-title">Risks &amp; trade-offs</div>
+      <div id="risksList"></div>
+    </div>
+
+    <div class="sc signals" id="signalsCard">
+      <div class="sc-title">Key signals</div>
+      <div class="criteria-breakdown" id="breakdownList"></div>
+    </div>
+
+    <button class="sb-btn btn-ghost" onclick="openWeightDrawer()" style="justify-content:space-between">
+      <span>⚖ Edit question weights</span><span class="wcb" id="wcb">modified</span>
+    </button>
+    <button class="sb-btn btn-ghost" onclick="openCostDrawer()" style="justify-content:space-between">
+      <span>💰 Cost model reference</span><span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace">3 models</span>
+    </button>
+    <button class="sb-btn btn-primary" id="exportBtn" onclick="openExport()" disabled>↓&nbsp; Export decision report</button>
+    <button class="sb-btn btn-ghost" onclick="resetAll()">↺&nbsp; Reset this scan</button>
+    <div class="saved-badge" id="savedBadge"></div>
+    <div class="disclaimer">⚠ This model assumes Mendix is the PostNL strategic default. Adjust weights for specific contexts.</div>
+  </div>
+</div>
+
+<!-- WEIGHT DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeWD()"></div>
+<div class="wd" id="weightDrawer">
+  <div class="wd-header">
+    <div><div class="wd-title">⚖ Question Weights</div><div class="wd-sub">1 = standard · 2 = important · 3 = critical<br><em style="font-size:11px;color:var(--muted2)">Layer 1 (hard constraints) use fixed logic.</em></div></div>
+    <button class="wd-close" onclick="closeWD()">×</button>
+  </div>
+  <div class="wd-body" id="drawerBody"></div>
+  <div class="wd-footer">
+    <button class="sb-btn btn-ghost-warn" onclick="resetWeights()">↺ Reset defaults</button>
+    <button class="sb-btn btn-primary" onclick="closeWD()">Done</button>
+  </div>
+</div>
+
+<!-- COST DRAWER -->
+<div class="drawer-overlay" id="costDrawerOverlay" onclick="closeCostDrawer()"></div>
+<div class="wd" id="costDrawer">
+  <div class="wd-header">
+    <div>
+      <div class="wd-title">💰 Cost Model Reference</div>
+      <div class="wd-sub">Platform cost drivers per architecture choice.<br>Click a section to expand.</div>
+    </div>
+    <button class="wd-close" onclick="closeCostDrawer()">×</button>
+  </div>
+  <div class="wd-body" style="padding:16px 20px">
+
+    <!-- Mendix -->
+    <div class="cost-section">
+      <div class="cost-section-hdr" onclick="toggleCostSection(this)">
+        <div class="cost-section-title"><span class="cost-section-icon">🔵</span> Mendix Low-Code</div>
+        <span class="cost-section-chevron">▼</span>
+      </div>
+      <div class="cost-section-body">
+        <div class="cost-driver-title">Cost model: Capacity &amp; Platform-oriented</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">Costs are influenced by runtime resources, database capacity, storage, environments, HA/fallback, scaling, and enterprise licensing agreements.</p>
+        <div class="cost-driver-title">What drives cost?</div>
+        <ul class="cost-driver-list">
+          <li>Application runtime capacity</li>
+          <li>Database size and capacity</li>
+          <li>File storage</li>
+          <li>Number of environments (dev, test, acceptance, production)</li>
+          <li>High availability and fallback requirements</li>
+          <li>Horizontal scaling and headroom for peaks</li>
+          <li>Enterprise licensing and internal chargeback model</li>
+        </ul>
+        <div class="cost-caveat ok">
+          <strong>Caveat:</strong> Mendix can still be the better total-cost choice when fast delivery, business involvement, process fit, and available capability significantly reduce build and change costs.
+        </div>
+      </div>
+    </div>
+
+    <!-- AWS / High-Code -->
+    <div class="cost-section">
+      <div class="cost-section-hdr" onclick="toggleCostSection(this)">
+        <div class="cost-section-title"><span class="cost-section-icon">🟢</span> AWS-native / High-Code</div>
+        <span class="cost-section-chevron">▼</span>
+      </div>
+      <div class="cost-section-body">
+        <div class="cost-driver-title">Cost model: Usage-based</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">You pay across the services the architecture consumes — compute, queues, event routing, databases, storage, observability, networking, and security services.</p>
+        <div class="cost-driver-title">What drives cost?</div>
+        <ul class="cost-driver-list">
+          <li>Compute duration and request volume</li>
+          <li>Queue, event, and message volume</li>
+          <li>Database reads, writes, storage, and provisioned capacity</li>
+          <li>API calls, load balancing, and data transfer</li>
+          <li>Logs, metrics, traces, alarms, and retention</li>
+          <li>Networking, NAT, security, KMS, secrets, and WAF</li>
+          <li>High availability and disaster recovery setup</li>
+        </ul>
+        <div class="cost-caveat warn">
+          <strong>Caveat:</strong> AWS is not automatically cheap. Poor architecture, overlogging, inefficient database access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive.
+        </div>
+      </div>
+    </div>
+
+    <!-- Hybrid -->
+    <div class="cost-section">
+      <div class="cost-section-hdr" onclick="toggleCostSection(this)">
+        <div class="cost-section-title"><span class="cost-section-icon">🟣</span> Hybrid</div>
+        <span class="cost-section-chevron">▼</span>
+      </div>
+      <div class="cost-section-body">
+        <div class="cost-driver-title">Cost model: Dual — boundary separates the models</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Hybrid separates the UI/process cost model from the event/backend cost model. A clean architecture boundary lets each layer use the cost model that matches its workload shape, instead of forcing one model across the full solution.</p>
+        <div class="cost-boundary-diagram">
+          <div class="cbd-side cbd-mendix">
+            <div class="cbd-label">Mendix layer</div>
+            <div class="cbd-items">Capacity-based<br>Runtime · DB · Envs<br>HA · Scaling · Licence</div>
+          </div>
+          <div class="cbd-side cbd-hc">
+            <div class="cbd-label">High-code layer</div>
+            <div class="cbd-items">Usage-based<br>Compute · Queues · Events<br>Logs · API · Networking</div>
+          </div>
+        </div>
+        <div class="cost-driver-title" style="margin-top:12px">Requirements for cost model separation to work</div>
+        <ul class="cost-driver-list">
+          <li>A clear, defined, and owned architectural boundary</li>
+          <li>Separate team ownership per layer</li>
+          <li>Both cost models budgeted and governed independently</li>
+        </ul>
+        <div class="cost-caveat warn">
+          <strong>Note:</strong> Both caveats apply — Mendix is not always more expensive, and AWS is not automatically cheaper. Evaluate each layer independently.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="wd-footer" style="justify-content:flex-end">
+    <button class="sb-btn btn-primary" onclick="closeCostDrawer()">Close</button>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOvClick(event)">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-hdr-title">Platform Decision Report — Markdown Preview</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body"><pre class="modal-pre" id="mdPreview"></pre></div>
+    <div class="modal-ftr">
+      <button class="sb-btn btn-ghost" id="copyBtn" onclick="copyMd()">Copy to clipboard</button>
+      <button class="sb-btn btn-primary" onclick="downloadMd()">↓ Download .md</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// LAYER 1 — HARD CONSTRAINT RULES
+// level: 'ko' = score override | 'block' = Hybrid blocked → fallback | 'warn' = warning only
+// ═══════════════════════════════════════════════════════════════════════════
+const HARD_RULES = [
+  { id:'no_ui_full', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
+    condition: a => [2,3].includes(a['ui_complexity']),
+    body:'No meaningful UI or specialised visualisation selected. Mendix\'s core value is its UI layer — this workload does not benefit from it. Score overridden → High-Code.' },
+  { id:'no_ui_qs', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
+    condition: a => a['qs_ui'] === 3,
+    body:'No meaningful user-facing UI. Mendix adds platform cost with no UX benefit. Score overridden → High-Code.' },
+  { id:'extreme_latency', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
+    condition: a => a['performance'] === 3,
+    body:'Critical latency or performance SLA required. Mendix cannot meet sub-second or hard real-time requirements. Score overridden → High-Code.' },
+  { id:'extreme_elasticity', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
+    condition: a => a['elasticity'] === 3,
+    body:'Must scale to zero or burst dynamically. Mendix is capacity-priced and cannot elastically scale. Score overridden → High-Code.' },
+  { id:'zero_trust', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
+    condition: a => a['security'] === 3,
+    body:'Custom cryptography or zero-trust architecture required. Mendix does not support full security stack control. Score overridden → High-Code.' },
+  // LAYER 3 — Hybrid feasibility gate (block, not warn)
+  { id:'hybrid_no_boundary', level:'block', verdict:'Hybrid Blocked — No Boundary',
+    condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['arch_boundary'] === 2,
+    body:'Hybrid scores highest but no clear architectural boundary or team ownership has been defined. Hybrid without a clear boundary consistently fails. Falling back to second-best platform.' },
+  { id:'hybrid_no_ownership', level:'block', verdict:'Hybrid Blocked — Ownership Undefined',
+    condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['team_ownership'] === 2,
+    body:'Hybrid scores highest but team ownership between UI/process and backend/integration is not split. Clear ownership is a prerequisite for Hybrid. Falling back to second-best platform.' },
+  { id:'hybrid_mission_critical', level:'warn', verdict:'Hybrid — Operational Risk ⚠',
+    condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['op_criticality'] === 3,
+    body:'Hybrid scores highest but the solution is mission-critical. Dual-platform incident response requires mature cross-team governance. Validate readiness before committing.' },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RISK LIBRARY
+// ═══════════════════════════════════════════════════════════════════════════
+const RISK_RULES = [
+  { id:'vendor_lock', level:'h', condition:(a,s)=>a['vendor']!==undefined&&a['vendor']>=1,
+    text:'Mendix vendor lock-in. Migration requires full redevelopment.' },
+  { id:'scale_cap', level:'m', condition:(a,s)=>(a['performance']===1||a['performance']===2)&&(a['elasticity']===2||a['elasticity']===3),
+    text:'Scaling cost non-linear. Mendix is capacity-priced; peak growth increases runtime cost.' },
+  { id:'hybrid_gov', level:'h', condition:(a,s)=>s&&s.hy>s.lc&&s.hy>s.hc,
+    text:'Hybrid governance complexity. Requires explicit API contracts, team boundaries, and cross-team incident runbooks.' },
+  { id:'integration_complex', level:'m', condition:(a,s)=>a['integration']===2||a['integration']===3,
+    text:'Integration complexity. Legacy protocols or event-driven flows may require custom Java actions or external microservices.' },
+  { id:'observability_gap', level:'m', condition:(a,s)=>a['observability']===2||a['observability']===3,
+    text:'Observability gap. Custom metrics, traces, and SLOs require additional tooling beyond Mendix platform monitoring.' },
+  { id:'runtime_cost_cap', level:'m', condition:(a,s)=>a['runtime_cost']===2||a['runtime_cost']===3,
+    text:'Mendix cost model mismatch. Mendix costs are capacity-oriented (runtime resources, DB size, environments, HA, scaling headroom, licensing). Usage-dependent workloads pay for unused capacity during low-traffic periods.' },
+  { id:'aws_cost_risk', level:'m', condition:(a,s)=>a['runtime_cost']===2&&(a['integration']===2||a['integration']===3),
+    text:'AWS-native cost risk. AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than Mendix.' },
+  { id:'hybrid_cost_model', level:'m', condition:(a,s)=>s&&s.hy>s.lc&&s.hy>s.hc,
+    text:'Hybrid dual cost model. Mendix layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute, queues, events, logs, networking). Both models must be budgeted and governed separately.' },
+  { id:'out_of_domain', level:'h', condition:(a,s)=>a['strategic_domain']===2||a['strategic_domain']===3,
+    text:'Strategic domain mismatch. This application is outside the Mendix intended domain (service layer / platform / integration hub). Platform cost adds no value for this workload type.' },
+  { id:'hc_cost', level:'m', condition:(a,s)=>s&&s.hc>s.lc&&s.hc>s.hy,
+    text:'High-code engineering cost. Custom development has higher up-front cost and longer delivery time than Mendix for equivalent business-process applications. Validate build-vs-buy carefully.' },
+  { id:'no_licence', level:'h', condition:(a,s)=>a['budget']===2,
+    text:'No Mendix licence in place. Procurement adds lead time and budget dependency. Note: Mendix can still be the better TCO choice when fast delivery, business involvement, and process fit significantly reduce build and change costs.' },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// QUICK SCAN (5 questions)
+// ═══════════════════════════════════════════════════════════════════════════
+const QUICK_SCAN = [
+  { id:'qs_shape', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+    text:'What is the main shape of the solution?',
+    desc:'The primary workload pattern is the strongest single signal. Process apps suit Mendix; API/event systems suit high-code; mixed shapes often need a Hybrid with a clear boundary.',
+    options:[
+      { label:'Business workflow, case, approval, or process application', lc:3,hy:1,hc:0 },
+      { label:'Both business-facing screens and a technical backend', lc:1,hy:3,hc:1 },
+      { label:'API-first service, event processor, or integration layer', lc:0,hy:1,hc:3 },
+    ]},
+  { id:'qs_ui', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+    text:'How central is the UI or workflow to the solution\'s value?',
+    desc:'If the UI and workflow ARE the product, Mendix excels. If the value is in the backend runtime, high-code is likely needed.',
+    options:[
+      { label:'Central — the UI and workflow are the main value', lc:3,hy:1,hc:0 },
+      { label:'Useful — users need it to complete a business process', lc:2,hy:2,hc:0 },
+      { label:'Secondary — thin UI over technical logic', lc:0,hy:2,hc:2 },
+      { label:'None — no meaningful user-facing UI', lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Mendix adds cost without UX benefit. Hard constraint: High-Code.' },
+    ]},
+  { id:'qs_volume', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+    text:'What is the expected volume or peak load?',
+    desc:'Mendix is capacity-priced and does not scale elastically. Spiky or usage-dependent workloads suit cloud-native scaling.',
+    options:[
+      { label:'Low or steady — predictable within Mendix platform limits', lc:3,hy:1,hc:0 },
+      { label:'Some growth or variation expected', lc:2,hy:2,hc:1 },
+      { label:'High, spiky, or strongly usage-dependent load', lc:0,hy:1,hc:3 },
+    ]},
+  { id:'qs_integration', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+    text:'How complex are integrations, performance, or runtime behavior?',
+    desc:'REST and OData are native to Mendix. Event-driven flows, retries, strict latency, and deep observability shift toward high-code.',
+    options:[
+      { label:'Mostly standard integrations and normal app performance', lc:3,hy:1,hc:0 },
+      { label:'Some orchestration or performance considerations', lc:1,hy:3,hc:1 },
+      { label:'Many integrations, strict latency, retries, or observability needs', lc:0,hy:1,hc:3 },
+    ]},
+  { id:'qs_capability', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+    text:'Which engineering capability is realistically available?',
+    desc:'Platform fit matters less than team capability. A Mendix-heavy team will deliver faster on Mendix regardless of technical characteristics.',
+    options:[
+      { label:'Strong Mendix capability — certified developers available', lc:3,hy:1,hc:0 },
+      { label:'Mixed or unassigned — capability not yet confirmed', lc:1,hy:2,hc:1 },
+      { label:'Strong software engineering capability (Java, TypeScript, etc.)', lc:0,hy:1,hc:3 },
+    ]},
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FULL ASSESSMENT (26 questions across 4 dimensions + 3 new v4 questions)
+// Structured in 3 decision layers:
+//   Layer 1 = Hard constraints (baked into HARD_RULES, flagged on questions)
+//   Layer 2 = Weighted scoring
+//   Layer 3 = Hybrid feasibility check questions
+// ═══════════════════════════════════════════════════════════════════════════
+const FULL_CATS = [
+  { name:'🏗️ Application Characteristics', questions:[
+    { id:'domain', defaultWeight:2, layer:2,
+      text:'What is the primary nature of the application?',
+      desc:'Process-driven apps favour low-code. Compute-intensive, real-time, or deeply custom apps favour high-code.',
+      options:[
+        {label:'Business process management, CRUD, or internal tooling',lc:3,hy:1,hc:0},
+        {label:'Data-heavy application with complex domain logic',lc:1,hy:2,hc:2},
+        {label:'Real-time, event-driven, or high-throughput system',lc:0,hy:1,hc:3},
+        {label:'Customer-facing product with unique UX requirements',lc:0,hy:2,hc:3},
+      ]},
+    { id:'ui_complexity', defaultWeight:2, layer:1,
+      text:'How complex and unique is the UI/UX?',
+      desc:'Standard forms and dashboards are Mendix territory. Specialised or no-UI requirements are hard constraints.',
+      options:[
+        {label:'Standard forms, lists, and dashboards',lc:3,hy:0,hc:0},
+        {label:'Some custom widgets on top of standard patterns',lc:1,hy:3,hc:1},
+        {label:'No meaningful user-facing UI needed',lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Hard constraint: High-Code.'},
+        {label:'Specialised visualisation or fully custom interface',lc:0,hy:1,hc:3,knock:true,knockMsg:'Custom specialised UI → beyond Mendix capabilities. Hard constraint: High-Code.'},
+      ]},
+    { id:'business_logic', defaultWeight:2, layer:2,
+      text:'How complex is the core business logic?',
+      desc:'Workflow orchestration and approvals suit Mendix. Deep algorithms or ML inference suit high-code.',
+      options:[
+        {label:'Simple rules, approvals, and workflow steps',lc:3,hy:1,hc:0},
+        {label:'Moderate: multiple decision points and integrations',lc:2,hy:2,hc:1},
+        {label:'Complex: domain algorithms or heavy computation',lc:0,hy:1,hc:3},
+        {label:'AI/ML inference or real-time processing pipeline',lc:0,hy:2,hc:3},
+      ]},
+    { id:'uniqueness', defaultWeight:1, layer:2,
+      text:'How unique is the application vs. available market patterns?',
+      desc:'Mendix Marketplace modules cover many common patterns. Novel products need full code flexibility.',
+      options:[
+        {label:'Common pattern — Marketplace modules exist',lc:3,hy:0,hc:0},
+        {label:'Some unique features on top of standard patterns',lc:1,hy:3,hc:1},
+        {label:'Highly differentiated or first-of-its-kind',lc:0,hy:1,hc:3},
+      ]},
+    // NEW v4: Platform strategy alignment
+    { id:'strategic_domain', defaultWeight:2, layer:2, isNew:true,
+      text:'Is this application within the strategic Mendix application domain?',
+      desc:'Mendix is optimised for business apps and process automation. Service layers, platform components, and integration hubs are outside its intended domain.',
+      options:[
+        {label:'Yes — business app, process automation, or internal tooling',lc:3,hy:1,hc:0},
+        {label:'Partially — some business-facing screens but technical underpinning',lc:1,hy:3,hc:1},
+        {label:'No — this is a service layer, platform component, or integration hub',lc:0,hy:0,hc:3},
+      ]},
+  ]},
+  { name:'⚙️ Technical Constraints', questions:[
+    { id:'performance', defaultWeight:2, layer:1,
+      text:'How strict are performance and latency requirements?',
+      desc:'Mendix handles standard enterprise workloads. Critical SLAs or sub-second latency are hard constraints.',
+      options:[
+        {label:'Standard enterprise performance — no strict SLA',lc:3,hy:1,hc:0},
+        {label:'Some expectations, no hard latency target',lc:2,hy:2,hc:1},
+        {label:'Performance matters and must be explicitly designed',lc:0,hy:2,hc:2},
+        {label:'Performance or latency is critical to the solution',lc:0,hy:0,hc:3,knock:true,knockMsg:'Critical latency → beyond Mendix SLA capabilities. Hard constraint: High-Code.'},
+      ]},
+    { id:'elasticity', defaultWeight:2, layer:1, isNew:true,
+      text:'How variable is expected runtime demand?',
+      desc:'Mendix is capacity-priced and cannot scale to zero. Spiky or usage-dependent demand suits cloud-native elastic infrastructure.',
+      options:[
+        {label:'Steady and modest — predictable within platform capacity',lc:3,hy:1,hc:0},
+        {label:'Somewhat variable but manageable with standard scaling',lc:2,hy:2,hc:1},
+        {label:'May grow or vary materially — elasticity matters',lc:0,hy:2,hc:2},
+        {label:'High, spiky, or must scale to zero or burst dynamically',lc:0,hy:0,hc:3,knock:true,knockMsg:'Elastic scaling required → Mendix cannot scale to zero. Hard constraint: High-Code.'},
+      ]},
+    // NEW v4: Runtime cost dynamics (enriched with cost driver document)
+    { id:'runtime_cost', defaultWeight:2, layer:2, isNew:true,
+      text:'What is the dominant cost model for this workload?',
+      desc:'Mendix costs are capacity-oriented: runtime resources, database size, number of environments, HA/fallback, horizontal scaling headroom, and licensing. AWS costs are usage-based: compute duration, queue/event volume, database reads/writes, API calls, logs/metrics/traces, and data transfer. Hybrid lets each layer use the model that matches its workload shape.',
+      options:[
+        {label:'Capacity / platform model fits — steady load, predictable environments, fast delivery reduces build cost',lc:3,hy:1,hc:0},
+        {label:'Mixed — some parts capacity-based, some parts usage-driven',lc:1,hy:3,hc:1},
+        {label:'Usage-based model needed — spiky demand, pay-per-request, or cost must scale with actual usage',lc:0,hy:1,hc:3},
+      ]},
+    { id:'integration', defaultWeight:2, layer:2,
+      text:'How complex are the integration requirements?',
+      desc:'REST/OData are native. Deep binary protocols, event brokers, or middleware ownership shifts toward high-code.',
+      options:[
+        {label:'Few standard integrations — REST APIs or simple databases',lc:3,hy:0,hc:0},
+        {label:'Several integrations with orchestration or sequencing',lc:1,hy:3,hc:1},
+        {label:'Legacy systems, binary protocols, or event brokers',lc:0,hy:2,hc:3},
+        {label:'Custom integration layer or full middleware ownership required',lc:0,hy:1,hc:3},
+      ]},
+    { id:'observability', defaultWeight:1, layer:2, isNew:true,
+      text:'How deep does observability and testability need to be?',
+      desc:'Mendix provides platform-level monitoring. Custom SLOs, distributed tracing, and full test coverage require high-code.',
+      options:[
+        {label:'Standard platform monitoring is sufficient',lc:3,hy:1,hc:0},
+        {label:'Basic operational insight and some automated tests',lc:2,hy:2,hc:1},
+        {label:'Moderate observability and automated testing needed',lc:1,hy:2,hc:2},
+        {label:'Deep logs, metrics, traces, alerts, SLOs, and full test coverage',lc:0,hy:1,hc:3},
+      ]},
+    { id:'security', defaultWeight:2, layer:1,
+      text:'What are the security and compliance requirements?',
+      desc:'Mendix supports enterprise security. Custom cryptography or zero-trust is a hard constraint.',
+      options:[
+        {label:'Standard enterprise — SSO, RBAC, audit trail',lc:3,hy:1,hc:0},
+        {label:'Industry-regulated — ISO 27001, NEN 7510, GDPR-critical',lc:2,hy:2,hc:1},
+        {label:'Critical infrastructure or government-grade requirements',lc:0,hy:1,hc:3},
+        {label:'Custom cryptography or zero-trust architecture required',lc:0,hy:0,hc:3,knock:true,knockMsg:'Zero-trust/custom crypto → Mendix has no stack control. Hard constraint: High-Code.'},
+      ]},
+    { id:'cloud', defaultWeight:1, layer:2,
+      text:'What is the deployment and infrastructure model?',
+      desc:'Mendix Cloud and Kubernetes (MxOps) are well supported. On-premise or edge can constrain platform choice.',
+      options:[
+        {label:'Mendix Cloud or standard Kubernetes (MxOps)',lc:3,hy:1,hc:0},
+        {label:'Private cloud / AWS / Azure with Mendix container',lc:2,hy:2,hc:1},
+        {label:'On-premise with strict infrastructure restrictions',lc:1,hy:2,hc:2},
+        {label:'Edge, embedded, or IoT deployment',lc:0,hy:0,hc:3},
+      ]},
+  ]},
+  { name:'🧑‍💻 Team & Organisation', questions:[
+    { id:'team_skills', defaultWeight:2, layer:2,
+      text:'What is the dominant skill profile of the development team?',
+      desc:'Citizen developers accelerate in low-code. Senior engineers maximise value in high-code.',
+      options:[
+        {label:'Citizen developers or business analysts',lc:3,hy:0,hc:0},
+        {label:'Mix of functional and technical Mendix developers',lc:2,hy:2,hc:0},
+        {label:'Full-stack engineers with some Mendix exposure',lc:1,hy:3,hc:1},
+        {label:'Senior software engineers — Java, TypeScript, etc.',lc:0,hy:1,hc:3},
+      ]},
+    { id:'team_size', defaultWeight:1, layer:2,
+      text:'How large is the team that will build and maintain this?',
+      desc:'Small teams benefit most from low-code productivity. Large teams have capacity for high-code investment.',
+      options:[
+        {label:'1–3 people (including part-time)',lc:3,hy:1,hc:0},
+        {label:'4–8 people',lc:2,hy:2,hc:1},
+        {label:'9–20 people (dedicated team)',lc:1,hy:2,hc:2},
+        {label:'20+ people or distributed squads',lc:0,hy:1,hc:3},
+      ]},
+    // NEW v4: Team ownership split (Layer 3 — Hybrid gate)
+    { id:'team_ownership', defaultWeight:2, layer:3, isNew:true,
+      text:'Is team ownership clearly separated between UI/process and backend/integration?',
+      desc:'Hybrid requires a dedicated owner for each layer. Without clear split ownership, the boundary collapses over time and Hybrid becomes a liability.',
+      options:[
+        {label:'Fully clear — separate teams own UI/process and backend/integration',lc:1,hy:3,hc:1},
+        {label:'Partially defined — ownership is roughly understood but not formalised',lc:1,hy:1,hc:1},
+        {label:'Not defined — ownership is shared or unclear',lc:1,hy:0,hc:2},
+      ]},
+    { id:'time_to_market', defaultWeight:2, layer:2,
+      text:'What is the time-to-market pressure?',
+      desc:'Low-code compresses delivery timelines dramatically. High-code investment pays off over longer horizons.',
+      options:[
+        {label:'Very high — MVP needed within weeks',lc:3,hy:1,hc:0},
+        {label:'Moderate — 2–4 month delivery window',lc:2,hy:2,hc:1},
+        {label:'Flexible — 6+ months, control over speed',lc:1,hy:1,hc:3},
+      ]},
+    { id:'op_criticality', defaultWeight:2, layer:2, isNew:true,
+      text:'How operationally critical is this solution?',
+      desc:'Mission-critical systems require engineering-grade reliability. Mendix SLAs may not suffice for 24/7 operational systems.',
+      options:[
+        {label:'Supporting process — limited operational impact',lc:3,hy:1,hc:0},
+        {label:'Important internal application',lc:2,hy:2,hc:1},
+        {label:'Business-critical — outages have significant impact',lc:1,hy:2,hc:2},
+        {label:'Mission-critical or 24/7 operationally sensitive',lc:0,hy:1,hc:3},
+      ]},
+    { id:'maintainability', defaultWeight:1, layer:2,
+      text:'Who will own long-term maintenance?',
+      desc:'Low-code widens the maintenance pool. High-code maintenance requires dedicated engineers.',
+      options:[
+        {label:'Business team or citizen developers',lc:3,hy:0,hc:0},
+        {label:'Mixed functional + tech team',lc:2,hy:2,hc:0},
+        {label:'Dedicated engineering team long-term',lc:0,hy:2,hc:3},
+      ]},
+  ]},
+  { name:'📊 Business & Strategic', questions:[
+    { id:'lifespan', defaultWeight:1, layer:2,
+      text:'What is the expected application lifespan?',
+      desc:'Tactical apps benefit from low-code speed. Long-lived systems may justify engineering investment.',
+      options:[
+        {label:'Short-term / tactical — less than 2 years',lc:3,hy:1,hc:0},
+        {label:'Medium-term — 2–5 years',lc:2,hy:2,hc:1},
+        {label:'Long-term strategic platform — 5+ years',lc:1,hy:1,hc:2},
+      ]},
+    { id:'change_rate', defaultWeight:1, layer:2,
+      text:'What delivery and change pattern is expected?',
+      desc:'Frequent business-process changes favour Mendix\'s iteration speed. Long-term technical flexibility favours high-code.',
+      options:[
+        {label:'Frequent business-process changes — Mendix iteration speed is key',lc:3,hy:1,hc:0},
+        {label:'Fast initial delivery matters more than technical control',lc:2,hy:2,hc:1},
+        {label:'Speed and technical flexibility both matter equally',lc:1,hy:3,hc:1},
+        {label:'Long-term engineered control and flexibility are critical',lc:0,hy:1,hc:3},
+      ]},
+    // Layer 3 — Hybrid gate
+    { id:'arch_boundary', defaultWeight:2, layer:3, isNew:true,
+      text:'Is there a clear, defined, and owned architectural boundary between the UI/process layer and the backend/event layer?',
+      desc:'Hybrid only works with an explicit boundary — Mendix for process/UI, high-code for events/integrations/scale — that is actively governed. Without this, Hybrid becomes structural debt.',
+      options:[
+        {label:'No split needed — the whole solution is process/UI focused',lc:3,hy:0,hc:0},
+        {label:'Yes — boundary is defined, owned, and governed',lc:1,hy:3,hc:1},
+        {label:'Partially clear — boundary or ownership is not yet formalised',lc:0,hy:1,hc:1},
+        {label:'No — the solution is a technical backend or integration layer',lc:0,hy:0,hc:3},
+      ]},
+    { id:'reuse', defaultWeight:1, layer:2,
+      text:'How much reuse is expected across the portfolio?',
+      desc:'Portfolio-wide shared services make the architectural choice more consequential.',
+      options:[
+        {label:'Standalone — no reuse expected',lc:3,hy:1,hc:0},
+        {label:'Some shared services or UI components',lc:1,hy:3,hc:1},
+        {label:'Core platform or shared service across the portfolio',lc:0,hy:1,hc:3},
+      ]},
+    { id:'vendor', defaultWeight:2, layer:2,
+      text:'How important is avoiding vendor lock-in?',
+      desc:'Mendix creates platform dependency. If portability is critical, high-code offers more control.',
+      options:[
+        {label:'Not a concern — Mendix is the PostNL strategic platform',lc:3,hy:1,hc:0},
+        {label:'Acceptable for core, but avoid for the integration layer',lc:1,hy:3,hc:0},
+        {label:'Lock-in must be minimised — portability matters',lc:0,hy:1,hc:3},
+      ]},
+    { id:'budget', defaultWeight:1, layer:2,
+      text:'What is the development budget profile?',
+      desc:'Mendix licensing has up-front platform cost but reduces build and change cost when delivery speed, business involvement, and process fit are high. AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
+      options:[
+        {label:'Mendix licences in place — fast delivery and process fit reduce overall TCO',lc:3,hy:1,hc:0},
+        {label:'Open budget — optimise for total cost of ownership across both models',lc:1,hy:2,hc:2},
+        {label:'No Mendix licence — high-code stack preferred on cost grounds',lc:0,hy:1,hc:3},
+      ]},
+  ]},
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+let mode='quick', answers={}, currentIdx=0, lastMd='', allQ=[];
+
+// ─ STORAGE KEYS ─
+const LS_QS   = 'pnl_qs_state';
+const LS_FULL = 'pnl_full_state';
+const LS_MODE = 'pnl_active_mode';
+
+function lsKey(){ return mode==='quick' ? LS_QS : LS_FULL; }
+
+// Save current session (answers + weights + meta) to localStorage
+function saveState(){
+  try{
+    const weights={};
+    allQ.forEach(q=>{ if(q.weight!==q.defaultWeight) weights[q.id]=q.weight; });
+    const state={
+      answers,
+      weights,
+      currentIdx,
+      project: document.getElementById('metaProject').value,
+      author:  document.getElementById('metaAuthor').value,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(lsKey(), JSON.stringify(state));
+    localStorage.setItem(LS_MODE, mode);
+    updateSavedBadge();
+  } catch(e){}
+}
+
+// Load saved state for the current mode into allQ + answers + meta
+function loadState(){
+  try{
+    const raw = localStorage.getItem(lsKey());
+    if(!raw) return false;
+    const s = JSON.parse(raw);
+    answers   = s.answers   || {};
+    currentIdx= s.currentIdx||0;
+    // Apply saved weights on top of defaults
+    if(s.weights){
+      Object.entries(s.weights).forEach(([id,w])=>{
+        const q=allQ.find(x=>x.id===id);
+        if(q) q.weight=w;
+      });
+    }
+    // Restore meta inputs
+    if(s.project) document.getElementById('metaProject').value=s.project;
+    if(s.author)  document.getElementById('metaAuthor').value=s.author;
+    return true;
+  } catch(e){ return false; }
+}
+
+// Delete saved state for a specific mode key
+function clearState(key){
+  try{ localStorage.removeItem(key); updateSavedBadge(); } catch(e){}
+}
+
+// Show "saved" timestamp badge in the sidebar
+function updateSavedBadge(){
+  const el=document.getElementById('savedBadge');
+  if(!el) return;
+  const raw=localStorage.getItem(lsKey());
+  if(!raw){ el.textContent=''; el.style.display='none'; return; }
+  try{
+    const s=JSON.parse(raw);
+    const d=new Date(s.savedAt);
+    const ans=Object.keys(s.answers||{}).length;
+    el.textContent=`${ans} answers · saved ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+    el.style.display='block';
+  } catch(e){ el.style.display='none'; }
+}
+
+function initAllQ(){
+  allQ = mode==='quick'
+    ? QUICK_SCAN.map(q=>({...q,weight:q.defaultWeight}))
+    : FULL_CATS.flatMap(cat=>cat.questions.map(q=>({...q,catName:cat.name,weight:q.defaultWeight})));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODE — switch loads the saved state for that mode (both coexist)
+// ═══════════════════════════════════════════════════════════════════════════
+function setMode(m){
+  mode=m;
+  document.getElementById('modeQuick').classList.toggle('active',m==='quick');
+  document.getElementById('modeFull').classList.toggle('active',m==='full');
+  answers={}; currentIdx=0;
+  initAllQ();
+  const hadSaved = loadState();          // restore this mode's session
+  buildDotMap(); buildWD();
+  if(hadSaved && currentIdx>=allQ.length){ showFinish(); }
+  else{ showWizard(); renderStep(Math.min(currentIdx,allQ.length-1)); }
+  updateScores();
+  updateSavedBadge();
+  try{ localStorage.setItem(LS_MODE,m); } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DOT MAP
+// ═══════════════════════════════════════════════════════════════════════════
+function buildDotMap(){
+  const map=document.getElementById('dotMap'); map.innerHTML=''; let lastCat=null;
+  allQ.forEach((q,i)=>{
+    if(mode==='full'&&q.catName!==lastCat&&i>0){const s=document.createElement('div');s.className='dot-sep';map.appendChild(s);}
+    lastCat=q.catName;
+    const d=document.createElement('div');
+    d.className='dmi'+(q.quickScan?' qs':'');
+    d.title=q.text.slice(0,55); d.onclick=()=>goTo(i); d.id='dmi-'+i;
+    map.appendChild(d);
+  });
+}
+function refreshDotMap(){
+  allQ.forEach((q,i)=>{
+    const d=document.getElementById('dmi-'+i); if(!d)return;
+    d.className='dmi'+(q.quickScan?' qs':'')+(answers[q.id]!==undefined?' answered':'')+(i===currentIdx?' current':'');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+function goTo(idx){if(idx<0)return;if(idx>=allQ.length){showFinish();return;}currentIdx=idx;showWizard();renderStep(idx);saveState();}
+function navigate(d){goTo(currentIdx+d);}
+function showWizard(){document.getElementById('wizardBody').style.display='flex';document.getElementById('finishScreen').classList.remove('active');document.getElementById('wizardNav').style.display='flex';}
+
+function showFinish(){
+  document.getElementById('wizardBody').style.display='none';
+  document.getElementById('finishScreen').classList.add('active');
+  document.getElementById('wizardNav').style.display='none';
+  currentIdx=allQ.length; refreshDotMap(); updateScores();
+  const {lc,hy,hc}=computeScores();
+  const ev=evaluateRules(answers,{lc,hy,hc});
+  const sorted=[{n:'Mendix Low-Code',v:lc,k:'lc'},{n:'Hybrid',v:hy,k:'hy'},{n:'High-Code',v:hc,k:'hc'}].sort((a,b)=>b.v-a.v);
+  const tiedFs=!ev?sorted.filter(s=>s.v===sorted[0].v):[];
+  const isTieFs=tiedFs.length>1;
+  const winner=ev&&(ev.level==='ko'||ev.level==='block')?{n:ev.verdict,k:ev.forceKey||sorted[1].k}:sorted[0];
+  document.getElementById('finishIcon').textContent=ev&&(ev.level==='ko'||ev.level==='block')?'🚫':ev&&ev.level==='warn'?'⚠':isTieFs?'≈':'✓';
+  document.getElementById('finishTitle').textContent=mode==='quick'?'Quick Scan Complete':'Full Assessment Complete';
+  if(mode==='quick'){
+    document.getElementById('finishSub').textContent='Early orientation only. Run the full assessment for a traceable, defensible decision.';
+    const why={lc:'Most answers point to a business-process workload where UI, workflow, and speed dominate.',hy:'Answers split between process and technical backend — a clear boundary is the likely shape.',hc:'Most answers point to a technical, API-driven, or high-scale workload.'};
+    const val={lc:'Validate volume, integration complexity, and operational risk first.',hy:'Define the architecture boundary, ownership split, and observability strategy before delivery.',hc:'Validate team capability and build-vs-buy decision.'};
+    const clrs={lc:'var(--lc)',hy:'var(--hy)',hc:'var(--hc)',undefined:'var(--muted)'};
+    document.getElementById('qsResultBox').innerHTML=`<div class="qs-result-box">
+      <div class="qs-result-verdict" style="color:${isTieFs?'var(--muted)':clrs[winner.k]}">${isTieFs?tiedFs.map(s=>s.n).join(' & ')+' (Tie)':winner.n}${!isTieFs&&ev&&ev.level==='ko'?' (Hard Constraint)':''}</div>
+      <div class="qs-result-why"><strong>Why:</strong> ${isTieFs?'Scores are equal. Apply project context and team judgement to decide.':ev&&ev.level==='ko'?ev.body:why[winner.k]}</div>
+      <div class="qs-result-val"><strong>Validate:</strong> ${isTieFs?'Run the full assessment for a more differentiated result.':val[winner.k]}</div></div>`;
+    document.getElementById('finishActions').innerHTML=`
+      <button class="finish-btn finish-btn-primary" onclick="setMode('full')">Continue to full assessment →</button>
+      <button class="finish-btn finish-btn-ghost" onclick="openExport()">↓ Export quick scan</button>
+      <button class="finish-btn finish-btn-ghost" onclick="goTo(0)">← Review answers</button>
+      <button class="finish-btn finish-btn-ghost" onclick="resetAll()">↺ Reset this scan</button>`;
+  } else {
+    document.getElementById('finishSub').textContent='Recommendation reflects weighted scoring, hard constraints, and Hybrid feasibility gate.';
+    document.getElementById('qsResultBox').innerHTML='';
+    document.getElementById('finishActions').innerHTML=`
+      <button class="finish-btn finish-btn-primary" onclick="openExport()">↓ Export decision report</button>
+      <button class="finish-btn finish-btn-ghost" onclick="goTo(0)">← Review answers</button>
+      <button class="finish-btn finish-btn-ghost" onclick="resetAll()">↺ Reset this scan</button>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER STEP
+// ═══════════════════════════════════════════════════════════════════════════
+function renderStep(idx){
+  const q=allQ[idx]; const TOTAL=allQ.length;
+  const layerTag = q.layer===1?'<span class="layer-label layer-1">Layer 1 · Hard Constraint</span>'
+    :q.layer===3?'<span class="layer-label layer-3">Layer 3 · Hybrid Gate</span>':'';
+  document.getElementById('wizCat').innerHTML=q.catName
+    +(q.quickScan?` <span class="tag tag-qs">Quick Scan</span>`:'')
+    +(q.isNew?` <span class="tag tag-new">New v4</span>`:'')
+    +(layerTag&&!q.quickScan?` ${layerTag}`:'');
+  const ac=Object.keys(answers).length;
+  document.getElementById('wizFill').style.width=(ac/TOTAL*100)+'%';
+  document.getElementById('wizStepLabel').textContent=`${idx+1} / ${TOTAL}`;
+  refreshDotMap();
+  document.getElementById('btnPrev').disabled=idx===0;
+  document.getElementById('btnNext').textContent=idx===TOTAL-1?'Finish ✓':'Next →';
+  const card=document.getElementById('questionCard');
+  card.style.animation='none'; card.offsetHeight; card.style.animation='';
+  const w=q.weight??q.defaultWeight; const wl=w===1?'Standard':w===2?'Important':'Critical';
+  const badges=[
+    `<span class="weight-badge w${w}" onclick="openWeightDrawer()">×${w} ${wl}</span>`,
+    q.quickScan?'<span class="tag tag-qs">Quick Scan</span>':'',
+    q.isNew?'<span class="tag tag-new">New v4</span>':'',
+    q.layer===1&&!q.quickScan?'<span class="layer-label layer-1">Hard Constraint question</span>':'',
+    q.layer===3&&!q.quickScan?'<span class="layer-label layer-3">Hybrid Gate question</span>':'',
+  ].filter(Boolean).join('');
+  card.innerHTML=`
+    <div class="q-meta"><span>Q${idx+1}/${TOTAL}</span>${badges}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="q-desc">${q.desc}</div>
+    <div class="options">${q.options.map((opt,i)=>`
+      <button class="option-btn${answers[q.id]===i?' selected':''}${opt.knock?' knock':''}"
+        onclick="sel('${q.id}',${i})">
+        <div class="opt-dot"></div><span>${opt.label}</span>
+        ${opt.knock?'<span class="knock-tag">Hard Constraint</span>':''}
+      </button>`).join('')}
+    </div>`;
+  if(answers[q.id]!==undefined){
+    card.querySelectorAll('.option-btn').forEach((b,i)=>{
+      const on=i===answers[q.id]; b.classList.toggle('selected',on);
+      const d=b.querySelector('.opt-dot'); const ik=q.options[i]?.knock;
+      d.style.background=on?(ik?'var(--danger)':'var(--orange)'):'';
+      d.style.borderColor=on?(ik?'var(--danger)':'var(--orange)'):'';
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SELECT + ADVANCE
+// ═══════════════════════════════════════════════════════════════════════════
+function sel(qid,optIdx){
+  answers[qid]=optIdx; updateScores(); saveState();
+  document.querySelectorAll('#questionCard .option-btn').forEach((b,i)=>{
+    const on=i===optIdx; b.classList.toggle('selected',on);
+    const d=b.querySelector('.opt-dot'); const ik=allQ[currentIdx]?.options[i]?.knock;
+    d.style.background=on?(ik?'var(--danger)':'var(--orange)'):'';
+    d.style.borderColor=on?(ik?'var(--danger)':'var(--orange)'):'';
+  });
+  setTimeout(()=>navigate(1),360);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RULE EVALUATOR (Layer 1 + Layer 3)
+// ═══════════════════════════════════════════════════════════════════════════
+function evaluateRules(a,scores){
+  for(const r of HARD_RULES){
+    try{if(r.condition(a,scores))return r;}catch(e){}
+  }
+  return null;
+}
+
+// Hybrid score penalty: reduce HY by 30% if readiness < 40%
+function penaliseHybrid(lc,hy,hc){
+  const hr=computeHR();
+  if(hr===null) return {lc,hy,hc};
+  if(hr<40){
+    const penalty=Math.round(hy*0.30);
+    return {lc,hy:Math.max(0,hy-penalty),hc,penalised:true,penalty};
+  }
+  return {lc,hy,hc};
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HYBRID READINESS SCORE
+// ═══════════════════════════════════════════════════════════════════════════
+function computeHR(){
+  const checks=[
+    {id:'arch_boundary',goodIdx:1,w:35},
+    {id:'team_ownership',goodIdx:0,w:30},
+    {id:'op_criticality',badIdx:[2,3],w:20},
+    {id:'observability',goodIdx:[0,1],w:15},
+  ];
+  let score=0,max=0;
+  checks.forEach(c=>{
+    max+=c.w; const a=answers[c.id]; if(a===undefined)return;
+    if(c.goodIdx!==undefined){
+      const g=Array.isArray(c.goodIdx)?c.goodIdx.includes(a):a===c.goodIdx;
+      score+=g?c.w:c.w*0.3;
+    }
+    if(c.badIdx!==undefined&&!c.goodIdx){
+      const b=Array.isArray(c.badIdx)?c.badIdx.includes(a):a===c.badIdx;
+      score+=b?0:c.w;
+    }
+  });
+  return max>0?Math.round(score/max*100):null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCORES + UPDATE
+// ═══════════════════════════════════════════════════════════════════════════
+function computeScores(){
+  let lc=0,hy=0,hc=0,answered=0;
+  allQ.forEach(q=>{
+    if(answers[q.id]===undefined)return;
+    const o=q.options[answers[q.id]];
+    answered++;
+    const w=q.weight??q.defaultWeight;
+    lc+=o.lc*w; hy+=o.hy*w; hc+=o.hc*w;
+  });
+  return{lc,hy,hc,answered,total:allQ.length};
+}
+
+function updateScores(){
+  const raw=computeScores();
+  const {lc:rlc,hy:rhy,hc:rhc,answered,total}=raw;
+  // Apply Hybrid penalty if applicable
+  const pen=mode==='full'?penaliseHybrid(rlc,rhy,rhc):{lc:rlc,hy:rhy,hc:rhc};
+  const {lc,hy,hc}=pen;
+
+  const mx=Math.max(lc,hy,hc,1);
+  document.getElementById('lcBar').style.width=(lc/mx*100)+'%';
+  document.getElementById('hyBar').style.width=(hy/mx*100)+'%';
+  document.getElementById('hcBar').style.width=(hc/mx*100)+'%';
+  document.getElementById('lcVal').textContent=lc;
+  document.getElementById('hyVal').textContent=hy+(pen.penalised?'*':'');
+  document.getElementById('hcVal').textContent=hc;
+
+  const exportBtn=document.getElementById('exportBtn');
+  if(answered<3){
+    setRec('','—','Answer the criteria to receive a recommendation.','');
+    setConf(null); hideViab();
+    document.getElementById('archPattern').classList.remove('show');
+    document.getElementById('risksCard').classList.remove('show');
+    document.getElementById('signalsCard').classList.remove('show');
+    exportBtn.disabled=true; updateConBanner(null); return;
+  }
+
+  const ev=evaluateRules(answers,{lc,hy,hc});
+  updateConBanner(ev);
+
+  const sorted=[{name:'Mendix Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
+  let winner=sorted[0]; let recCls='rec-'+winner.key; let viability='valid';
+
+  if(ev){
+    if(ev.level==='ko'){winner={name:ev.verdict,val:0,key:ev.forceKey};recCls='rec-ko';viability='not';}
+    else if(ev.level==='block'){
+      // Hybrid blocked → fall to second best
+      const fb=sorted.find(s=>s.key!=='hy')||sorted[0];
+      winner={name:ev.verdict+' → '+fb.name,val:fb.val,key:fb.key};
+      recCls='rec-blocked'; viability='not';
+    }
+    else if(ev.level==='warn'){recCls='rec-warn-hy';viability='cond';}
+  }
+  if(pen.penalised&&winner.key==='hy'){viability='cond';}
+
+  const gap=sorted[0].val-sorted[1].val;
+  const minC=mode==='quick'?3:10;
+  const conf=answered>=minC?(gap>8?'High':gap>3?'Medium':'Low'):'Low';
+
+  const reasons={
+    lc:'Delivery speed, team fit, and process-driven logic align with Mendix low-code.',
+    hy:'Build core workflows in Mendix; extend with high-code for integrations, performance, and events. Requires clear boundary and split ownership.',
+    hc:'Technical demands, team profile, or strategic constraints point toward custom engineering.',
+  };
+  const validations={
+    lc:answered>=minC?'Validate volume, integration complexity, and operational risk before committing.':'',
+    hy:answered>=minC?'Define and formalise the architectural boundary, ownership split, and end-to-end observability plan.':'',
+    hc:answered>=minC?'Validate team capability, build-vs-buy decision, and Mendix module applicability for non-core parts.':'',
+  };
+
+  let rv=winner.name,rr='',rv2='';
+  if(ev&&ev.level==='ko'){rr=ev.body;}
+  else if(ev&&ev.level==='block'){rr=ev.body;}
+  else if(ev&&ev.level==='warn'){rr=ev.body+' '+reasons[winner.key];}
+  else{rr=reasons[winner.key];}
+  if(!ev||ev.level==='warn') rv2=validations[winner.key]||'';
+  if(pen.penalised&&!ev) rv2=(rv2?rv2+' ':'')+'Note: Hybrid score reduced by '+pen.penalty+' points due to low readiness signals.';
+
+  const tied=sorted.filter(s=>s.val===sorted[0].val);
+  const isTie=!ev&&tied.length>1;
+  if(isTie){
+    rv=tied.map(s=>s.name).join(' & ')+' (Tie)';
+    rr='Scores are equal across platforms. No single platform is preferred — apply project context and team judgement to decide.';
+    rv2='';
+    recCls='rec-tie';
+  }
+
+  setRec(recCls,rv,rr,rv2);
+  setConf(conf,answered,total);
+  showViab(viability);
+  exportBtn.disabled=false;
+
+  // Architecture pattern (Hybrid)
+  const hybridWins=!isTie&&(winner.key==='hy'||(sorted[0].key==='hy'&&!ev));
+  document.getElementById('archPattern').classList.toggle('show', hybridWins&&mode==='full');
+  if(hybridWins&&mode==='full'){
+    const hr=computeHR();
+    if(hr!==null){
+      document.getElementById('hrFill').style.width=hr+'%';
+      document.getElementById('hrVal').textContent=hr+'%';
+      document.getElementById('hrNote').textContent=hr<40?'⚠ Low readiness — define boundary and ownership before proceeding.':hr<70?'Moderate readiness — formalise ownership and observability plan.':'✓ Good readiness — boundary and ownership signals are positive.';
+    }
+  }
+
+  // Risks
+  const risks=RISK_RULES.filter(r=>{try{return r.condition(answers,{lc,hy,hc});}catch(e){return false;}});
+  const rc=document.getElementById('risksCard'); rc.classList.toggle('show',risks.length>0);
+  document.getElementById('risksList').innerHTML=risks.map(r=>`<div class="risk-item r-${r.level}"><div class="rdot"></div><span>${r.text}</span></div>`).join('');
+
+  // Signals
+  const sc=document.getElementById('signalsCard'); sc.classList.add('show');
+  const sigs=[];
+  allQ.forEach(q=>{
+    if(answers[q.id]===undefined)return;
+    const o=q.options[answers[q.id]];
+    const dom=Math.max(o.lc,o.hy,o.hc);
+    let flag='';
+    if(o.lc===dom&&o.lc>0)flag='<span class="flag fl">LC</span>';
+    else if(o.hy===dom&&o.hy>0)flag='<span class="flag fh">HY</span>';
+    else if(o.hc===dom&&o.hc>0)flag='<span class="flag fc">HC</span>';
+    if(flag)sigs.push({label:q.text.length>42?q.text.slice(0,42)+'…':q.text,flag});
+  });
+  document.getElementById('breakdownList').innerHTML=sigs.map(s=>`<div class="ci"><span>${s.label}</span>${s.flag}</div>`).join('');
+}
+
+function setRec(cls,v,r,val){
+  document.getElementById('recBox').className='rec-box '+cls;
+  document.getElementById('recVerdict').textContent=v;
+  document.getElementById('recReason').textContent=r;
+  const ve=document.getElementById('recVal'); ve.textContent=val||''; ve.classList.toggle('show',!!val);
+}
+function setConf(level,answered,total){
+  const b=document.getElementById('confBadge');
+  if(!level){b.textContent='—';b.className='conf-val cv-low';return;}
+  b.textContent=`${level} (${answered}/${total})`;
+  b.className='conf-val '+{High:'cv-high',Medium:'cv-med',Low:'cv-low'}[level];
+}
+function showViab(v){
+  const b=document.getElementById('viabBadge');
+  b.style.display='block';
+  const map={valid:['VALID','vv-valid'],cond:['VALID WITH CONDITIONS','vv-cond'],not:['NOT RECOMMENDED','vv-not']};
+  b.textContent=map[v][0]; b.className='viab-val '+map[v][1];
+}
+function hideViab(){document.getElementById('viabBadge').style.display='none';}
+function updateConBanner(ev){
+  const b=document.getElementById('conBanner');
+  if(!ev){b.classList.remove('visible','warn-level','block-level');return;}
+  b.classList.add('visible');
+  b.classList.toggle('warn-level',ev.level==='warn');
+  b.classList.toggle('block-level',ev.level==='block'||ev.level==='ko');
+  document.getElementById('conIcon').textContent=ev.level==='ko'||ev.level==='block'?'🚫':'⚠️';
+  document.getElementById('conTitle').textContent=ev.level==='ko'?'Hard Constraint Triggered':ev.level==='block'?'Hybrid Feasibility Gate: Blocked':'Hybrid Risk Warning';
+  document.getElementById('conBody').textContent=ev.body;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WEIGHT DRAWER
+// ═══════════════════════════════════════════════════════════════════════════
+function buildWD(){
+  const body=document.getElementById('drawerBody'); body.innerHTML='';
+  if(mode==='quick'){body.innerHTML='<p style="color:var(--muted);font-size:13px;padding:8px 0">Quick Scan uses fixed weights. Switch to Full Assessment to customise.</p>';return;}
+  FULL_CATS.forEach(cat=>{
+    const sec=document.createElement('div'); sec.className='wcat';
+    const lbl=document.createElement('div'); lbl.className='wcat-lbl'; lbl.textContent=cat.name;
+    sec.appendChild(lbl);
+    cat.questions.forEach(q=>{
+      const qi=allQ.findIndex(x=>x.id===q.id); if(qi===-1)return;
+      const wn=allQ[qi].weight;
+      const row=document.createElement('div'); row.className='wrow'; row.id='wr-'+q.id;
+      row.innerHTML=`
+        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':q.layer===3?' · L3 hybrid gate':''}</span></div>
+        <div class="wsg">
+          <div class="wpips" id="pip-${q.id}">${[1,2,3].map(n=>`<div class="wpip${wn>=n?' on':''}"></div>`).join('')}</div>
+          <button class="w-btn" id="wdec-${q.id}" onclick="cw('${q.id}',-1)" ${wn<=1?'disabled':''}>−</button>
+          <div class="wv v${wn}" id="wval-${q.id}">${wn}</div>
+          <button class="w-btn" id="winc-${q.id}" onclick="cw('${q.id}',+1)" ${wn>=3?'disabled':''}>+</button>
+        </div>`;
+      sec.appendChild(row);
+    });
+    body.appendChild(sec);
+  });
+}
+function cw(qid,d){
+  const qi=allQ.findIndex(q=>q.id===qid); const nw=Math.max(1,Math.min(3,allQ[qi].weight+d));
+  allQ[qi].weight=nw;
+  document.getElementById('wval-'+qid).textContent=nw; document.getElementById('wval-'+qid).className='wv v'+nw;
+  document.getElementById('wdec-'+qid).disabled=nw<=1; document.getElementById('winc-'+qid).disabled=nw>=3;
+  document.querySelectorAll(`#pip-${qid} .wpip`).forEach((p,i)=>p.classList.toggle('on',i<nw));
+  const row=document.getElementById('wr-'+qid); if(row)row.style.borderColor=nw!==allQ[qi].defaultWeight?'var(--orange)':'';
+  document.getElementById('wcb').classList.toggle('v',allQ.some(q=>q.weight!==q.defaultWeight));
+  updateScores(); saveState();
+}
+function resetWeights(){allQ.forEach(q=>{q.weight=q.defaultWeight;});buildWD();document.getElementById('wcb').classList.remove('v');updateScores();saveState();}
+function openWeightDrawer(){document.getElementById('drawerOverlay').classList.add('open');document.getElementById('weightDrawer').classList.add('open');}
+function closeWD(){document.getElementById('drawerOverlay').classList.remove('open');document.getElementById('weightDrawer').classList.remove('open');}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORT — ADR Markdown
+// ═══════════════════════════════════════════════════════════════════════════
+function buildMd(){
+  const raw=computeScores();
+  const pen=mode==='full'?penaliseHybrid(raw.lc,raw.hy,raw.hc):{lc:raw.lc,hy:raw.hy,hc:raw.hc};
+  const {lc,hy,hc,answered,total}=Object.assign({},raw,pen);
+  const project=document.getElementById('metaProject').value.trim()||'Unnamed Project';
+  const author=document.getElementById('metaAuthor').value.trim()||'Not specified';
+  const date=new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'});
+  const wMod=mode==='full'&&allQ.some(q=>q.weight!==q.defaultWeight);
+  const ev=evaluateRules(answers,{lc,hy,hc});
+  const sorted=[{name:'Mendix Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
+  let winner=sorted[0];
+  if(ev&&ev.level==='ko')winner={name:ev.verdict,key:ev.forceKey};
+  else if(ev&&ev.level==='block')winner={name:sorted.find(s=>s.key!=='hy')?.name||sorted[1].name,key:sorted.find(s=>s.key!=='hy')?.key||sorted[1].key};
+  const tiedMd=!ev?sorted.filter(s=>s.val===sorted[0].val):[];
+  const isTieMd=tiedMd.length>1;
+  const gap=sorted[0].val-sorted[1].val;
+  const minC=mode==='quick'?3:10;
+  const conf=answered>=minC?(gap>8?'High':gap>3?'Medium':'Low'):'Low';
+  const viab=ev&&(ev.level==='ko'||ev.level==='block')?'NOT RECOMMENDED':ev&&ev.level==='warn'||pen.penalised?'VALID WITH CONDITIONS':'VALID';
+  const hr=computeHR();
+  const verdicts={lc:'🔵 Mendix Low-Code',hy:'🟣 Hybrid',hc:'🟢 High-Code'};
+  const rationale={
+    lc:'The application profile — delivery speed, team fit, and process-driven logic — aligns with the Mendix low-code paradigm.',
+    hy:'Build core workflows in Mendix; extend with high-code for integrations, performance, and events. Requires defined boundary, split ownership, and end-to-end observability.',
+    hc:"Technical demands, team profile, or strategic constraints require a custom engineering approach.",
+  };
+  const tradeoffs={
+    lc:'Trades engineering flexibility for faster delivery, lower skill requirements, and platform-managed operations. **Cost model:** capacity-oriented — runtime resources, DB size, number of environments, HA/fallback, and horizontal scaling headroom. Fast delivery and business involvement reduce build and change cost, which can make Mendix the better total-cost choice even with licensing overhead.',
+    hy:'Trades operational simplicity for best-of-breed fit. **Cost model:** dual — Mendix layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute duration, queue/event volume, logs, metrics, traces, data transfer). Each layer uses the model that matches its workload shape, but both must be budgeted and governed separately.',
+    hc:'Trades time-to-market for full technical control, runtime flexibility, and portability. **Cost model:** usage-based — you pay across compute, queues, event routing, databases, storage, observability, networking, and security services. Note: AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
+  };
+  const risks=RISK_RULES.filter(r=>{try{return r.condition(answers,{lc,hy,hc});}catch(e){return false;}});
+  const assumptions=[];
+  if(answers['elasticity']!==undefined&&answers['elasticity']<=1)assumptions.push('Traffic volume remains steady and within Mendix platform capacity.');
+  if(answers['team_skills']!==undefined&&answers['team_skills']<=1)assumptions.push('Mendix-certified developers remain available for the project duration.');
+  if(answers['arch_boundary']===1)assumptions.push('The defined architectural boundary between Mendix (process/UI) and high-code (backend/events) is actively governed throughout delivery.');
+  if(answers['team_ownership']===0)assumptions.push('Separate team ownership for UI/process and backend/integration layers is maintained.');
+  if(answers['op_criticality']!==undefined&&answers['op_criticality']<=1)assumptions.push('Standard Mendix SLAs are acceptable for this solution\'s operational criticality.');
+  if(assumptions.length===0)assumptions.push('No specific assumptions recorded — review relevant criteria before finalising.');
+
+  let md='# Platform Decision Report\n\n';
+  md+=`> **PostNL Engineering Governance** — Platform Decision Model v4\n\n---\n\n`;
+  md+=`## Report Metadata\n\n| Field | Value |\n|---|---|\n`;
+  md+=`| Title | Platform decision for ${project} |\n`;
+  md+=`| Status | Proposed |\n`;
+  md+=`| Assessed by | ${author} |\n`;
+  md+=`| Date | ${date} |\n`;
+  md+=`| Mode | ${mode==='quick'?'Quick Scan (5Q)':'Full Assessment (26Q)'} |\n`;
+  md+=`| Criteria answered | ${answered} / ${total} |\n`;
+  md+=`| Confidence | **${conf}** |\n`;
+  md+=`| Viability | **${viab}** |\n`;
+  if(ev)md+=`| Constraint / Gate | ⚠ ${ev.level.toUpperCase()}: ${ev.id} |\n`;
+  if(pen.penalised)md+=`| Hybrid penalty applied | Yes — reduced by ${pen.penalty} pts (readiness < 40%) |\n`;
+  if(mode==='full')md+=`| Custom weights | ${wMod?'Yes — see below':'No — all defaults'} |\n`;
+  md+=`\n---\n\n`;
+  md+=`## Decision\n\n**${ev&&ev.level==='ko'?ev.verdict:isTieMd?tiedMd.map(s=>verdicts[s.key]).join(' & ')+' (Tie)':verdicts[winner.key]||winner.name}**\n\n`;
+  if(ev&&(ev.level==='ko'||ev.level==='block')){
+    md+=`> 🚫 **${ev.level==='ko'?'Hard Constraint Override':'Hybrid Feasibility Gate Blocked'}:** ${ev.body}\n\n`;
+    if(ev.level==='ko')md+=`> Score-based result (before override): ${verdicts[sorted[0].key]} (LC ${raw.lc} / HY ${raw.hy} / HC ${raw.hc})\n\n`;
+    if(ev.level==='block')md+=`> Falling back to: **${verdicts[winner.key]||winner.name}** (${winner.key==='lc'?'LC':'HC'} ${winner.key==='lc'?lc:hc} pts)\n\n`;
+  } else if(isTieMd){
+    md+=`> ≈ **Tie — no single platform preferred.** Scores are equal across platforms. Apply project context and team judgement to decide.\n\n`;
+    md+=`${tiedMd.map(s=>rationale[s.key]).join('\n\n')}\n\n`;
+  } else {
+    if(ev&&ev.level==='warn')md+=`> ⚠ **Warning:** ${ev.body}\n\n`;
+    md+=`${rationale[winner.key]||''}\n\n`;
+  }
+  if(!isTieMd)md+=`> **Validation required:** ${winner.key==='lc'?'Validate volume, integration complexity, and operational risk first.':winner.key==='hy'?'Define and formalise the architectural boundary, ownership split, and observability plan.':'Validate team capability and build-vs-buy decision.'}\n\n`;
+
+  if(!isTieMd&&(winner.key==='hy'||ev?.level==='warn')){
+    md+=`## Architecture Pattern (Hybrid)\n\n`;
+    md+=`| Layer | Platform | Responsibility |\n|---|---|---|\n`;
+    md+=`| Process & UI | 🔵 Mendix | Workflow, approvals, forms, dashboards, user interaction |\n`;
+    md+=`| Backend & Events | 🟢 High-Code | Integrations, event processing, scale, custom logic |\n\n`;
+    if(hr!==null)md+=`> **Hybrid Readiness Score:** ${hr}% — ${hr<40?'Low. Define boundary and ownership before proceeding.':hr<70?'Moderate. Formalise ownership and observability plan.':'Good. Boundary and ownership signals are positive.'}\n\n`;
+  }
+
+  md+=`## Score Summary\n\n| Platform | Raw Score | Final Score | Result |\n|---|---|---|---|\n`;
+  md+=`| 🔵 Mendix Low-Code | ${raw.lc} | ${lc} | ${isTieMd?tiedMd.some(s=>s.key==='lc')?'≈ Tied':'':winner.key==='lc'?'✅ Selected':''} |\n`;
+  md+=`| 🟣 Hybrid | ${raw.hy} | ${hy}${pen.penalised?'*':''} | ${isTieMd?tiedMd.some(s=>s.key==='hy')?'≈ Tied':'':winner.key==='hy'?'✅ Selected':''} |\n`;
+  md+=`| 🟢 High-Code | ${raw.hc} | ${hc} | ${isTieMd?tiedMd.some(s=>s.key==='hc')?'≈ Tied':'':winner.key==='hc'?'✅ Selected':''} |\n\n`;
+  if(pen.penalised)md+=`_* Hybrid score reduced by ${pen.penalty} pts due to Hybrid readiness < 40%._\n\n`;
+  md+=`## Viability: ${viab}\n\n`;
+
+  md+=`## Risks\n\n`;
+  if(risks.length===0)md+=`No significant risks identified.\n\n`;
+  else{md+=`| Severity | Risk |\n|---|---|\n`;risks.forEach(r=>{md+=`| ${r.level==='h'?'🔴 High':r.level==='m'?'🟡 Medium':'⚪ Low'} | ${r.text} |\n`;});md+='\n';}
+
+  md+=`## Trade-offs\n\n${isTieMd?tiedMd.map(s=>tradeoffs[s.key]).join('\n\n'):tradeoffs[winner.key]||''}\n\n`;
+  md+=`## Cost Model\n\n`;
+  const costModels={
+    lc:`**Platform: Mendix (Capacity-based)**\n\nCost drivers: application runtime capacity, database size and capacity, file storage, number of environments (dev/test/acc/prod), HA and fallback requirements, horizontal scaling headroom, and enterprise licensing / internal chargeback.\n\n> ⚠ Mendix can be the better total-cost choice when fast delivery, business involvement, process fit, and available Mendix capability reduce build and change costs significantly.`,
+    hy:`**Platform: Hybrid (Dual cost model)**\n\n- **Mendix layer (capacity-based):** runtime capacity, DB size, environments, HA/fallback, scaling headroom, licensing\n- **High-code layer (usage-based):** compute duration and request volume, queue/event/message volume, DB reads/writes/storage, API and load balancing, logs/metrics/traces/alarms, networking/NAT/KMS/WAF, HA/DR setup\n\nThe boundary between layers allows each to use the cost model that matches its workload shape. Both must be budgeted and governed separately.\n\n> ⚠ AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive.`,
+    hc:`**Platform: High-Code / AWS-native (Usage-based)**\n\nCost drivers: compute duration and request volume, queue/event/message volume, database reads/writes/storage/provisioned capacity, API calls/load balancing/data transfer, logs/metrics/traces/alarms/retention, networking/NAT/security/KMS/secrets/WAF, HA and DR setup.\n\n> ⚠ AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than a well-licenced Mendix setup.`,
+  };
+  md+=(isTieMd?tiedMd.map(s=>costModels[s.key]||'').join('\n\n'):costModels[winner.key]||costModels['lc'])+'\n\n';
+  md+=`## Assumptions\n\n`;assumptions.forEach(a=>{md+=`- ${a}\n`;});md+='\n---\n\n';
+
+  if(mode==='quick'){
+    md+=`## Quick Scan Answers\n\n`;
+    QUICK_SCAN.forEach(q=>{
+      const a=answers[q.id];
+      if(a===undefined){md+=`**${q.text}**\n_Not answered_\n\n`;return;}
+      const o=q.options[a];
+      const dom=Math.max(o.lc,o.hy,o.hc);
+      const sig=o.lc===dom&&o.lc>0?'`LC`':o.hy===dom&&o.hy>0?'`HY`':'`HC`';
+      md+=`**${q.text}**\n- Answer: ${o.label}${o.knock?' ⚠ Hard Constraint':''}\n- Signal: ${sig}\n\n`;
+    });
+  } else {
+    FULL_CATS.forEach(cat=>{
+      md+=`## ${cat.name}\n\n`;
+      cat.questions.forEach(q=>{
+        const qi=allQ.findIndex(x=>x.id===q.id); const cq=allQ[qi];
+        const w=cq?.weight??q.defaultWeight;
+        const wn=(cq&&w!==q.defaultWeight)?` _(custom ×${w}, default ×${q.defaultWeight})_`:` _(×${w})_`;
+        const ln=q.isNew?' 🆕':''; const ll=q.layer===1?' [L1·Hard]':q.layer===3?' [L3·Gate]':'';
+        if(answers[q.id]===undefined){md+=`**${q.text}**${ln}${ll}${wn}\n_Not answered_\n\n`;return;}
+        const o=q.options[answers[q.id]];
+        const dom=Math.max(o.lc,o.hy,o.hc);
+        const sig=o.lc===dom&&o.lc>0?'`LC`':o.hy===dom&&o.hy>0?'`HY`':'`HC`';
+        md+=`**${q.text}**${ln}${ll}${wn}\n`;
+        md+=`- **Answer:** ${o.label}${o.knock?' ⚠ Hard Constraint trigger':''}\n`;
+        md+=`- **Signal:** ${sig} | Weighted: LC ${o.lc*w} / HY ${o.hy*w} / HC ${o.hc*w}\n\n`;
+      });
+      md+=`---\n\n`;
+    });
+  }
+  md+=`_PostNL Platform Decision Model v4.1 — generated ${date}_\n`;
+  return md;
+}
+
+function openExport(){lastMd=buildMd();document.getElementById('mdPreview').textContent=lastMd;document.getElementById('modalOverlay').classList.add('open');const b=document.getElementById('copyBtn');b.textContent='Copy to clipboard';b.classList.remove('copy-ok');}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function handleOvClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function copyMd(){navigator.clipboard.writeText(lastMd).then(()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Copied!';b.classList.add('copy-ok');setTimeout(()=>{b.textContent='Copy to clipboard';b.classList.remove('copy-ok');},2000);});}
+function downloadMd(){const slug=(document.getElementById('metaProject').value.trim()||'decision').replace(/[^a-z0-9]/gi,'-').toLowerCase();const blob=new Blob([lastMd],{type:'text/markdown'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`postnl-decision-report-${slug}.md`;a.click();URL.revokeObjectURL(url);}
+
+function resetAll(){
+  clearState(lsKey());                   // remove only this mode's saved data
+  answers={};currentIdx=0;initAllQ();buildDotMap();showWizard();renderStep(0);updateScores();
+  ['lc','hy','hc'].forEach(k=>{document.getElementById(k+'Bar').style.width='0%';document.getElementById(k+'Val').textContent='0';});
+  document.getElementById('exportBtn').disabled=true;
+  document.getElementById('archPattern').classList.remove('show');
+  document.getElementById('risksCard').classList.remove('show');
+  document.getElementById('signalsCard').classList.remove('show');
+  document.getElementById('conBanner').classList.remove('visible','warn-level','block-level');
+  hideViab();setRec('','—','Answer the criteria to receive a recommendation.','');setConf(null);
+  updateSavedBadge();
+}
+
+// ─ INIT: restore last session ─
+(function(){
+  // Restore last active mode
+  const savedMode = localStorage.getItem(LS_MODE);
+  if(savedMode==='full') mode='full';
+  document.getElementById('modeQuick').classList.toggle('active',mode==='quick');
+  document.getElementById('modeFull').classList.toggle('active',mode==='full');
+
+  initAllQ();
+  const hadSaved = loadState();
+  buildDotMap(); buildWD();
+
+  if(hadSaved && currentIdx>=allQ.length){ showFinish(); }
+  else{ showWizard(); renderStep(Math.min(currentIdx, allQ.length-1)); }
+  updateScores(); updateSavedBadge();
+
+  // Auto-save meta fields on input
+  ['metaProject','metaAuthor'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', saveState);
+  });
+})();
+
+// ─ COST DRAWER ─
+function openCostDrawer(){
+  document.getElementById('costDrawerOverlay').classList.add('open');
+  document.getElementById('costDrawer').classList.add('open');
+}
+function closeCostDrawer(){
+  document.getElementById('costDrawerOverlay').classList.remove('open');
+  document.getElementById('costDrawer').classList.remove('open');
+}
+function toggleCostSection(hdr){
+  hdr.classList.toggle('open');
+  hdr.nextElementSibling.classList.toggle('open');
+}
+</script>
+</body>
+</html>
