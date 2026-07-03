@@ -18,7 +18,7 @@
   --warn:#B45309;--warn-dim:rgba(180,83,9,.08);--warn-lt:rgba(180,83,9,.12);
   --ok:#15803D;--ok-dim:rgba(21,128,61,.08);
 }
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:14px}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:15px}
 
 /* ─ HEADER ─ */
 .header{background:var(--surface);border-bottom:3px solid var(--orange);padding:0 24px;display:flex;align-items:center;gap:14px;height:56px;flex-shrink:0;z-index:20}
@@ -126,33 +126,33 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 /* ─ SIDEBAR ─ */
 .sidebar{background:var(--surface);border-left:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
 .sc{border-radius:8px;padding:12px 13px;border:1px solid var(--border);background:var(--surface)}
-.sc-title{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.sc-title{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 .score-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.score-label{font-size:11px;font-weight:600;width:72px;flex-shrink:0}
+.score-label{font-size:12.5px;font-weight:600;width:80px;flex-shrink:0}
 .score-track{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
 .score-fill{height:100%;border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1);width:0%}
-.score-val{font-family:'JetBrains Mono',monospace;font-size:11px;width:24px;text-align:right;color:var(--muted)}
+.score-val{font-family:'JetBrains Mono',monospace;font-size:12.5px;width:24px;text-align:right;color:var(--muted)}
 .conf-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)}
-.conf-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.conf-val{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:99px}
+.conf-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.conf-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:99px}
 .cv-low{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,38,38,.2)}
 .cv-med{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.2)}
 .cv-high{background:var(--ok-dim);color:var(--ok);border:1px solid rgba(21,128,61,.2)}
 
 /* VIABILITY BADGE */
 .viability-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid var(--border2)}
-.viab-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.viab-val{font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px}
+.viab-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.viab-val{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px}
 .vv-valid{background:var(--ok-dim);color:var(--ok);border:1px solid rgba(21,128,61,.25)}
 .vv-cond{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.25)}
 .vv-not{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,38,38,.25)}
 
 /* REC BOX */
 .rec-box{border-radius:8px;padding:13px;border:1px solid var(--border);background:var(--surface);transition:all .3s ease}
-.rec-label{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.rec-verdict{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px;color:var(--muted)}
-.rec-reason{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:0}
-.rec-val{font-size:10.5px;color:var(--text);line-height:1.5;margin-top:7px;padding:7px 10px;background:var(--orange-xlt);border-left:2px solid var(--orange);border-radius:0 4px 4px 0;display:none}
+.rec-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rec-verdict{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px;color:var(--muted)}
+.rec-reason{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:0}
+.rec-val{font-size:12px;color:var(--text);line-height:1.5;margin-top:7px;padding:7px 10px;background:var(--orange-xlt);border-left:2px solid var(--orange);border-radius:0 4px 4px 0;display:none}
 .rec-val.show{display:block}
 .rec-lc{border-color:var(--lc);background:var(--lc-dim)}.rec-lc .rec-verdict{color:var(--lc)}
 .rec-hy{border-color:var(--hy);background:var(--hy-dim)}.rec-hy .rec-verdict{color:var(--hy)}
@@ -165,52 +165,52 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 /* ARCH PATTERN */
 .arch-pattern{border-radius:8px;padding:12px 13px;border:1.5px solid var(--hy);background:var(--hy-dim);display:none}
 .arch-pattern.show{display:block}
-.ap-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--hy);margin-bottom:8px}
-.ap-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
+.ap-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--hy);margin-bottom:8px}
+.ap-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:13.5px}
 .ap-icon{width:20px;text-align:center;flex-shrink:0}
 .ap-text{flex:1;line-height:1.4}
 .ap-sep{height:1px;background:rgba(123,63,190,.15);margin:4px 0}
 
 /* HYBRID READINESS */
 .hr-section{margin-top:8px;padding-top:8px;border-top:1px solid rgba(123,63,190,.15)}
-.hr-title{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hy);margin-bottom:5px}
+.hr-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hy);margin-bottom:5px}
 .hr-bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .hr-track{flex:1;height:5px;background:rgba(123,63,190,.15);border-radius:99px;overflow:hidden}
 .hr-fill{height:100%;border-radius:99px;transition:width .45s ease;background:var(--hy)}
-.hr-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--hy);width:32px;text-align:right}
-.hr-note{font-size:10.5px;color:var(--muted);line-height:1.45}
+.hr-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--hy);width:32px;text-align:right}
+.hr-note{font-size:12px;color:var(--muted);line-height:1.45}
 
 /* RISKS */
 .risks-card{border-radius:8px;padding:12px 13px;border:1px solid var(--border);background:var(--surface);display:none}
 .risks-card.show{display:block}
-.risk-item{display:flex;align-items:flex-start;gap:7px;padding:3px 0;border-bottom:1px solid var(--border2);font-size:11px;line-height:1.45}
+.risk-item{display:flex;align-items:flex-start;gap:7px;padding:3px 0;border-bottom:1px solid var(--border2);font-size:12.5px;line-height:1.45}
 .risk-item:last-child{border-bottom:none;padding-bottom:0}
 .rdot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0}
 .r-h .rdot{background:var(--danger)}.r-m .rdot{background:var(--warn)}.r-l .rdot{background:var(--muted2)}
 
 /* SIGNALS */
 .sc.signals{display:none}.sc.signals.show{display:block}
-.criteria-breakdown{font-size:10.5px;color:var(--muted)}
+.criteria-breakdown{font-size:12px;color:var(--muted)}
 .ci{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--border2);gap:7px}
 .ci span{flex:1;line-height:1.3}
-.flag{font-family:'JetBrains Mono',monospace;font-size:8.5px;padding:2px 5px;border-radius:3px;font-weight:700;flex-shrink:0}
+.flag{font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 5px;border-radius:3px;font-weight:700;flex-shrink:0}
 .fl{background:var(--lc-dim);color:var(--lc);border:1px solid rgba(0,100,210,.2)}
 .fh{background:var(--hy-dim);color:var(--hy);border:1px solid rgba(123,63,190,.2)}
 .fc{background:var(--hc-dim);color:var(--hc);border:1px solid rgba(0,122,94,.2)}
 
 /* SIDEBAR BUTTONS */
-.sb-btn{width:100%;padding:9px 13px;border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .14s;display:flex;align-items:center;justify-content:center;gap:6px}
+.sb-btn{width:100%;padding:9px 13px;border-radius:6px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .14s;display:flex;align-items:center;justify-content:center;gap:6px}
 .btn-primary{background:var(--orange);color:#fff;border:none}.btn-primary:hover{background:var(--orange-dk)}.btn-primary:disabled{background:var(--border);color:var(--muted2);cursor:not-allowed}
 .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg);color:var(--text);border-color:var(--muted2)}
 .btn-ghost-warn{background:transparent;color:var(--warn);border:1px solid rgba(180,83,9,.25)}.btn-ghost-warn:hover{background:var(--warn-dim);border-color:rgba(180,83,9,.45)}
 .meta-wrap{display:flex;flex-direction:column;gap:9px;padding:12px 13px;border:1px solid var(--border);border-radius:8px}
 .meta-row{display:flex;flex-direction:column;gap:4px}
-.meta-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
-.meta-inp{border:1px solid var(--border);border-radius:5px;padding:6px 9px;font-family:'Inter',sans-serif;font-size:12px;color:var(--text);background:var(--surface2);outline:none;transition:border-color .14s;width:100%}
+.meta-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.meta-inp{border:1px solid var(--border);border-radius:5px;padding:6px 9px;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--text);background:var(--surface2);outline:none;transition:border-color .14s;width:100%}
 .meta-inp:focus{border-color:var(--orange);background:var(--surface)}.meta-inp::placeholder{color:var(--muted2)}
-.wcb{display:none;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.25);margin-left:4px}
+.wcb{display:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.25);margin-left:4px}
 .wcb.v{display:inline-block}
-.disclaimer{font-size:10px;color:var(--muted2);line-height:1.5;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-style:italic}
+.disclaimer{font-size:11px;color:var(--muted2);line-height:1.5;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-style:italic}
 
 /* ─ COST DRAWER ─ */
 .cost-section{margin-bottom:18px}
@@ -234,10 +234,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .cost-caveat strong{font-weight:700}
 .cost-boundary-diagram{display:flex;gap:0;margin:10px 0;border-radius:7px;overflow:hidden;border:1px solid var(--border)}
 .cbd-side{flex:1;padding:10px 12px}
-.cbd-mendix{background:var(--lc-dim);border-right:2px dashed rgba(0,100,210,.25)}
+.cbd-lc{background:var(--lc-dim);border-right:2px dashed rgba(0,100,210,.25)}
 .cbd-hc{background:var(--hc-dim)}
 .cbd-label{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
-.cbd-mendix .cbd-label{color:var(--lc)}
+.cbd-lc .cbd-label{color:var(--lc)}
 .cbd-hc .cbd-label{color:var(--hc)}
 .cbd-items{font-size:11px;line-height:1.6;color:var(--muted)}
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.30);z-index:50}
@@ -365,7 +365,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 
     <div class="sc">
       <div class="sc-title">Score breakdown</div>
-      <div class="score-row"><div class="score-label" style="color:var(--lc)">Mendix LC</div><div class="score-track"><div class="score-fill" id="lcBar" style="background:var(--lc)"></div></div><div class="score-val" id="lcVal">0</div></div>
+      <div class="score-row"><div class="score-label" style="color:var(--lc)">Low-Code</div><div class="score-track"><div class="score-fill" id="lcBar" style="background:var(--lc)"></div></div><div class="score-val" id="lcVal">0</div></div>
       <div class="score-row"><div class="score-label" style="color:var(--hy)">Hybrid</div><div class="score-track"><div class="score-fill" id="hyBar" style="background:var(--hy)"></div></div><div class="score-val" id="hyVal">0</div></div>
       <div class="score-row"><div class="score-label" style="color:var(--hc)">High-Code</div><div class="score-track"><div class="score-fill" id="hcBar" style="background:var(--hc)"></div></div><div class="score-val" id="hcVal">0</div></div>
       <div class="conf-row"><span class="conf-lbl">Confidence</span><span class="conf-val cv-low" id="confBadge">—</span></div>
@@ -382,7 +382,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
     <!-- Architecture pattern (shown for Hybrid) -->
     <div class="arch-pattern" id="archPattern">
       <div class="ap-title">🟣 Architecture Pattern</div>
-      <div class="ap-row"><div class="ap-icon">🔵</div><div class="ap-text"><strong>Mendix</strong> — Process, UI, workflow, approvals</div></div>
+      <div class="ap-row"><div class="ap-icon">🔵</div><div class="ap-text"><strong>Low-Code</strong> — Process, UI, workflow, approvals</div></div>
       <div class="ap-sep"></div>
       <div class="ap-row"><div class="ap-icon">🟢</div><div class="ap-text"><strong>High-Code</strong> — Integrations, events, scale, backend logic</div></div>
       <div class="ap-sep"></div>
@@ -390,6 +390,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
         <div class="hr-title">Hybrid Readiness</div>
         <div class="hr-bar-wrap"><div class="hr-track"><div class="hr-fill" id="hrFill" style="width:0%"></div></div><div class="hr-val" id="hrVal">0%</div></div>
         <div class="hr-note" id="hrNote"></div>
+      </div>
+      <div class="hr-section">
+        <div class="hr-title">Key Success Factor</div>
+        <div class="hr-note">Success depends on a clearly defined specification of interfaces and a communication protocol for changes and timelines between the cooperating teams.</div>
       </div>
     </div>
 
@@ -407,12 +411,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <span>⚖ Edit question weights</span><span class="wcb" id="wcb">modified</span>
     </button>
     <button class="sb-btn btn-ghost" onclick="openCostDrawer()" style="justify-content:space-between">
-      <span>💰 Cost model reference</span><span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace">3 models</span>
+      <span>💰 Cost model reference</span><span style="font-size:11px;color:var(--muted2);font-family:'JetBrains Mono',monospace">3 models</span>
     </button>
     <button class="sb-btn btn-primary" id="exportBtn" onclick="openExport()" disabled>↓&nbsp; Export decision report</button>
     <button class="sb-btn btn-ghost" onclick="resetAll()">↺&nbsp; Reset this scan</button>
     <div class="saved-badge" id="savedBadge"></div>
-    <div class="disclaimer">⚠ This model assumes Mendix is the PostNL strategic default. Adjust weights for specific contexts.</div>
+    <div class="disclaimer">⚠ This model assumes Low-Code is the PostNL strategic default. Adjust weights for specific contexts.</div>
   </div>
 </div>
 
@@ -442,10 +446,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
   </div>
   <div class="wd-body" style="padding:16px 20px">
 
-    <!-- Mendix -->
+    <!-- Low-Code -->
     <div class="cost-section">
       <div class="cost-section-hdr" onclick="toggleCostSection(this)">
-        <div class="cost-section-title"><span class="cost-section-icon">🔵</span> Mendix Low-Code</div>
+        <div class="cost-section-title"><span class="cost-section-icon">🔵</span> Low-Code</div>
         <span class="cost-section-chevron">▼</span>
       </div>
       <div class="cost-section-body">
@@ -462,7 +466,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
           <li>Enterprise licensing and internal chargeback model</li>
         </ul>
         <div class="cost-caveat ok">
-          <strong>Caveat:</strong> Mendix can still be the better total-cost choice when fast delivery, business involvement, process fit, and available capability significantly reduce build and change costs.
+          <strong>Caveat:</strong> Low-Code can still be the better total-cost choice when fast delivery, business involvement, process fit, and available capability significantly reduce build and change costs.
         </div>
       </div>
     </div>
@@ -502,8 +506,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
         <div class="cost-driver-title">Cost model: Dual — boundary separates the models</div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Hybrid separates the UI/process cost model from the event/backend cost model. A clean architecture boundary lets each layer use the cost model that matches its workload shape, instead of forcing one model across the full solution.</p>
         <div class="cost-boundary-diagram">
-          <div class="cbd-side cbd-mendix">
-            <div class="cbd-label">Mendix layer</div>
+          <div class="cbd-side cbd-lc">
+            <div class="cbd-label">Low-Code layer</div>
             <div class="cbd-items">Capacity-based<br>Runtime · DB · Envs<br>HA · Scaling · Licence</div>
           </div>
           <div class="cbd-side cbd-hc">
@@ -518,7 +522,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
           <li>Both cost models budgeted and governed independently</li>
         </ul>
         <div class="cost-caveat warn">
-          <strong>Note:</strong> Both caveats apply — Mendix is not always more expensive, and AWS is not automatically cheaper. Evaluate each layer independently.
+          <strong>Note:</strong> Both caveats apply — Low-Code is not always more expensive, and AWS is not automatically cheaper. Evaluate each layer independently.
         </div>
       </div>
     </div>
@@ -537,6 +541,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
     <div class="modal-ftr">
       <button class="sb-btn btn-ghost" id="copyBtn" onclick="copyMd()">Copy to clipboard</button>
       <button class="sb-btn btn-primary" onclick="downloadMd()">↓ Download .md</button>
+      <button class="sb-btn btn-primary" onclick="downloadPdf()">↓ Download PDF</button>
     </div>
   </div>
 </div>
@@ -549,19 +554,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 const HARD_RULES = [
   { id:'no_ui_full', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => [2,3].includes(a['ui_complexity']),
-    body:'No meaningful UI or specialised visualisation selected. Mendix\'s core value is its UI layer — this workload does not benefit from it. Score overridden → High-Code.' },
+    body:'No meaningful UI or specialised visualisation selected. Low-Code\'s core value is its UI layer — this workload does not benefit from it. Score overridden → High-Code.' },
   { id:'no_ui_qs', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['qs_ui'] === 3,
-    body:'No meaningful user-facing UI. Mendix adds platform cost with no UX benefit. Score overridden → High-Code.' },
+    body:'No meaningful user-facing UI. Low-Code adds platform cost with no UX benefit. Score overridden → High-Code.' },
   { id:'extreme_latency', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['performance'] === 3,
-    body:'Critical latency or performance SLA required. Mendix cannot meet sub-second or hard real-time requirements. Score overridden → High-Code.' },
+    body:'Critical latency or performance SLA required. Low-Code cannot meet sub-second or hard real-time requirements. Score overridden → High-Code.' },
   { id:'extreme_elasticity', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['elasticity'] === 3,
-    body:'Must scale to zero or burst dynamically. Mendix is capacity-priced and cannot elastically scale. Score overridden → High-Code.' },
+    body:'Must scale to zero or burst dynamically. Low-Code is capacity-priced and cannot elastically scale. Score overridden → High-Code.' },
   { id:'zero_trust', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['security'] === 3,
-    body:'Custom cryptography or zero-trust architecture required. Mendix does not support full security stack control. Score overridden → High-Code.' },
+    body:'Custom cryptography or zero-trust architecture required. Low-Code does not support full security stack control. Score overridden → High-Code.' },
   // LAYER 3 — Hybrid feasibility gate (block, not warn)
   { id:'hybrid_no_boundary', level:'block', verdict:'Hybrid Blocked — No Boundary',
     condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['arch_boundary'] === 2,
@@ -579,27 +584,27 @@ const HARD_RULES = [
 // ═══════════════════════════════════════════════════════════════════════════
 const RISK_RULES = [
   { id:'vendor_lock', level:'h', condition:(a,s)=>a['vendor']!==undefined&&a['vendor']>=1,
-    text:'Mendix vendor lock-in. Migration requires full redevelopment.' },
+    text:'Low-Code vendor lock-in. Migration requires full redevelopment.' },
   { id:'scale_cap', level:'m', condition:(a,s)=>(a['performance']===1||a['performance']===2)&&(a['elasticity']===2||a['elasticity']===3),
-    text:'Scaling cost non-linear. Mendix is capacity-priced; peak growth increases runtime cost.' },
+    text:'Scaling cost non-linear. Low-Code is capacity-priced; peak growth increases runtime cost.' },
   { id:'hybrid_gov', level:'h', condition:(a,s)=>s&&s.hy>s.lc&&s.hy>s.hc,
     text:'Hybrid governance complexity. Requires explicit API contracts, team boundaries, and cross-team incident runbooks.' },
   { id:'integration_complex', level:'m', condition:(a,s)=>a['integration']===2||a['integration']===3,
     text:'Integration complexity. Legacy protocols or event-driven flows may require custom Java actions or external microservices.' },
   { id:'observability_gap', level:'m', condition:(a,s)=>a['observability']===2||a['observability']===3,
-    text:'Observability gap. Custom metrics, traces, and SLOs require additional tooling beyond Mendix platform monitoring.' },
+    text:'Observability gap. Custom metrics, traces, and SLOs require additional tooling beyond Low-Code platform monitoring.' },
   { id:'runtime_cost_cap', level:'m', condition:(a,s)=>a['runtime_cost']===2||a['runtime_cost']===3,
-    text:'Mendix cost model mismatch. Mendix costs are capacity-oriented (runtime resources, DB size, environments, HA, scaling headroom, licensing). Usage-dependent workloads pay for unused capacity during low-traffic periods.' },
+    text:'Low-Code cost model mismatch. Low-Code costs are capacity-oriented (runtime resources, DB size, environments, HA, scaling headroom, licensing). Usage-dependent workloads pay for unused capacity during low-traffic periods.' },
   { id:'aws_cost_risk', level:'m', condition:(a,s)=>a['runtime_cost']===2&&(a['integration']===2||a['integration']===3),
-    text:'AWS-native cost risk. AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than Mendix.' },
+    text:'AWS-native cost risk. AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than Low-Code.' },
   { id:'hybrid_cost_model', level:'m', condition:(a,s)=>s&&s.hy>s.lc&&s.hy>s.hc,
-    text:'Hybrid dual cost model. Mendix layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute, queues, events, logs, networking). Both models must be budgeted and governed separately.' },
+    text:'Hybrid dual cost model. Low-Code layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute, queues, events, logs, networking). Both models must be budgeted and governed separately.' },
   { id:'out_of_domain', level:'h', condition:(a,s)=>a['strategic_domain']===2||a['strategic_domain']===3,
-    text:'Strategic domain mismatch. This application is outside the Mendix intended domain (service layer / platform / integration hub). Platform cost adds no value for this workload type.' },
+    text:'Strategic domain mismatch. This application is outside the Low-Code intended domain (service layer / platform / integration hub). Platform cost adds no value for this workload type.' },
   { id:'hc_cost', level:'m', condition:(a,s)=>s&&s.hc>s.lc&&s.hc>s.hy,
-    text:'High-code engineering cost. Custom development has higher up-front cost and longer delivery time than Mendix for equivalent business-process applications. Validate build-vs-buy carefully.' },
+    text:'High-code engineering cost. Custom development has higher up-front cost and longer delivery time than Low-Code for equivalent business-process applications. Validate build-vs-buy carefully.' },
   { id:'no_licence', level:'h', condition:(a,s)=>a['budget']===2,
-    text:'No Mendix licence in place. Procurement adds lead time and budget dependency. Note: Mendix can still be the better TCO choice when fast delivery, business involvement, and process fit significantly reduce build and change costs.' },
+    text:'No Low-Code licence in place. Procurement adds lead time and budget dependency. Note: Low-Code can still be the better TCO choice when fast delivery, business involvement, and process fit significantly reduce build and change costs.' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -608,7 +613,7 @@ const RISK_RULES = [
 const QUICK_SCAN = [
   { id:'qs_shape', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
     text:'What is the main shape of the solution?',
-    desc:'The primary workload pattern is the strongest single signal. Process apps suit Mendix; API/event systems suit high-code; mixed shapes often need a Hybrid with a clear boundary.',
+    desc:'The primary workload pattern is the strongest single signal. Process apps suit Low-Code; API/event systems suit high-code; mixed shapes often need a Hybrid with a clear boundary.',
     options:[
       { label:'Business workflow, case, approval, or process application', lc:3,hy:1,hc:0 },
       { label:'Both business-facing screens and a technical backend', lc:1,hy:3,hc:1 },
@@ -616,24 +621,24 @@ const QUICK_SCAN = [
     ]},
   { id:'qs_ui', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
     text:'How central is the UI or workflow to the solution\'s value?',
-    desc:'If the UI and workflow ARE the product, Mendix excels. If the value is in the backend runtime, high-code is likely needed.',
+    desc:'If the UI and workflow ARE the product, Low-Code excels. If the value is in the backend runtime, high-code is likely needed.',
     options:[
       { label:'Central — the UI and workflow are the main value', lc:3,hy:1,hc:0 },
       { label:'Useful — users need it to complete a business process', lc:2,hy:2,hc:0 },
       { label:'Secondary — thin UI over technical logic', lc:0,hy:2,hc:2 },
-      { label:'None — no meaningful user-facing UI', lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Mendix adds cost without UX benefit. Hard constraint: High-Code.' },
+      { label:'None — no meaningful user-facing UI', lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Low-Code adds cost without UX benefit. Hard constraint: High-Code.' },
     ]},
   { id:'qs_volume', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
     text:'What is the expected volume or peak load?',
-    desc:'Mendix is capacity-priced and does not scale elastically. Spiky or usage-dependent workloads suit cloud-native scaling.',
+    desc:'Low-Code is capacity-priced and does not scale elastically. Spiky or usage-dependent workloads suit cloud-native scaling.',
     options:[
-      { label:'Low or steady — predictable within Mendix platform limits', lc:3,hy:1,hc:0 },
+      { label:'Low or steady — predictable within Low-Code platform limits', lc:3,hy:1,hc:0 },
       { label:'Some growth or variation expected', lc:2,hy:2,hc:1 },
       { label:'High, spiky, or strongly usage-dependent load', lc:0,hy:1,hc:3 },
     ]},
   { id:'qs_integration', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
     text:'How complex are integrations, performance, or runtime behavior?',
-    desc:'REST and OData are native to Mendix. Event-driven flows, retries, strict latency, and deep observability shift toward high-code.',
+    desc:'REST and OData are native to Low-Code. Event-driven flows, retries, strict latency, and deep observability shift toward high-code.',
     options:[
       { label:'Mostly standard integrations and normal app performance', lc:3,hy:1,hc:0 },
       { label:'Some orchestration or performance considerations', lc:1,hy:3,hc:1 },
@@ -641,9 +646,9 @@ const QUICK_SCAN = [
     ]},
   { id:'qs_capability', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
     text:'Which engineering capability is realistically available?',
-    desc:'Platform fit matters less than team capability. A Mendix-heavy team will deliver faster on Mendix regardless of technical characteristics.',
+    desc:'Platform fit matters less than team capability. A Low-Code-heavy team will deliver faster on Low-Code regardless of technical characteristics.',
     options:[
-      { label:'Strong Mendix capability — certified developers available', lc:3,hy:1,hc:0 },
+      { label:'Strong Low-Code capability — certified developers available', lc:3,hy:1,hc:0 },
       { label:'Mixed or unassigned — capability not yet confirmed', lc:1,hy:2,hc:1 },
       { label:'Strong software engineering capability (Java, TypeScript, etc.)', lc:0,hy:1,hc:3 },
     ]},
@@ -669,16 +674,16 @@ const FULL_CATS = [
       ]},
     { id:'ui_complexity', defaultWeight:2, layer:1,
       text:'How complex and unique is the UI/UX?',
-      desc:'Standard forms and dashboards are Mendix territory. Specialised or no-UI requirements are hard constraints.',
+      desc:'Standard forms and dashboards are Low-Code territory. Specialised or no-UI requirements are hard constraints.',
       options:[
         {label:'Standard forms, lists, and dashboards',lc:3,hy:0,hc:0},
         {label:'Some custom widgets on top of standard patterns',lc:1,hy:3,hc:1},
         {label:'No meaningful user-facing UI needed',lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Hard constraint: High-Code.'},
-        {label:'Specialised visualisation or fully custom interface',lc:0,hy:1,hc:3,knock:true,knockMsg:'Custom specialised UI → beyond Mendix capabilities. Hard constraint: High-Code.'},
+        {label:'Specialised visualisation or fully custom interface',lc:0,hy:1,hc:3,knock:true,knockMsg:'Custom specialised UI → beyond Low-Code capabilities. Hard constraint: High-Code.'},
       ]},
     { id:'business_logic', defaultWeight:2, layer:2,
       text:'How complex is the core business logic?',
-      desc:'Workflow orchestration and approvals suit Mendix. Deep algorithms or ML inference suit high-code.',
+      desc:'Workflow orchestration and approvals suit Low-Code. Deep algorithms or ML inference suit high-code.',
       options:[
         {label:'Simple rules, approvals, and workflow steps',lc:3,hy:1,hc:0},
         {label:'Moderate: multiple decision points and integrations',lc:2,hy:2,hc:1},
@@ -687,7 +692,7 @@ const FULL_CATS = [
       ]},
     { id:'uniqueness', defaultWeight:1, layer:2,
       text:'How unique is the application vs. available market patterns?',
-      desc:'Mendix Marketplace modules cover many common patterns. Novel products need full code flexibility.',
+      desc:'Low-Code marketplace modules cover many common patterns. Novel products need full code flexibility.',
       options:[
         {label:'Common pattern — Marketplace modules exist',lc:3,hy:0,hc:0},
         {label:'Some unique features on top of standard patterns',lc:1,hy:3,hc:1},
@@ -695,8 +700,8 @@ const FULL_CATS = [
       ]},
     // NEW v4: Platform strategy alignment
     { id:'strategic_domain', defaultWeight:2, layer:2, isNew:true,
-      text:'Is this application within the strategic Mendix application domain?',
-      desc:'Mendix is optimised for business apps and process automation. Service layers, platform components, and integration hubs are outside its intended domain.',
+      text:'Is this application within the strategic Low-Code application domain?',
+      desc:'Low-Code is optimised for business apps and process automation. Service layers, platform components, and integration hubs are outside its intended domain.',
       options:[
         {label:'Yes — business app, process automation, or internal tooling',lc:3,hy:1,hc:0},
         {label:'Partially — some business-facing screens but technical underpinning',lc:1,hy:3,hc:1},
@@ -706,26 +711,26 @@ const FULL_CATS = [
   { name:'⚙️ Technical Constraints', questions:[
     { id:'performance', defaultWeight:2, layer:1,
       text:'How strict are performance and latency requirements?',
-      desc:'Mendix handles standard enterprise workloads. Critical SLAs or sub-second latency are hard constraints.',
+      desc:'Low-Code handles standard enterprise workloads. Critical SLAs or sub-second latency are hard constraints.',
       options:[
         {label:'Standard enterprise performance — no strict SLA',lc:3,hy:1,hc:0},
         {label:'Some expectations, no hard latency target',lc:2,hy:2,hc:1},
         {label:'Performance matters and must be explicitly designed',lc:0,hy:2,hc:2},
-        {label:'Performance or latency is critical to the solution',lc:0,hy:0,hc:3,knock:true,knockMsg:'Critical latency → beyond Mendix SLA capabilities. Hard constraint: High-Code.'},
+        {label:'Performance or latency is critical to the solution',lc:0,hy:0,hc:3,knock:true,knockMsg:'Critical latency → beyond Low-Code SLA capabilities. Hard constraint: High-Code.'},
       ]},
     { id:'elasticity', defaultWeight:2, layer:1, isNew:true,
       text:'How variable is expected runtime demand?',
-      desc:'Mendix is capacity-priced and cannot scale to zero. Spiky or usage-dependent demand suits cloud-native elastic infrastructure.',
+      desc:'Low-Code is capacity-priced and cannot scale to zero. Spiky or usage-dependent demand suits cloud-native elastic infrastructure.',
       options:[
         {label:'Steady and modest — predictable within platform capacity',lc:3,hy:1,hc:0},
         {label:'Somewhat variable but manageable with standard scaling',lc:2,hy:2,hc:1},
         {label:'May grow or vary materially — elasticity matters',lc:0,hy:2,hc:2},
-        {label:'High, spiky, or must scale to zero or burst dynamically',lc:0,hy:0,hc:3,knock:true,knockMsg:'Elastic scaling required → Mendix cannot scale to zero. Hard constraint: High-Code.'},
+        {label:'High, spiky, or must scale to zero or burst dynamically',lc:0,hy:0,hc:3,knock:true,knockMsg:'Elastic scaling required → Low-Code cannot scale to zero. Hard constraint: High-Code.'},
       ]},
     // NEW v4: Runtime cost dynamics (enriched with cost driver document)
     { id:'runtime_cost', defaultWeight:2, layer:2, isNew:true,
       text:'What is the dominant cost model for this workload?',
-      desc:'Mendix costs are capacity-oriented: runtime resources, database size, number of environments, HA/fallback, horizontal scaling headroom, and licensing. AWS costs are usage-based: compute duration, queue/event volume, database reads/writes, API calls, logs/metrics/traces, and data transfer. Hybrid lets each layer use the model that matches its workload shape.',
+      desc:'Low-Code costs are capacity-oriented: runtime resources, database size, number of environments, HA/fallback, horizontal scaling headroom, and licensing. AWS costs are usage-based: compute duration, queue/event volume, database reads/writes, API calls, logs/metrics/traces, and data transfer. Hybrid lets each layer use the model that matches its workload shape.',
       options:[
         {label:'Capacity / platform model fits — steady load, predictable environments, fast delivery reduces build cost',lc:3,hy:1,hc:0},
         {label:'Mixed — some parts capacity-based, some parts usage-driven',lc:1,hy:3,hc:1},
@@ -742,7 +747,7 @@ const FULL_CATS = [
       ]},
     { id:'observability', defaultWeight:1, layer:2, isNew:true,
       text:'How deep does observability and testability need to be?',
-      desc:'Mendix provides platform-level monitoring. Custom SLOs, distributed tracing, and full test coverage require high-code.',
+      desc:'Low-Code provides platform-level monitoring. Custom SLOs, distributed tracing, and full test coverage require high-code.',
       options:[
         {label:'Standard platform monitoring is sufficient',lc:3,hy:1,hc:0},
         {label:'Basic operational insight and some automated tests',lc:2,hy:2,hc:1},
@@ -751,19 +756,19 @@ const FULL_CATS = [
       ]},
     { id:'security', defaultWeight:2, layer:1,
       text:'What are the security and compliance requirements?',
-      desc:'Mendix supports enterprise security. Custom cryptography or zero-trust is a hard constraint.',
+      desc:'Low-Code supports enterprise security. Custom cryptography or zero-trust is a hard constraint.',
       options:[
         {label:'Standard enterprise — SSO, RBAC, audit trail',lc:3,hy:1,hc:0},
         {label:'Industry-regulated — ISO 27001, NEN 7510, GDPR-critical',lc:2,hy:2,hc:1},
         {label:'Critical infrastructure or government-grade requirements',lc:0,hy:1,hc:3},
-        {label:'Custom cryptography or zero-trust architecture required',lc:0,hy:0,hc:3,knock:true,knockMsg:'Zero-trust/custom crypto → Mendix has no stack control. Hard constraint: High-Code.'},
+        {label:'Custom cryptography or zero-trust architecture required',lc:0,hy:0,hc:3,knock:true,knockMsg:'Zero-trust/custom crypto → Low-Code has no stack control. Hard constraint: High-Code.'},
       ]},
     { id:'cloud', defaultWeight:1, layer:2,
       text:'What is the deployment and infrastructure model?',
-      desc:'Mendix Cloud and Kubernetes (MxOps) are well supported. On-premise or edge can constrain platform choice.',
+      desc:'Managed cloud and Kubernetes are well supported. On-premise or edge can constrain platform choice.',
       options:[
-        {label:'Mendix Cloud or standard Kubernetes (MxOps)',lc:3,hy:1,hc:0},
-        {label:'Private cloud / AWS / Azure with Mendix container',lc:2,hy:2,hc:1},
+        {label:'Managed platform cloud or standard Kubernetes',lc:3,hy:1,hc:0},
+        {label:'Private cloud / AWS / Azure with a Low-Code container',lc:2,hy:2,hc:1},
         {label:'On-premise with strict infrastructure restrictions',lc:1,hy:2,hc:2},
         {label:'Edge, embedded, or IoT deployment',lc:0,hy:0,hc:3},
       ]},
@@ -774,8 +779,8 @@ const FULL_CATS = [
       desc:'Citizen developers accelerate in low-code. Senior engineers maximise value in high-code.',
       options:[
         {label:'Citizen developers or business analysts',lc:3,hy:0,hc:0},
-        {label:'Mix of functional and technical Mendix developers',lc:2,hy:2,hc:0},
-        {label:'Full-stack engineers with some Mendix exposure',lc:1,hy:3,hc:1},
+        {label:'Mix of functional and technical Low-Code developers',lc:2,hy:2,hc:0},
+        {label:'Full-stack engineers with some Low-Code exposure',lc:1,hy:3,hc:1},
         {label:'Senior software engineers — Java, TypeScript, etc.',lc:0,hy:1,hc:3},
       ]},
     { id:'team_size', defaultWeight:1, layer:2,
@@ -806,7 +811,7 @@ const FULL_CATS = [
       ]},
     { id:'op_criticality', defaultWeight:2, layer:2, isNew:true,
       text:'How operationally critical is this solution?',
-      desc:'Mission-critical systems require engineering-grade reliability. Mendix SLAs may not suffice for 24/7 operational systems.',
+      desc:'Mission-critical systems require engineering-grade reliability. Low-Code SLAs may not suffice for 24/7 operational systems.',
       options:[
         {label:'Supporting process — limited operational impact',lc:3,hy:1,hc:0},
         {label:'Important internal application',lc:2,hy:2,hc:1},
@@ -833,9 +838,9 @@ const FULL_CATS = [
       ]},
     { id:'change_rate', defaultWeight:1, layer:2,
       text:'What delivery and change pattern is expected?',
-      desc:'Frequent business-process changes favour Mendix\'s iteration speed. Long-term technical flexibility favours high-code.',
+      desc:'Frequent business-process changes favour Low-Code\'s iteration speed. Long-term technical flexibility favours high-code.',
       options:[
-        {label:'Frequent business-process changes — Mendix iteration speed is key',lc:3,hy:1,hc:0},
+        {label:'Frequent business-process changes — Low-Code iteration speed is key',lc:3,hy:1,hc:0},
         {label:'Fast initial delivery matters more than technical control',lc:2,hy:2,hc:1},
         {label:'Speed and technical flexibility both matter equally',lc:1,hy:3,hc:1},
         {label:'Long-term engineered control and flexibility are critical',lc:0,hy:1,hc:3},
@@ -843,7 +848,7 @@ const FULL_CATS = [
     // Layer 3 — Hybrid gate
     { id:'arch_boundary', defaultWeight:2, layer:3, isNew:true,
       text:'Is there a clear, defined, and owned architectural boundary between the UI/process layer and the backend/event layer?',
-      desc:'Hybrid only works with an explicit boundary — Mendix for process/UI, high-code for events/integrations/scale — that is actively governed. Without this, Hybrid becomes structural debt.',
+      desc:'Hybrid only works with an explicit boundary — Low-Code for process/UI, high-code for events/integrations/scale — that is actively governed. Without this, Hybrid becomes structural debt.',
       options:[
         {label:'No split needed — the whole solution is process/UI focused',lc:3,hy:0,hc:0},
         {label:'Yes — boundary is defined, owned, and governed',lc:1,hy:3,hc:1},
@@ -860,19 +865,19 @@ const FULL_CATS = [
       ]},
     { id:'vendor', defaultWeight:2, layer:2,
       text:'How important is avoiding vendor lock-in?',
-      desc:'Mendix creates platform dependency. If portability is critical, high-code offers more control.',
+      desc:'Low-Code creates platform dependency. If portability is critical, high-code offers more control.',
       options:[
-        {label:'Not a concern — Mendix is the PostNL strategic platform',lc:3,hy:1,hc:0},
+        {label:'Not a concern — Low-Code is the PostNL strategic platform',lc:3,hy:1,hc:0},
         {label:'Acceptable for core, but avoid for the integration layer',lc:1,hy:3,hc:0},
         {label:'Lock-in must be minimised — portability matters',lc:0,hy:1,hc:3},
       ]},
     { id:'budget', defaultWeight:1, layer:2,
       text:'What is the development budget profile?',
-      desc:'Mendix licensing has up-front platform cost but reduces build and change cost when delivery speed, business involvement, and process fit are high. AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
+      desc:'Low-Code licensing has up-front platform cost but reduces build and change cost when delivery speed, business involvement, and process fit are high. AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
       options:[
-        {label:'Mendix licences in place — fast delivery and process fit reduce overall TCO',lc:3,hy:1,hc:0},
+        {label:'Low-Code licences in place — fast delivery and process fit reduce overall TCO',lc:3,hy:1,hc:0},
         {label:'Open budget — optimise for total cost of ownership across both models',lc:1,hy:2,hc:2},
-        {label:'No Mendix licence — high-code stack preferred on cost grounds',lc:0,hy:1,hc:3},
+        {label:'No Low-Code licence — high-code stack preferred on cost grounds',lc:0,hy:1,hc:3},
       ]},
   ]},
 ];
@@ -1009,7 +1014,7 @@ function showFinish(){
   currentIdx=allQ.length; refreshDotMap(); updateScores();
   const {lc,hy,hc}=computeScores();
   const ev=evaluateRules(answers,{lc,hy,hc});
-  const sorted=[{n:'Mendix Low-Code',v:lc,k:'lc'},{n:'Hybrid',v:hy,k:'hy'},{n:'High-Code',v:hc,k:'hc'}].sort((a,b)=>b.v-a.v);
+  const sorted=[{n:'Low-Code',v:lc,k:'lc'},{n:'Hybrid',v:hy,k:'hy'},{n:'High-Code',v:hc,k:'hc'}].sort((a,b)=>b.v-a.v);
   const tiedFs=!ev?sorted.filter(s=>s.v===sorted[0].v):[];
   const isTieFs=tiedFs.length>1;
   const winner=ev&&(ev.level==='ko'||ev.level==='block')?{n:ev.verdict,k:ev.forceKey||sorted[1].k}:sorted[0];
@@ -1190,7 +1195,7 @@ function updateScores(){
   const ev=evaluateRules(answers,{lc,hy,hc});
   updateConBanner(ev);
 
-  const sorted=[{name:'Mendix Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
+  const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
   let winner=sorted[0]; let recCls='rec-'+winner.key; let viability='valid';
 
   if(ev){
@@ -1210,14 +1215,14 @@ function updateScores(){
   const conf=answered>=minC?(gap>8?'High':gap>3?'Medium':'Low'):'Low';
 
   const reasons={
-    lc:'Delivery speed, team fit, and process-driven logic align with Mendix low-code.',
-    hy:'Build core workflows in Mendix; extend with high-code for integrations, performance, and events. Requires clear boundary and split ownership.',
+    lc:'Delivery speed, team fit, and process-driven logic align with Low-Code.',
+    hy:'Build core workflows in Low-Code; extend with high-code for integrations, performance, and events. Requires clear boundary and split ownership.',
     hc:'Technical demands, team profile, or strategic constraints point toward custom engineering.',
   };
   const validations={
     lc:answered>=minC?'Validate volume, integration complexity, and operational risk before committing.':'',
     hy:answered>=minC?'Define and formalise the architectural boundary, ownership split, and end-to-end observability plan.':'',
-    hc:answered>=minC?'Validate team capability, build-vs-buy decision, and Mendix module applicability for non-core parts.':'',
+    hc:answered>=minC?'Validate team capability, build-vs-buy decision, and Low-Code module applicability for non-core parts.':'',
   };
 
   let rv=winner.name,rr='',rv2='';
@@ -1358,7 +1363,7 @@ function buildMd(){
   const date=new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'});
   const wMod=mode==='full'&&allQ.some(q=>q.weight!==q.defaultWeight);
   const ev=evaluateRules(answers,{lc,hy,hc});
-  const sorted=[{name:'Mendix Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
+  const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
   let winner=sorted[0];
   if(ev&&ev.level==='ko')winner={name:ev.verdict,key:ev.forceKey};
   else if(ev&&ev.level==='block')winner={name:sorted.find(s=>s.key!=='hy')?.name||sorted[1].name,key:sorted.find(s=>s.key!=='hy')?.key||sorted[1].key};
@@ -1369,24 +1374,24 @@ function buildMd(){
   const conf=answered>=minC?(gap>8?'High':gap>3?'Medium':'Low'):'Low';
   const viab=ev&&(ev.level==='ko'||ev.level==='block')?'NOT RECOMMENDED':ev&&ev.level==='warn'||pen.penalised?'VALID WITH CONDITIONS':'VALID';
   const hr=computeHR();
-  const verdicts={lc:'🔵 Mendix Low-Code',hy:'🟣 Hybrid',hc:'🟢 High-Code'};
+  const verdicts={lc:'🔵 Low-Code',hy:'🟣 Hybrid',hc:'🟢 High-Code'};
   const rationale={
-    lc:'The application profile — delivery speed, team fit, and process-driven logic — aligns with the Mendix low-code paradigm.',
-    hy:'Build core workflows in Mendix; extend with high-code for integrations, performance, and events. Requires defined boundary, split ownership, and end-to-end observability.',
+    lc:'The application profile — delivery speed, team fit, and process-driven logic — aligns with the Low-Code paradigm.',
+    hy:'Build core workflows in Low-Code; extend with high-code for integrations, performance, and events. Requires defined boundary, split ownership, and end-to-end observability.',
     hc:"Technical demands, team profile, or strategic constraints require a custom engineering approach.",
   };
   const tradeoffs={
-    lc:'Trades engineering flexibility for faster delivery, lower skill requirements, and platform-managed operations. **Cost model:** capacity-oriented — runtime resources, DB size, number of environments, HA/fallback, and horizontal scaling headroom. Fast delivery and business involvement reduce build and change cost, which can make Mendix the better total-cost choice even with licensing overhead.',
-    hy:'Trades operational simplicity for best-of-breed fit. **Cost model:** dual — Mendix layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute duration, queue/event volume, logs, metrics, traces, data transfer). Each layer uses the model that matches its workload shape, but both must be budgeted and governed separately.',
+    lc:'Trades engineering flexibility for faster delivery, lower skill requirements, and platform-managed operations. **Cost model:** capacity-oriented — runtime resources, DB size, number of environments, HA/fallback, and horizontal scaling headroom. Fast delivery and business involvement reduce build and change cost, which can make Low-Code the better total-cost choice even with licensing overhead.',
+    hy:'Trades operational simplicity for best-of-breed fit. **Cost model:** dual — Low-Code layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute duration, queue/event volume, logs, metrics, traces, data transfer). Each layer uses the model that matches its workload shape, but both must be budgeted and governed separately.',
     hc:'Trades time-to-market for full technical control, runtime flexibility, and portability. **Cost model:** usage-based — you pay across compute, queues, event routing, databases, storage, observability, networking, and security services. Note: AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
   };
   const risks=RISK_RULES.filter(r=>{try{return r.condition(answers,{lc,hy,hc});}catch(e){return false;}});
   const assumptions=[];
-  if(answers['elasticity']!==undefined&&answers['elasticity']<=1)assumptions.push('Traffic volume remains steady and within Mendix platform capacity.');
-  if(answers['team_skills']!==undefined&&answers['team_skills']<=1)assumptions.push('Mendix-certified developers remain available for the project duration.');
-  if(answers['arch_boundary']===1)assumptions.push('The defined architectural boundary between Mendix (process/UI) and high-code (backend/events) is actively governed throughout delivery.');
+  if(answers['elasticity']!==undefined&&answers['elasticity']<=1)assumptions.push('Traffic volume remains steady and within Low-Code platform capacity.');
+  if(answers['team_skills']!==undefined&&answers['team_skills']<=1)assumptions.push('Low-Code-certified developers remain available for the project duration.');
+  if(answers['arch_boundary']===1)assumptions.push('The defined architectural boundary between Low-Code (process/UI) and high-code (backend/events) is actively governed throughout delivery.');
   if(answers['team_ownership']===0)assumptions.push('Separate team ownership for UI/process and backend/integration layers is maintained.');
-  if(answers['op_criticality']!==undefined&&answers['op_criticality']<=1)assumptions.push('Standard Mendix SLAs are acceptable for this solution\'s operational criticality.');
+  if(answers['op_criticality']!==undefined&&answers['op_criticality']<=1)assumptions.push('Standard Low-Code SLAs are acceptable for this solution\'s operational criticality.');
   if(assumptions.length===0)assumptions.push('No specific assumptions recorded — review relevant criteria before finalising.');
 
   let md='# Platform Decision Report\n\n';
@@ -1421,13 +1426,14 @@ function buildMd(){
   if(!isTieMd&&(winner.key==='hy'||ev?.level==='warn')){
     md+=`## Architecture Pattern (Hybrid)\n\n`;
     md+=`| Layer | Platform | Responsibility |\n|---|---|---|\n`;
-    md+=`| Process & UI | 🔵 Mendix | Workflow, approvals, forms, dashboards, user interaction |\n`;
+    md+=`| Process & UI | 🔵 Low-Code | Workflow, approvals, forms, dashboards, user interaction |\n`;
     md+=`| Backend & Events | 🟢 High-Code | Integrations, event processing, scale, custom logic |\n\n`;
     if(hr!==null)md+=`> **Hybrid Readiness Score:** ${hr}% — ${hr<40?'Low. Define boundary and ownership before proceeding.':hr<70?'Moderate. Formalise ownership and observability plan.':'Good. Boundary and ownership signals are positive.'}\n\n`;
+    md+=`> **Key success factor:** Success depends on a clearly defined specification of interfaces and a communication protocol for changes and timelines between the cooperating teams.\n\n`;
   }
 
   md+=`## Score Summary\n\n| Platform | Raw Score | Final Score | Result |\n|---|---|---|---|\n`;
-  md+=`| 🔵 Mendix Low-Code | ${raw.lc} | ${lc} | ${isTieMd?tiedMd.some(s=>s.key==='lc')?'≈ Tied':'':winner.key==='lc'?'✅ Selected':''} |\n`;
+  md+=`| 🔵 Low-Code | ${raw.lc} | ${lc} | ${isTieMd?tiedMd.some(s=>s.key==='lc')?'≈ Tied':'':winner.key==='lc'?'✅ Selected':''} |\n`;
   md+=`| 🟣 Hybrid | ${raw.hy} | ${hy}${pen.penalised?'*':''} | ${isTieMd?tiedMd.some(s=>s.key==='hy')?'≈ Tied':'':winner.key==='hy'?'✅ Selected':''} |\n`;
   md+=`| 🟢 High-Code | ${raw.hc} | ${hc} | ${isTieMd?tiedMd.some(s=>s.key==='hc')?'≈ Tied':'':winner.key==='hc'?'✅ Selected':''} |\n\n`;
   if(pen.penalised)md+=`_* Hybrid score reduced by ${pen.penalty} pts due to Hybrid readiness < 40%._\n\n`;
@@ -1440,9 +1446,9 @@ function buildMd(){
   md+=`## Trade-offs\n\n${isTieMd?tiedMd.map(s=>tradeoffs[s.key]).join('\n\n'):tradeoffs[winner.key]||''}\n\n`;
   md+=`## Cost Model\n\n`;
   const costModels={
-    lc:`**Platform: Mendix (Capacity-based)**\n\nCost drivers: application runtime capacity, database size and capacity, file storage, number of environments (dev/test/acc/prod), HA and fallback requirements, horizontal scaling headroom, and enterprise licensing / internal chargeback.\n\n> ⚠ Mendix can be the better total-cost choice when fast delivery, business involvement, process fit, and available Mendix capability reduce build and change costs significantly.`,
-    hy:`**Platform: Hybrid (Dual cost model)**\n\n- **Mendix layer (capacity-based):** runtime capacity, DB size, environments, HA/fallback, scaling headroom, licensing\n- **High-code layer (usage-based):** compute duration and request volume, queue/event/message volume, DB reads/writes/storage, API and load balancing, logs/metrics/traces/alarms, networking/NAT/KMS/WAF, HA/DR setup\n\nThe boundary between layers allows each to use the cost model that matches its workload shape. Both must be budgeted and governed separately.\n\n> ⚠ AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive.`,
-    hc:`**Platform: High-Code / AWS-native (Usage-based)**\n\nCost drivers: compute duration and request volume, queue/event/message volume, database reads/writes/storage/provisioned capacity, API calls/load balancing/data transfer, logs/metrics/traces/alarms/retention, networking/NAT/security/KMS/secrets/WAF, HA and DR setup.\n\n> ⚠ AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than a well-licenced Mendix setup.`,
+    lc:`**Platform: Low-Code (Capacity-based)**\n\nCost drivers: application runtime capacity, database size and capacity, file storage, number of environments (dev/test/acc/prod), HA and fallback requirements, horizontal scaling headroom, and enterprise licensing / internal chargeback.\n\n> ⚠ Low-Code can be the better total-cost choice when fast delivery, business involvement, process fit, and available Low-Code capability reduce build and change costs significantly.`,
+    hy:`**Platform: Hybrid (Dual cost model)**\n\n- **Low-Code layer (capacity-based):** runtime capacity, DB size, environments, HA/fallback, scaling headroom, licensing\n- **High-code layer (usage-based):** compute duration and request volume, queue/event/message volume, DB reads/writes/storage, API and load balancing, logs/metrics/traces/alarms, networking/NAT/KMS/WAF, HA/DR setup\n\nThe boundary between layers allows each to use the cost model that matches its workload shape. Both must be budgeted and governed separately.\n\n> ⚠ AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive.`,
+    hc:`**Platform: High-Code / AWS-native (Usage-based)**\n\nCost drivers: compute duration and request volume, queue/event/message volume, database reads/writes/storage/provisioned capacity, API calls/load balancing/data transfer, logs/metrics/traces/alarms/retention, networking/NAT/security/KMS/secrets/WAF, HA and DR setup.\n\n> ⚠ AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than a well-licenced Low-Code setup.`,
   };
   md+=(isTieMd?tiedMd.map(s=>costModels[s.key]||'').join('\n\n'):costModels[winner.key]||costModels['lc'])+'\n\n';
   md+=`## Assumptions\n\n`;assumptions.forEach(a=>{md+=`- ${a}\n`;});md+='\n---\n\n';
@@ -1485,6 +1491,82 @@ function closeModal(){document.getElementById('modalOverlay').classList.remove('
 function handleOvClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function copyMd(){navigator.clipboard.writeText(lastMd).then(()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Copied!';b.classList.add('copy-ok');setTimeout(()=>{b.textContent='Copy to clipboard';b.classList.remove('copy-ok');},2000);});}
 function downloadMd(){const slug=(document.getElementById('metaProject').value.trim()||'decision').replace(/[^a-z0-9]/gi,'-').toLowerCase();const blob=new Blob([lastMd],{type:'text/markdown'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`postnl-decision-report-${slug}.md`;a.click();URL.revokeObjectURL(url);}
+
+// Lightweight converter for the specific markdown subset produced by buildMd() — headers, bold/italic/code, blockquotes, tables, bullet lists, hr.
+function mdInline(s){
+  let t=s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/`([^`]+)`/g,'<code>$1</code>');
+  t=t.replace(/_(.+?)_/g,'<em>$1</em>');
+  return t;
+}
+function mdToHtml(md){
+  const lines=md.replace(/\r\n/g,'\n').split('\n');
+  let html='',i=0,inList=false;
+  const closeList=()=>{if(inList){html+='</ul>';inList=false;}};
+  while(i<lines.length){
+    const line=lines[i];
+    if(line.trim()===''){closeList();i++;continue;}
+    if(line.trim()==='---'){closeList();html+='<hr>';i++;continue;}
+    if(/^###\s+/.test(line)){closeList();html+=`<h3>${mdInline(line.replace(/^###\s+/,''))}</h3>`;i++;continue;}
+    if(/^##\s+/.test(line)){closeList();html+=`<h2>${mdInline(line.replace(/^##\s+/,''))}</h2>`;i++;continue;}
+    if(/^#\s+/.test(line)){closeList();html+=`<h1>${mdInline(line.replace(/^#\s+/,''))}</h1>`;i++;continue;}
+    if(/^>\s?/.test(line)){
+      closeList();
+      const q=[];
+      while(i<lines.length&&/^>\s?/.test(lines[i])){q.push(lines[i].replace(/^>\s?/,''));i++;}
+      html+=`<blockquote>${q.map(mdInline).join('<br>')}</blockquote>`;
+      continue;
+    }
+    if(/^\|/.test(line)){
+      closeList();
+      const t=[];
+      while(i<lines.length&&/^\|/.test(lines[i])){t.push(lines[i]);i++;}
+      const parseRow=l=>l.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim());
+      const header=parseRow(t[0]);
+      const rows=t.slice(2).map(parseRow);
+      html+='<table><thead><tr>'+header.map(c=>`<th>${mdInline(c)}</th>`).join('')+'</tr></thead><tbody>'+
+        rows.map(r=>'<tr>'+r.map(c=>`<td>${mdInline(c)}</td>`).join('')+'</tr>').join('')+'</tbody></table>';
+      continue;
+    }
+    if(/^-\s+/.test(line)){
+      if(!inList){html+='<ul>';inList=true;}
+      html+=`<li>${mdInline(line.replace(/^-\s+/,''))}</li>`;
+      i++;continue;
+    }
+    closeList();
+    html+=`<p>${mdInline(line)}</p>`;
+    i++;
+  }
+  closeList();
+  return html;
+}
+function downloadPdf(){
+  const md=lastMd||buildMd();
+  const project=document.getElementById('metaProject').value.trim()||'Unnamed Project';
+  const body=mdToHtml(md);
+  const w=window.open('','_blank');
+  if(!w){alert('Please allow pop-ups for this site to export as PDF.');return;}
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Platform Decision Report — ${project}</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a1a;max-width:800px;margin:32px auto;padding:0 24px;line-height:1.5;font-size:13px}
+h1{font-size:22px;border-bottom:2px solid #7B3FBE;padding-bottom:8px;margin-top:0}
+h2{font-size:16px;color:#7B3FBE;margin-top:28px;border-bottom:1px solid #ddd;padding-bottom:4px}
+h3{font-size:13px;margin-top:16px}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12px;page-break-inside:avoid}
+th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f3eefa}
+blockquote{margin:10px 0;padding:8px 12px;background:#f7f5fb;border-left:3px solid #7B3FBE;color:#333}
+ul{margin:6px 0;padding-left:22px}
+code{background:#f0f0f0;padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px}
+hr{border:none;border-top:1px solid #ddd;margin:20px 0}
+p{margin:8px 0}
+@media print{ body{margin:0;padding:16px} h2{page-break-after:avoid} }
+</style></head><body>${body}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{w.print();},300);
+}
 
 function resetAll(){
   clearState(lsKey());                   // remove only this mode's saved data

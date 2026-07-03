@@ -2,7 +2,7 @@
 
 **v4.1 — Low-Code vs. High-Code vs. Hybrid**
 
-An interactive decision-support tool for PostNL engineering teams evaluating whether to use **Mendix Low-Code**, **AWS-native High-Code**, or a **Hybrid architecture** for new or modernised applications.
+An interactive decision-support tool for PostNL engineering teams evaluating whether to use **Low-Code**, **AWS-native High-Code**, or a **Hybrid architecture** for new or modernised applications.
 
 ---
 
