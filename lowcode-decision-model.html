@@ -30,9 +30,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .mode-btn.active{background:var(--orange);color:#fff}
 .mode-btn:hover:not(.active){background:var(--bg)}
 .header-badge{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--orange);background:var(--orange-lt);border:1px solid rgba(255,98,0,.22);padding:3px 9px;border-radius:4px}
+.header-tools{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hdr-action-btn{padding:5px 11px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);transition:all .14s;white-space:nowrap}
+.hdr-action-btn:hover{background:var(--bg);color:var(--text);border-color:var(--muted2)}
 
 /* ─ LAYOUT ─ */
 .main{display:grid;grid-template-columns:1fr 330px;flex:1;overflow:hidden}
+.main.blind-active{grid-template-columns:1fr}
+.main.blind-active .sidebar{display:none}
 
 /* ─ WIZARD ─ */
 .wizard-panel{display:flex;flex-direction:column;overflow:hidden}
@@ -318,7 +323,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
   <div class="header-title">Platform Decision Model — Low-Code vs High-Code</div>
   <div class="mode-toggle">
     <button class="mode-btn active" id="modeQuick" onclick="setMode('quick')">⚡ Quick scan (5)</button>
-    <button class="mode-btn" id="modeFull" onclick="setMode('full')">Full assessment (26)</button>
+    <button class="mode-btn" id="modeFull" onclick="setMode('full')">Full assessment (24)</button>
+  </div>
+  <div class="header-tools">
+    <button class="hdr-action-btn" onclick="startBlindMode()" title="Interview a Product Owner without revealing scores or the recommendation — used to validate the model against real applications">🔬 Blind assessment</button>
+    <button class="hdr-action-btn" onclick="openCompare()" title="Load submitted blind-assessment response files and compare the model's recommendation against the actual implementation">📊 Compare results</button>
   </div>
   <div class="header-badge">v4.1 · Engineering Governance</div>
 </div>
@@ -349,6 +358,29 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <div class="finish-sub" id="finishSub"></div>
       <div id="qsResultBox"></div>
       <div class="finish-actions" id="finishActions"></div>
+    </div>
+    <div class="finish-screen" id="blindIntro">
+      <div class="finish-icon">🔬</div>
+      <div class="finish-title">Blind Assessment</div>
+      <div class="finish-sub" style="max-width:480px">You'll answer the same 24 questions used for the platform decision, plus one closing question about how the application is actually built today. No score or recommendation is shown on screen — this session is used only to validate and calibrate the decision model against real applications.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px;margin-bottom:18px;text-align:left">
+        <div class="meta-row"><div class="meta-lbl">Application / project name</div><input class="meta-inp" id="blindProject" type="text" placeholder="e.g. Parcel Track &amp; Trace v2"></div>
+        <div class="meta-row"><div class="meta-lbl">Your name (Product Owner)</div><input class="meta-inp" id="blindAuthor" type="text" placeholder="e.g. Alex de Vries"></div>
+      </div>
+      <div class="finish-actions">
+        <button class="finish-btn finish-btn-primary" onclick="beginBlindQuestions()">Start assessment →</button>
+        <button class="finish-btn finish-btn-ghost" onclick="exitBlindMode()">Cancel</button>
+      </div>
+    </div>
+    <div class="finish-screen" id="blindThanks">
+      <div class="finish-icon">✅</div>
+      <div class="finish-title">Thank you</div>
+      <div class="finish-sub" style="max-width:460px">Your responses have been recorded. No score or recommendation is shown to you — this session is used only to validate the model against real applications.</div>
+      <div class="finish-actions">
+        <button class="finish-btn finish-btn-primary" onclick="downloadBlindResult()">↓ Download response file</button>
+        <button class="finish-btn finish-btn-ghost" onclick="exitBlindMode()">Done</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:12px">Please send the downloaded file to <a href="mailto:alex.van.den.berg@postnl.nl?subject=Platform%20Decision%20Model%20-%20Validation%20Response" style="color:var(--muted2)">the model owner</a>.</div>
     </div>
     <div class="wizard-nav" id="wizardNav">
       <button class="nav-btn btn-prev" id="btnPrev" onclick="navigate(-1)" disabled>← Back</button>
@@ -546,6 +578,24 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
   </div>
 </div>
 
+<!-- COMPARE MODAL -->
+<div class="modal-overlay" id="compareOverlay" onclick="handleCompareOvClick(event)">
+  <div class="modal" style="width:880px">
+    <div class="modal-hdr"><div class="modal-hdr-title">Validation Results — Model vs. Actual Implementation</div><button class="modal-close" onclick="closeCompare()">×</button></div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px">Load one or more response files downloaded from Blind Assessment sessions to see how the model's recommendation compares to what was actually built.</p>
+      <input type="file" id="compareFileInput" accept="application/json" multiple onchange="handleCompareFiles(event)" style="margin-bottom:12px">
+      <div id="compareSummary" style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600"></div>
+      <div style="overflow-x:auto">
+        <table id="compareTable" style="width:100%;border-collapse:collapse;font-size:12px"></table>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="sb-btn btn-ghost" onclick="closeCompare()">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
 // LAYER 1 — HARD CONSTRAINT RULES
@@ -655,7 +705,7 @@ const QUICK_SCAN = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FULL ASSESSMENT (26 questions across 4 dimensions + 3 new v4 questions)
+// FULL ASSESSMENT (24 questions across 4 dimensions)
 // Structured in 3 decision layers:
 //   Layer 1 = Hard constraints (baked into HARD_RULES, flagged on questions)
 //   Layer 2 = Weighted scoring
@@ -886,6 +936,7 @@ const FULL_CATS = [
 // STATE
 // ═══════════════════════════════════════════════════════════════════════════
 let mode='quick', answers={}, currentIdx=0, lastMd='', allQ=[];
+let blindMode=false, blindResult=null;
 
 // ─ STORAGE KEYS ─
 const LS_QS   = 'pnl_qs_state';
@@ -896,6 +947,7 @@ function lsKey(){ return mode==='quick' ? LS_QS : LS_FULL; }
 
 // Save current session (answers + weights + meta) to localStorage
 function saveState(){
+  if(blindMode) return; // blind sessions are ephemeral — never persisted or mixed with a real session
   try{
     const weights={};
     allQ.forEach(q=>{ if(q.weight!==q.defaultWeight) weights[q.id]=q.weight; });
@@ -955,10 +1007,25 @@ function updateSavedBadge(){
   } catch(e){ el.style.display='none'; }
 }
 
+// Ground-truth question appended only in Blind Assessment mode. Options carry zero score
+// weight on every platform so this never influences the model's own recommendation.
+const IMPL_QUESTION={
+  id:'actual_implementation', catName:'Validation', defaultWeight:1,
+  text:'How is this application actually built today?',
+  desc:'This does not affect scoring — it is recorded only to validate the model against real applications.',
+  options:[
+    {label:'Low-Code platform', lc:0,hy:0,hc:0},
+    {label:'High-Code / custom-built', lc:0,hy:0,hc:0},
+    {label:'Hybrid — combination of Low-Code and custom-built', lc:0,hy:0,hc:0},
+    {label:'Not built yet / not sure', lc:0,hy:0,hc:0},
+  ],
+};
+
 function initAllQ(){
   allQ = mode==='quick'
     ? QUICK_SCAN.map(q=>({...q,weight:q.defaultWeight}))
     : FULL_CATS.flatMap(cat=>cat.questions.map(q=>({...q,catName:cat.name,weight:q.defaultWeight})));
+  if(blindMode) allQ = allQ.concat([{...IMPL_QUESTION,weight:IMPL_QUESTION.defaultWeight}]);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1008,6 +1075,7 @@ function navigate(d){goTo(currentIdx+d);}
 function showWizard(){document.getElementById('wizardBody').style.display='flex';document.getElementById('finishScreen').classList.remove('active');document.getElementById('wizardNav').style.display='flex';}
 
 function showFinish(){
+  if(blindMode){ showFinishBlind(); return; }
   document.getElementById('wizardBody').style.display='none';
   document.getElementById('finishScreen').classList.add('active');
   document.getElementById('wizardNav').style.display='none';
@@ -1045,6 +1113,154 @@ function showFinish(){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// BLIND ASSESSMENT — Product Owner interviews for model validation.
+// Sidebar and every scoring hint (weights, hard-constraint tags, layer badges,
+// the constraint banner) stay hidden throughout; the recommendation is computed
+// only at the end and never rendered — it's embedded in the exported file instead.
+// ═══════════════════════════════════════════════════════════════════════════
+function startBlindMode(){
+  blindMode=true;
+  document.querySelector('.main').classList.add('blind-active');
+  document.getElementById('wizardBody').style.display='none';
+  document.getElementById('finishScreen').classList.remove('active');
+  document.getElementById('blindThanks').classList.remove('active');
+  document.getElementById('wizardNav').style.display='none';
+  document.getElementById('blindProject').value='';
+  document.getElementById('blindAuthor').value='';
+  document.getElementById('blindIntro').classList.add('active');
+}
+
+function beginBlindQuestions(){
+  document.getElementById('metaProject').value=document.getElementById('blindProject').value.trim();
+  document.getElementById('metaAuthor').value=document.getElementById('blindAuthor').value.trim();
+  mode='full'; answers={}; currentIdx=0; blindResult=null;
+  initAllQ(); buildDotMap();
+  document.getElementById('blindIntro').classList.remove('active');
+  showWizard(); renderStep(0);
+}
+
+function exitBlindMode(){
+  blindMode=false; blindResult=null;
+  document.querySelector('.main').classList.remove('blind-active');
+  document.getElementById('blindIntro').classList.remove('active');
+  document.getElementById('blindThanks').classList.remove('active');
+  setMode('quick');
+}
+
+function showFinishBlind(){
+  document.getElementById('wizardBody').style.display='none';
+  document.getElementById('finishScreen').classList.remove('active');
+  document.getElementById('wizardNav').style.display='none';
+  document.getElementById('blindThanks').classList.add('active');
+  blindResult=buildBlindResult();
+}
+
+function buildBlindResult(){
+  const raw=computeScores();
+  const pen=penaliseHybrid(raw.lc,raw.hy,raw.hc);
+  const {lc,hy,hc}=pen;
+  const ev=evaluateRules(answers,{lc,hy,hc});
+  const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
+  let winner=sorted[0];
+  if(ev&&ev.level==='ko')winner={name:ev.verdict,key:ev.forceKey};
+  else if(ev&&ev.level==='block')winner={name:sorted.find(s=>s.key!=='hy')?.name||sorted[1].name,key:sorted.find(s=>s.key!=='hy')?.key||sorted[1].key};
+  const implIdx=answers[IMPL_QUESTION.id];
+  const implLabel=implIdx!==undefined?IMPL_QUESTION.options[implIdx].label:null;
+  return {
+    type:'postnl-validation-response',
+    toolVersion:'v4.1',
+    project: document.getElementById('metaProject').value.trim()||'Unnamed Project',
+    productOwner: document.getElementById('metaAuthor').value.trim()||'Not specified',
+    submittedAt: new Date().toISOString(),
+    answers: allQ.filter(q=>q.id!==IMPL_QUESTION.id).map(q=>({
+      id:q.id, category:q.catName, weight:q.weight,
+      answerIndex: answers[q.id],
+      answerLabel: answers[q.id]!==undefined?q.options[answers[q.id]].label:null,
+    })),
+    actualImplementationIndex: implIdx,
+    actualImplementationLabel: implLabel,
+    modelResult:{
+      rawScores: {lc:raw.lc,hy:raw.hy,hc:raw.hc},
+      adjustedScores: {lc,hy,hc},
+      penalised: !!pen.penalised, penalty: pen.penalty||0,
+      evaluatedRule: ev?{id:ev.id, level:ev.level, verdict:ev.verdict}:null,
+      recommendationKey: winner.key, recommendationName: winner.name,
+    },
+  };
+}
+
+function downloadBlindResult(){
+  const result=blindResult||buildBlindResult();
+  const slug=(result.project||'response').replace(/[^a-z0-9]/gi,'-').toLowerCase();
+  const blob=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`postnl-validation-${slug}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPARE — load exported blind-assessment responses and check the model's
+// recommendation against what each respondent said is actually implemented.
+// ═══════════════════════════════════════════════════════════════════════════
+const IMPL_TO_KEY={0:'lc',1:'hc',2:'hy'}; // index 3 ("not sure / not built") has no comparable key
+let compareResults=[];
+
+function escHtml(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function openCompare(){ document.getElementById('compareOverlay').classList.add('open'); }
+function closeCompare(){ document.getElementById('compareOverlay').classList.remove('open'); }
+function handleCompareOvClick(e){ if(e.target===document.getElementById('compareOverlay')) closeCompare(); }
+
+function handleCompareFiles(e){
+  const files=Array.from(e.target.files||[]);
+  compareResults=[];
+  if(files.length===0){ renderCompareTable(); return; }
+  let pending=files.length;
+  files.forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const data=JSON.parse(reader.result);
+        if(data&&data.type==='postnl-validation-response') compareResults.push(data);
+      }catch(err){}
+      pending--;
+      if(pending===0) renderCompareTable();
+    };
+    reader.onerror=()=>{ pending--; if(pending===0) renderCompareTable(); };
+    reader.readAsText(f);
+  });
+}
+
+function renderCompareTable(){
+  const rows=compareResults.map(r=>{
+    const actualKey=IMPL_TO_KEY[r.actualImplementationIndex];
+    const modelKey=r.modelResult?.recommendationKey;
+    const match=(actualKey&&modelKey)?(actualKey===modelKey):null;
+    return {r, actualKey, modelKey, match};
+  });
+  const known=rows.filter(x=>x.match!==null);
+  const correct=known.filter(x=>x.match).length;
+  const summary=document.getElementById('compareSummary');
+  summary.textContent = rows.length===0
+    ? 'No valid response files loaded.'
+    : `${rows.length} response(s) loaded · ${known.length} comparable · ${correct}/${known.length} match the model's recommendation${known.length?` (${Math.round(correct/known.length*100)}%)`:''}`;
+  const table=document.getElementById('compareTable');
+  table.innerHTML=`<thead><tr>
+    <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Project</th>
+    <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Product Owner</th>
+    <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Actual</th>
+    <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Model Recommendation</th>
+    <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Match</th>
+  </tr></thead><tbody>${rows.map(({r,match})=>`<tr>
+    <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.project)||'—'}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.productOwner)||'—'}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.actualImplementationLabel)||'—'}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.modelResult&&r.modelResult.recommendationName)||'—'}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${match===null?'—':match?'✅':'❌'}</td>
+  </tr>`).join('')}</tbody>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // RENDER STEP
 // ═══════════════════════════════════════════════════════════════════════════
 function renderStep(idx){
@@ -1053,8 +1269,8 @@ function renderStep(idx){
     :q.layer===3?'<span class="layer-label layer-3">Layer 3 · Hybrid Gate</span>':'';
   document.getElementById('wizCat').innerHTML=q.catName
     +(q.quickScan?` <span class="tag tag-qs">Quick Scan</span>`:'')
-    +(q.isNew?` <span class="tag tag-new">New v4</span>`:'')
-    +(layerTag&&!q.quickScan?` ${layerTag}`:'');
+    +(q.isNew&&!blindMode?` <span class="tag tag-new">New v4</span>`:'')
+    +(layerTag&&!q.quickScan&&!blindMode?` ${layerTag}`:'');
   const ac=Object.keys(answers).length;
   document.getElementById('wizFill').style.width=(ac/TOTAL*100)+'%';
   document.getElementById('wizStepLabel').textContent=`${idx+1} / ${TOTAL}`;
@@ -1064,7 +1280,7 @@ function renderStep(idx){
   const card=document.getElementById('questionCard');
   card.style.animation='none'; card.offsetHeight; card.style.animation='';
   const w=q.weight??q.defaultWeight; const wl=w===1?'Standard':w===2?'Important':'Critical';
-  const badges=[
+  const badges=blindMode?'':[
     `<span class="weight-badge w${w}" onclick="openWeightDrawer()">×${w} ${wl}</span>`,
     q.quickScan?'<span class="tag tag-qs">Quick Scan</span>':'',
     q.isNew?'<span class="tag tag-new">New v4</span>':'',
@@ -1076,16 +1292,16 @@ function renderStep(idx){
     <div class="q-text">${q.text}</div>
     <div class="q-desc">${q.desc}</div>
     <div class="options">${q.options.map((opt,i)=>`
-      <button class="option-btn${answers[q.id]===i?' selected':''}${opt.knock?' knock':''}"
+      <button class="option-btn${answers[q.id]===i?' selected':''}${(!blindMode&&opt.knock)?' knock':''}"
         onclick="sel('${q.id}',${i})">
         <div class="opt-dot"></div><span>${opt.label}</span>
-        ${opt.knock?'<span class="knock-tag">Hard Constraint</span>':''}
+        ${(!blindMode&&opt.knock)?'<span class="knock-tag">Hard Constraint</span>':''}
       </button>`).join('')}
     </div>`;
   if(answers[q.id]!==undefined){
     card.querySelectorAll('.option-btn').forEach((b,i)=>{
       const on=i===answers[q.id]; b.classList.toggle('selected',on);
-      const d=b.querySelector('.opt-dot'); const ik=q.options[i]?.knock;
+      const d=b.querySelector('.opt-dot'); const ik=!blindMode&&q.options[i]?.knock;
       d.style.background=on?(ik?'var(--danger)':'var(--orange)'):'';
       d.style.borderColor=on?(ik?'var(--danger)':'var(--orange)'):'';
     });
@@ -1099,7 +1315,7 @@ function sel(qid,optIdx){
   answers[qid]=optIdx; updateScores(); saveState();
   document.querySelectorAll('#questionCard .option-btn').forEach((b,i)=>{
     const on=i===optIdx; b.classList.toggle('selected',on);
-    const d=b.querySelector('.opt-dot'); const ik=allQ[currentIdx]?.options[i]?.knock;
+    const d=b.querySelector('.opt-dot'); const ik=!blindMode&&allQ[currentIdx]?.options[i]?.knock;
     d.style.background=on?(ik?'var(--danger)':'var(--orange)'):'';
     d.style.borderColor=on?(ik?'var(--danger)':'var(--orange)'):'';
   });
@@ -1168,6 +1384,7 @@ function computeScores(){
 }
 
 function updateScores(){
+  if(blindMode) return; // no live scoring feedback during a blind session — nothing here is visible anyway (sidebar hidden), but the constraint banner lives outside it
   const raw=computeScores();
   const {lc:rlc,hy:rhy,hc:rhc,answered,total}=raw;
   // Apply Hybrid penalty if applicable
