@@ -1,0 +1,200 @@
+{
+  "type": "postnl-validation-response",
+  "toolVersion": "v4.1",
+  "project": "MCP application assessment",
+  "productOwner": "Jens van Kemenade",
+  "submittedAt": "2026-07-06T08:46:01.730Z",
+  "answers": [
+    {
+      "id": "domain",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Real-time, event-driven, or high-throughput system"
+    },
+    {
+      "id": "ui_complexity",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Some custom widgets on top of standard patterns"
+    },
+    {
+      "id": "business_logic",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Complex: domain algorithms or heavy computation"
+    },
+    {
+      "id": "uniqueness",
+      "category": "🏗️ Application Characteristics",
+      "weight": 1,
+      "answerIndex": 0,
+      "answerLabel": "Common pattern — Marketplace modules exist"
+    },
+    {
+      "id": "strategic_domain",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Partially — some business-facing screens but technical underpinning"
+    },
+    {
+      "id": "performance",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 3,
+      "answerLabel": "Performance or latency is critical to the solution"
+    },
+    {
+      "id": "elasticity",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "May grow or vary materially — elasticity matters"
+    },
+    {
+      "id": "runtime_cost",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Usage-based model needed — spiky demand, pay-per-request, or cost must scale with actual usage"
+    },
+    {
+      "id": "integration",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 3,
+      "answerLabel": "Custom integration layer or full middleware ownership required"
+    },
+    {
+      "id": "observability",
+      "category": "⚙️ Technical Constraints",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Moderate observability and automated testing needed"
+    },
+    {
+      "id": "security",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 0,
+      "answerLabel": "Standard enterprise — SSO, RBAC, audit trail"
+    },
+    {
+      "id": "cloud",
+      "category": "⚙️ Technical Constraints",
+      "weight": 1,
+      "answerIndex": 1,
+      "answerLabel": "Private cloud / AWS / Azure with a Low-Code container"
+    },
+    {
+      "id": "team_skills",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 3,
+      "answerLabel": "Senior software engineers — Java, TypeScript, etc."
+    },
+    {
+      "id": "team_size",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 1,
+      "answerIndex": 0,
+      "answerLabel": "1–3 people (including part-time)"
+    },
+    {
+      "id": "team_ownership",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Not defined — ownership is shared or unclear"
+    },
+    {
+      "id": "time_to_market",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Moderate — 2–4 month delivery window"
+    },
+    {
+      "id": "op_criticality",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Business-critical — outages have significant impact"
+    },
+    {
+      "id": "maintainability",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Dedicated engineering team long-term"
+    },
+    {
+      "id": "lifespan",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 1,
+      "answerLabel": "Medium-term — 2–5 years"
+    },
+    {
+      "id": "change_rate",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Speed and technical flexibility both matter equally"
+    },
+    {
+      "id": "arch_boundary",
+      "category": "📊 Business & Strategic",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Yes — boundary is defined, owned, and governed"
+    },
+    {
+      "id": "reuse",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 1,
+      "answerLabel": "Some shared services or UI components"
+    },
+    {
+      "id": "vendor",
+      "category": "📊 Business & Strategic",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Lock-in must be minimised — portability matters"
+    },
+    {
+      "id": "budget",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 1,
+      "answerLabel": "Open budget — optimise for total cost of ownership across both models"
+    }
+  ],
+  "actualImplementationIndex": 1,
+  "actualImplementationLabel": "High-Code / custom-built",
+  "modelResult": {
+    "rawScores": {
+      "lc": 34,
+      "hy": 61,
+      "hc": 73
+    },
+    "adjustedScores": {
+      "lc": 34,
+      "hy": 61,
+      "hc": 73
+    },
+    "penalised": false,
+    "penalty": 0,
+    "evaluatedRule": {
+      "id": "extreme_latency",
+      "level": "ko",
+      "verdict": "High-Code (Hard Constraint)"
+    },
+    "recommendationKey": "hc",
+    "recommendationName": "High-Code (Hard Constraint)"
+  }
+}

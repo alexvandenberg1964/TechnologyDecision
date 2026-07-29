@@ -1,0 +1,200 @@
+{
+  "type": "postnl-validation-response",
+  "toolVersion": "v4.1",
+  "project": "Vision Services platform",
+  "productOwner": "Sander Heije",
+  "submittedAt": "2026-07-06T09:00:46.193Z",
+  "answers": [
+    {
+      "id": "domain",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Real-time, event-driven, or high-throughput system"
+    },
+    {
+      "id": "ui_complexity",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "No meaningful user-facing UI needed"
+    },
+    {
+      "id": "business_logic",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 3,
+      "answerLabel": "AI/ML inference or real-time processing pipeline"
+    },
+    {
+      "id": "uniqueness",
+      "category": "🏗️ Application Characteristics",
+      "weight": 1,
+      "answerIndex": 1,
+      "answerLabel": "Some unique features on top of standard patterns"
+    },
+    {
+      "id": "strategic_domain",
+      "category": "🏗️ Application Characteristics",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "No — this is a service layer, platform component, or integration hub"
+    },
+    {
+      "id": "performance",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Performance matters and must be explicitly designed"
+    },
+    {
+      "id": "elasticity",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "May grow or vary materially — elasticity matters"
+    },
+    {
+      "id": "runtime_cost",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Mixed — some parts capacity-based, some parts usage-driven"
+    },
+    {
+      "id": "integration",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 3,
+      "answerLabel": "Custom integration layer or full middleware ownership required"
+    },
+    {
+      "id": "observability",
+      "category": "⚙️ Technical Constraints",
+      "weight": 1,
+      "answerIndex": 3,
+      "answerLabel": "Deep logs, metrics, traces, alerts, SLOs, and full test coverage"
+    },
+    {
+      "id": "security",
+      "category": "⚙️ Technical Constraints",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Industry-regulated — ISO 27001, NEN 7510, GDPR-critical"
+    },
+    {
+      "id": "cloud",
+      "category": "⚙️ Technical Constraints",
+      "weight": 1,
+      "answerIndex": 3,
+      "answerLabel": "Edge, embedded, or IoT deployment"
+    },
+    {
+      "id": "team_skills",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 3,
+      "answerLabel": "Senior software engineers — Java, TypeScript, etc."
+    },
+    {
+      "id": "team_size",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 1,
+      "answerIndex": 0,
+      "answerLabel": "1–3 people (including part-time)"
+    },
+    {
+      "id": "team_ownership",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 0,
+      "answerLabel": "Fully clear — separate teams own UI/process and backend/integration"
+    },
+    {
+      "id": "time_to_market",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 0,
+      "answerLabel": "Very high — MVP needed within weeks"
+    },
+    {
+      "id": "op_criticality",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Important internal application"
+    },
+    {
+      "id": "maintainability",
+      "category": "🧑‍💻 Team & Organisation",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Dedicated engineering team long-term"
+    },
+    {
+      "id": "lifespan",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Long-term strategic platform — 5+ years"
+    },
+    {
+      "id": "change_rate",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Speed and technical flexibility both matter equally"
+    },
+    {
+      "id": "arch_boundary",
+      "category": "📊 Business & Strategic",
+      "weight": 2,
+      "answerIndex": 2,
+      "answerLabel": "Partially clear — boundary or ownership is not yet formalised"
+    },
+    {
+      "id": "reuse",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 2,
+      "answerLabel": "Core platform or shared service across the portfolio"
+    },
+    {
+      "id": "vendor",
+      "category": "📊 Business & Strategic",
+      "weight": 2,
+      "answerIndex": 1,
+      "answerLabel": "Acceptable for core, but avoid for the integration layer"
+    },
+    {
+      "id": "budget",
+      "category": "📊 Business & Strategic",
+      "weight": 1,
+      "answerIndex": 1,
+      "answerLabel": "Open budget — optimise for total cost of ownership across both models"
+    }
+  ],
+  "actualImplementationIndex": 1,
+  "actualImplementationLabel": "High-Code / custom-built",
+  "modelResult": {
+    "rawScores": {
+      "lc": 27,
+      "hy": 62,
+      "hc": 72
+    },
+    "adjustedScores": {
+      "lc": 27,
+      "hy": 62,
+      "hc": 72
+    },
+    "penalised": false,
+    "penalty": 0,
+    "evaluatedRule": {
+      "id": "no_ui_full",
+      "level": "ko",
+      "verdict": "High-Code (Hard Constraint)"
+    },
+    "recommendationKey": "hc",
+    "recommendationName": "High-Code (Hard Constraint)"
+  }
+}

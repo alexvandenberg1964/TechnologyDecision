@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PostNL — Platform Decision Model v4.1</title>
+<title>PostNL — Platform Decision Model v4.2</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -47,6 +47,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .tag-qs{background:rgba(180,83,9,.10);color:var(--warn);border:1px solid rgba(180,83,9,.20)}
 .tag-new{background:var(--hc-dim);color:var(--hc);border:1px solid rgba(0,122,94,.20)}
 .tag-layer{background:var(--lc-dim);color:var(--lc);border:1px solid rgba(0,100,210,.20)}
+.tag-phase-tech{background:var(--orange-lt);color:var(--orange-dk);border:1px solid rgba(255,98,0,.22)}
+.tag-phase-org{background:rgba(117,117,117,.12);color:var(--muted);border:1px solid rgba(117,117,117,.28)}
 .wizard-progress-row{display:flex;align-items:center;gap:12px}
 .wizard-progress-track{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden}
 .wizard-progress-fill{height:100%;background:var(--orange);border-radius:99px;transition:width .35s ease;width:0%}
@@ -62,6 +64,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .dmi.qs.current{border-color:var(--warn);background:var(--warn-lt)}
 .dmi.qs.answered.current{background:var(--warn)}
 .dot-sep{width:1px;height:10px;background:var(--border2);flex-shrink:0;align-self:center}
+.dot-sep-phase{width:2px;height:14px;background:var(--muted2);flex-shrink:0;align-self:center;margin:0 2px}
 
 /* ─ CONSTRAINT BANNER ─ */
 .constraint-banner{display:none;margin:0 32px;margin-top:10px;padding:11px 16px;border-radius:8px;border:1.5px solid var(--danger);background:var(--danger-dim);flex-shrink:0}
@@ -202,6 +205,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .fl{background:var(--lc-dim);color:var(--lc);border:1px solid rgba(0,100,210,.2)}
 .fh{background:var(--hy-dim);color:var(--hy);border:1px solid rgba(123,63,190,.2)}
 .fc{background:var(--hc-dim);color:var(--hc);border:1px solid rgba(0,122,94,.2)}
+.f-ok{background:var(--ok-dim);color:var(--ok);border:1px solid rgba(21,128,61,.2)}
+.f-gap{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.2)}
+
+/* ORGANISATIONAL READINESS */
+.sc.orgr{display:none}.sc.orgr.show{display:block}
 
 /* SIDEBAR BUTTONS */
 .sb-btn{width:100%;padding:9px 13px;border-radius:6px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .14s;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -248,6 +256,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.30);z-index:50}
 .drawer-overlay.open{display:block}
 .wd{position:fixed;top:0;right:-520px;width:480px;max-width:96vw;height:100vh;background:var(--surface);box-shadow:-4px 0 24px rgba(0,0,0,.15);display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);z-index:51}
+#weightDrawer{width:600px;right:-640px}
 .wd.open{right:0}
 .wd-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
 .wd-title{font-size:15px;font-weight:700;margin-bottom:3px}
@@ -329,7 +338,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
     <button class="hdr-action-btn" onclick="startBlindMode()" title="Interview a Product Owner without revealing scores or the recommendation — used to validate the model against real applications">🔬 Blind assessment</button>
     <button class="hdr-action-btn" onclick="openCompare()" title="Load submitted blind-assessment response files and compare the model's recommendation against the actual implementation">📊 Compare results</button>
   </div>
-  <div class="header-badge">v4.1 · Engineering Governance</div>
+  <div class="header-badge">v4.2 · Engineering Governance</div>
 </div>
 
 <div class="main">
@@ -382,6 +391,16 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       </div>
       <div style="font-size:11px;color:var(--muted2);margin-top:12px">Please send the downloaded file to <a href="mailto:alex.van.den.berg@postnl.nl?subject=Platform%20Decision%20Model%20-%20Validation%20Response" style="color:var(--muted2)">the model owner</a>.</div>
     </div>
+    <div class="finish-screen" id="phaseBreak">
+      <div class="finish-icon" style="background:rgba(117,117,117,.12);border-color:var(--muted2)">🧭</div>
+      <div class="finish-title">Technology Fit — complete</div>
+      <div class="finish-sub" id="phaseBreakSub" style="max-width:480px"></div>
+      <div class="finish-actions">
+        <button class="finish-btn finish-btn-primary" onclick="continueToOrgPhase()">Continue to Organisational Readiness →</button>
+        <button class="finish-btn finish-btn-ghost" onclick="skipOrgPhase()">Skip — finish assessment now</button>
+        <button class="finish-btn finish-btn-ghost" onclick="goTo(techPhaseCount()-1)">← Back to review Technology Fit answers</button>
+      </div>
+    </div>
     <div class="wizard-nav" id="wizardNav">
       <button class="nav-btn btn-prev" id="btnPrev" onclick="navigate(-1)" disabled>← Back</button>
       <button class="nav-btn btn-next" id="btnNext" onclick="navigate(1)">Next →</button>
@@ -411,6 +430,21 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <div class="rec-val" id="recVal"></div>
     </div>
 
+    <!-- Organisational Readiness — always visible, independent of which platform wins. Signals delivery
+         risk/mitigation (team, ownership, budget, timeline); never feeds back into the platform score. -->
+    <div class="sc orgr" id="orgReadinessCard">
+      <div class="sc-title">Organisational Readiness</div>
+      <div class="conf-row" style="border-top:none;padding-top:0;margin-top:0">
+        <span class="conf-lbl">Readiness</span><span class="conf-val cv-low" id="orBadge">—</span>
+      </div>
+      <div class="hr-bar-wrap" style="margin-top:8px">
+        <div class="hr-track"><div class="hr-fill" id="orFill" style="width:0%;background:var(--orange)"></div></div>
+        <div class="hr-val" id="orVal" style="color:var(--orange-dk)">0%</div>
+      </div>
+      <div class="hr-note" id="orNote"></div>
+      <div class="criteria-breakdown" id="orBreakdown" style="margin-top:8px"></div>
+    </div>
+
     <!-- Architecture pattern (shown for Hybrid) -->
     <div class="arch-pattern" id="archPattern">
       <div class="ap-title">🟣 Architecture Pattern</div>
@@ -418,11 +452,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <div class="ap-sep"></div>
       <div class="ap-row"><div class="ap-icon">🟢</div><div class="ap-text"><strong>High-Code</strong> — Integrations, events, scale, backend logic</div></div>
       <div class="ap-sep"></div>
-      <div class="hr-section">
-        <div class="hr-title">Hybrid Readiness</div>
-        <div class="hr-bar-wrap"><div class="hr-track"><div class="hr-fill" id="hrFill" style="width:0%"></div></div><div class="hr-val" id="hrVal">0%</div></div>
-        <div class="hr-note" id="hrNote"></div>
-      </div>
       <div class="hr-section">
         <div class="hr-title">Key Success Factor</div>
         <div class="hr-note">Success depends on a clearly defined specification of interfaces and a communication protocol for changes and timelines between the cooperating teams.</div>
@@ -602,9 +631,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 // level: 'ko' = score override | 'block' = Hybrid blocked → fallback | 'warn' = warning only
 // ═══════════════════════════════════════════════════════════════════════════
 const HARD_RULES = [
-  { id:'no_ui_full', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
-    condition: a => [2,3].includes(a['ui_complexity']),
-    body:'No meaningful UI or specialised visualisation selected. Low-Code\'s core value is its UI layer — this workload does not benefit from it. Score overridden → High-Code.' },
+  // NOTE: Full Assessment's ui_complexity no longer has a matching KO rule here (removed — see
+  // question definition below for rationale). "No meaningful UI" is now a maximally-weighted
+  // Layer 2 signal instead of an unconditional override; "specialised visualisation" now scores
+  // as a Hybrid signal instead of forcing High-Code. Quick Scan's qs_ui knockout is unchanged
+  // (Quick Scan only has the single "no UI" case, not the visualisation-bundling issue).
   { id:'no_ui_qs', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['qs_ui'] === 3,
     body:'No meaningful user-facing UI. Low-Code adds platform cost with no UX benefit. Score overridden → High-Code.' },
@@ -661,7 +692,7 @@ const RISK_RULES = [
 // QUICK SCAN (5 questions)
 // ═══════════════════════════════════════════════════════════════════════════
 const QUICK_SCAN = [
-  { id:'qs_shape', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+  { id:'qs_shape', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'tech',
     text:'What is the main shape of the solution?',
     desc:'The primary workload pattern is the strongest single signal. Process apps suit Low-Code; API/event systems suit high-code; mixed shapes often need a Hybrid with a clear boundary.',
     options:[
@@ -669,7 +700,7 @@ const QUICK_SCAN = [
       { label:'Both business-facing screens and a technical backend', lc:1,hy:3,hc:1 },
       { label:'API-first service, event processor, or integration layer', lc:0,hy:1,hc:3 },
     ]},
-  { id:'qs_ui', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+  { id:'qs_ui', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'tech',
     text:'How central is the UI or workflow to the solution\'s value?',
     desc:'If the UI and workflow ARE the product, Low-Code excels. If the value is in the backend runtime, high-code is likely needed.',
     options:[
@@ -678,7 +709,7 @@ const QUICK_SCAN = [
       { label:'Secondary — thin UI over technical logic', lc:0,hy:2,hc:2 },
       { label:'None — no meaningful user-facing UI', lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Low-Code adds cost without UX benefit. Hard constraint: High-Code.' },
     ]},
-  { id:'qs_volume', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+  { id:'qs_volume', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'tech',
     text:'What is the expected volume or peak load?',
     desc:'Low-Code is capacity-priced and does not scale elastically. Spiky or usage-dependent workloads suit cloud-native scaling.',
     options:[
@@ -686,7 +717,7 @@ const QUICK_SCAN = [
       { label:'Some growth or variation expected', lc:2,hy:2,hc:1 },
       { label:'High, spiky, or strongly usage-dependent load', lc:0,hy:1,hc:3 },
     ]},
-  { id:'qs_integration', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+  { id:'qs_integration', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'tech',
     text:'How complex are integrations, performance, or runtime behavior?',
     desc:'REST and OData are native to Low-Code. Event-driven flows, retries, strict latency, and deep observability shift toward high-code.',
     options:[
@@ -694,7 +725,7 @@ const QUICK_SCAN = [
       { label:'Some orchestration or performance considerations', lc:1,hy:3,hc:1 },
       { label:'Many integrations, strict latency, retries, or observability needs', lc:0,hy:1,hc:3 },
     ]},
-  { id:'qs_capability', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2,
+  { id:'qs_capability', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'org',
     text:'Which engineering capability is realistically available?',
     desc:'Platform fit matters less than team capability. A Low-Code-heavy team will deliver faster on Low-Code regardless of technical characteristics.',
     options:[
@@ -713,7 +744,7 @@ const QUICK_SCAN = [
 // ═══════════════════════════════════════════════════════════════════════════
 const FULL_CATS = [
   { name:'🏗️ Application Characteristics', questions:[
-    { id:'domain', defaultWeight:2, layer:2,
+    { id:'domain', defaultWeight:2, layer:2, axis:'tech',
       text:'What is the primary nature of the application?',
       desc:'Process-driven apps favour low-code. Compute-intensive, real-time, or deeply custom apps favour high-code.',
       options:[
@@ -722,16 +753,16 @@ const FULL_CATS = [
         {label:'Real-time, event-driven, or high-throughput system',lc:0,hy:1,hc:3},
         {label:'Customer-facing product with unique UX requirements',lc:0,hy:2,hc:3},
       ]},
-    { id:'ui_complexity', defaultWeight:2, layer:1,
+    { id:'ui_complexity', defaultWeight:3, layer:2, axis:'tech',
       text:'How complex and unique is the UI/UX?',
-      desc:'Standard forms and dashboards are Low-Code territory. Specialised or no-UI requirements are hard constraints.',
+      desc:'Standard forms and dashboards are Low-Code territory. No UI at all weighs maximally toward High-Code; a specialised visualisation on top of an otherwise standard app is a strong Hybrid signal, not an automatic High-Code verdict.',
       options:[
         {label:'Standard forms, lists, and dashboards',lc:3,hy:0,hc:0},
         {label:'Some custom widgets on top of standard patterns',lc:1,hy:3,hc:1},
-        {label:'No meaningful user-facing UI needed',lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Hard constraint: High-Code.'},
-        {label:'Specialised visualisation or fully custom interface',lc:0,hy:1,hc:3,knock:true,knockMsg:'Custom specialised UI → beyond Low-Code capabilities. Hard constraint: High-Code.'},
+        {label:'No meaningful user-facing UI needed',lc:0,hy:0,hc:3},
+        {label:'Specialised visualisation or fully custom interface',lc:0,hy:3,hc:1},
       ]},
-    { id:'business_logic', defaultWeight:2, layer:2,
+    { id:'business_logic', defaultWeight:2, layer:2, axis:'tech',
       text:'How complex is the core business logic?',
       desc:'Workflow orchestration and approvals suit Low-Code. Deep algorithms or ML inference suit high-code.',
       options:[
@@ -740,7 +771,7 @@ const FULL_CATS = [
         {label:'Complex: domain algorithms or heavy computation',lc:0,hy:1,hc:3},
         {label:'AI/ML inference or real-time processing pipeline',lc:0,hy:2,hc:3},
       ]},
-    { id:'uniqueness', defaultWeight:1, layer:2,
+    { id:'uniqueness', defaultWeight:1, layer:2, axis:'tech',
       text:'How unique is the application vs. available market patterns?',
       desc:'Low-Code marketplace modules cover many common patterns. Novel products need full code flexibility.',
       options:[
@@ -749,7 +780,7 @@ const FULL_CATS = [
         {label:'Highly differentiated or first-of-its-kind',lc:0,hy:1,hc:3},
       ]},
     // NEW v4: Platform strategy alignment
-    { id:'strategic_domain', defaultWeight:2, layer:2, isNew:true,
+    { id:'strategic_domain', defaultWeight:2, layer:2, isNew:true, axis:'tech',
       text:'Is this application within the strategic Low-Code application domain?',
       desc:'Low-Code is optimised for business apps and process automation. Service layers, platform components, and integration hubs are outside its intended domain.',
       options:[
@@ -759,7 +790,7 @@ const FULL_CATS = [
       ]},
   ]},
   { name:'⚙️ Technical Constraints', questions:[
-    { id:'performance', defaultWeight:2, layer:1,
+    { id:'performance', defaultWeight:2, layer:1, axis:'tech',
       text:'How strict are performance and latency requirements?',
       desc:'Low-Code handles standard enterprise workloads. Critical SLAs or sub-second latency are hard constraints.',
       options:[
@@ -768,7 +799,7 @@ const FULL_CATS = [
         {label:'Performance matters and must be explicitly designed',lc:0,hy:2,hc:2},
         {label:'Performance or latency is critical to the solution',lc:0,hy:0,hc:3,knock:true,knockMsg:'Critical latency → beyond Low-Code SLA capabilities. Hard constraint: High-Code.'},
       ]},
-    { id:'elasticity', defaultWeight:2, layer:1, isNew:true,
+    { id:'elasticity', defaultWeight:2, layer:1, isNew:true, axis:'tech',
       text:'How variable is expected runtime demand?',
       desc:'Low-Code is capacity-priced and cannot scale to zero. Spiky or usage-dependent demand suits cloud-native elastic infrastructure.',
       options:[
@@ -778,7 +809,7 @@ const FULL_CATS = [
         {label:'High, spiky, or must scale to zero or burst dynamically',lc:0,hy:0,hc:3,knock:true,knockMsg:'Elastic scaling required → Low-Code cannot scale to zero. Hard constraint: High-Code.'},
       ]},
     // NEW v4: Runtime cost dynamics (enriched with cost driver document)
-    { id:'runtime_cost', defaultWeight:2, layer:2, isNew:true,
+    { id:'runtime_cost', defaultWeight:2, layer:2, isNew:true, axis:'tech',
       text:'What is the dominant cost model for this workload?',
       desc:'Low-Code costs are capacity-oriented: runtime resources, database size, number of environments, HA/fallback, horizontal scaling headroom, and licensing. AWS costs are usage-based: compute duration, queue/event volume, database reads/writes, API calls, logs/metrics/traces, and data transfer. Hybrid lets each layer use the model that matches its workload shape.',
       options:[
@@ -786,7 +817,7 @@ const FULL_CATS = [
         {label:'Mixed — some parts capacity-based, some parts usage-driven',lc:1,hy:3,hc:1},
         {label:'Usage-based model needed — spiky demand, pay-per-request, or cost must scale with actual usage',lc:0,hy:1,hc:3},
       ]},
-    { id:'integration', defaultWeight:2, layer:2,
+    { id:'integration', defaultWeight:2, layer:2, axis:'tech',
       text:'How complex are the integration requirements?',
       desc:'REST/OData are native. Deep binary protocols, event brokers, or middleware ownership shifts toward high-code.',
       options:[
@@ -795,7 +826,7 @@ const FULL_CATS = [
         {label:'Legacy systems, binary protocols, or event brokers',lc:0,hy:2,hc:3},
         {label:'Custom integration layer or full middleware ownership required',lc:0,hy:1,hc:3},
       ]},
-    { id:'observability', defaultWeight:1, layer:2, isNew:true,
+    { id:'observability', defaultWeight:1, layer:2, isNew:true, axis:'tech',
       text:'How deep does observability and testability need to be?',
       desc:'Low-Code provides platform-level monitoring. Custom SLOs, distributed tracing, and full test coverage require high-code.',
       options:[
@@ -804,7 +835,7 @@ const FULL_CATS = [
         {label:'Moderate observability and automated testing needed',lc:1,hy:2,hc:2},
         {label:'Deep logs, metrics, traces, alerts, SLOs, and full test coverage',lc:0,hy:1,hc:3},
       ]},
-    { id:'security', defaultWeight:2, layer:1,
+    { id:'security', defaultWeight:2, layer:1, axis:'tech',
       text:'What are the security and compliance requirements?',
       desc:'Low-Code supports enterprise security. Custom cryptography or zero-trust is a hard constraint.',
       options:[
@@ -813,7 +844,7 @@ const FULL_CATS = [
         {label:'Critical infrastructure or government-grade requirements',lc:0,hy:1,hc:3},
         {label:'Custom cryptography or zero-trust architecture required',lc:0,hy:0,hc:3,knock:true,knockMsg:'Zero-trust/custom crypto → Low-Code has no stack control. Hard constraint: High-Code.'},
       ]},
-    { id:'cloud', defaultWeight:1, layer:2,
+    { id:'cloud', defaultWeight:1, layer:2, axis:'tech',
       text:'What is the deployment and infrastructure model?',
       desc:'Managed cloud and Kubernetes are well supported. On-premise or edge can constrain platform choice.',
       options:[
@@ -824,7 +855,7 @@ const FULL_CATS = [
       ]},
   ]},
   { name:'🧑‍💻 Team & Organisation', questions:[
-    { id:'team_skills', defaultWeight:2, layer:2,
+    { id:'team_skills', defaultWeight:2, layer:2, axis:'org',
       text:'What is the dominant skill profile of the development team?',
       desc:'Citizen developers accelerate in low-code. Senior engineers maximise value in high-code.',
       options:[
@@ -833,7 +864,7 @@ const FULL_CATS = [
         {label:'Full-stack engineers with some Low-Code exposure',lc:1,hy:3,hc:1},
         {label:'Senior software engineers — Java, TypeScript, etc.',lc:0,hy:1,hc:3},
       ]},
-    { id:'team_size', defaultWeight:1, layer:2,
+    { id:'team_size', defaultWeight:1, layer:2, axis:'org',
       text:'How large is the team that will build and maintain this?',
       desc:'Small teams benefit most from low-code productivity. Large teams have capacity for high-code investment.',
       options:[
@@ -843,7 +874,7 @@ const FULL_CATS = [
         {label:'20+ people or distributed squads',lc:0,hy:1,hc:3},
       ]},
     // NEW v4: Team ownership split (Layer 3 — Hybrid gate)
-    { id:'team_ownership', defaultWeight:2, layer:3, isNew:true,
+    { id:'team_ownership', defaultWeight:2, layer:3, isNew:true, axis:'org',
       text:'Is team ownership clearly separated between UI/process and backend/integration?',
       desc:'Hybrid requires a dedicated owner for each layer. Without clear split ownership, the boundary collapses over time and Hybrid becomes a liability.',
       options:[
@@ -851,7 +882,7 @@ const FULL_CATS = [
         {label:'Partially defined — ownership is roughly understood but not formalised',lc:1,hy:1,hc:1},
         {label:'Not defined — ownership is shared or unclear',lc:1,hy:0,hc:2},
       ]},
-    { id:'time_to_market', defaultWeight:2, layer:2,
+    { id:'time_to_market', defaultWeight:2, layer:2, axis:'org',
       text:'What is the time-to-market pressure?',
       desc:'Low-code compresses delivery timelines dramatically. High-code investment pays off over longer horizons.',
       options:[
@@ -859,7 +890,7 @@ const FULL_CATS = [
         {label:'Moderate — 2–4 month delivery window',lc:2,hy:2,hc:1},
         {label:'Flexible — 6+ months, control over speed',lc:1,hy:1,hc:3},
       ]},
-    { id:'op_criticality', defaultWeight:2, layer:2, isNew:true,
+    { id:'op_criticality', defaultWeight:2, layer:2, isNew:true, axis:'org',
       text:'How operationally critical is this solution?',
       desc:'Mission-critical systems require engineering-grade reliability. Low-Code SLAs may not suffice for 24/7 operational systems.',
       options:[
@@ -868,7 +899,7 @@ const FULL_CATS = [
         {label:'Business-critical — outages have significant impact',lc:1,hy:2,hc:2},
         {label:'Mission-critical or 24/7 operationally sensitive',lc:0,hy:1,hc:3},
       ]},
-    { id:'maintainability', defaultWeight:1, layer:2,
+    { id:'maintainability', defaultWeight:1, layer:2, axis:'org',
       text:'Who will own long-term maintenance?',
       desc:'Low-code widens the maintenance pool. High-code maintenance requires dedicated engineers.',
       options:[
@@ -878,7 +909,7 @@ const FULL_CATS = [
       ]},
   ]},
   { name:'📊 Business & Strategic', questions:[
-    { id:'lifespan', defaultWeight:1, layer:2,
+    { id:'lifespan', defaultWeight:1, layer:2, axis:'tech',
       text:'What is the expected application lifespan?',
       desc:'Tactical apps benefit from low-code speed. Long-lived systems may justify engineering investment.',
       options:[
@@ -886,7 +917,7 @@ const FULL_CATS = [
         {label:'Medium-term — 2–5 years',lc:2,hy:2,hc:1},
         {label:'Long-term strategic platform — 5+ years',lc:1,hy:1,hc:2},
       ]},
-    { id:'change_rate', defaultWeight:1, layer:2,
+    { id:'change_rate', defaultWeight:1, layer:2, axis:'tech',
       text:'What delivery and change pattern is expected?',
       desc:'Frequent business-process changes favour Low-Code\'s iteration speed. Long-term technical flexibility favours high-code.',
       options:[
@@ -896,7 +927,7 @@ const FULL_CATS = [
         {label:'Long-term engineered control and flexibility are critical',lc:0,hy:1,hc:3},
       ]},
     // Layer 3 — Hybrid gate
-    { id:'arch_boundary', defaultWeight:2, layer:3, isNew:true,
+    { id:'arch_boundary', defaultWeight:2, layer:3, isNew:true, axis:'org',
       text:'Is there a clear, defined, and owned architectural boundary between the UI/process layer and the backend/event layer?',
       desc:'Hybrid only works with an explicit boundary — Low-Code for process/UI, high-code for events/integrations/scale — that is actively governed. Without this, Hybrid becomes structural debt.',
       options:[
@@ -905,7 +936,7 @@ const FULL_CATS = [
         {label:'Partially clear — boundary or ownership is not yet formalised',lc:0,hy:1,hc:1},
         {label:'No — the solution is a technical backend or integration layer',lc:0,hy:0,hc:3},
       ]},
-    { id:'reuse', defaultWeight:1, layer:2,
+    { id:'reuse', defaultWeight:1, layer:2, axis:'tech',
       text:'How much reuse is expected across the portfolio?',
       desc:'Portfolio-wide shared services make the architectural choice more consequential.',
       options:[
@@ -913,7 +944,7 @@ const FULL_CATS = [
         {label:'Some shared services or UI components',lc:1,hy:3,hc:1},
         {label:'Core platform or shared service across the portfolio',lc:0,hy:1,hc:3},
       ]},
-    { id:'vendor', defaultWeight:2, layer:2,
+    { id:'vendor', defaultWeight:2, layer:2, axis:'tech',
       text:'How important is avoiding vendor lock-in?',
       desc:'Low-Code creates platform dependency. If portability is critical, high-code offers more control.',
       options:[
@@ -921,7 +952,7 @@ const FULL_CATS = [
         {label:'Acceptable for core, but avoid for the integration layer',lc:1,hy:3,hc:0},
         {label:'Lock-in must be minimised — portability matters',lc:0,hy:1,hc:3},
       ]},
-    { id:'budget', defaultWeight:1, layer:2,
+    { id:'budget', defaultWeight:1, layer:2, axis:'org',
       text:'What is the development budget profile?',
       desc:'Low-Code licensing has up-front platform cost but reduces build and change cost when delivery speed, business involvement, and process fit are high. AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
       options:[
@@ -937,6 +968,7 @@ const FULL_CATS = [
 // ═══════════════════════════════════════════════════════════════════════════
 let mode='quick', answers={}, currentIdx=0, lastMd='', allQ=[];
 let blindMode=false, blindResult=null;
+let orgPhaseEntered=false, orgSkipped=false; // Full Assessment only — has the user entered/explicitly skipped the Organisational Readiness phase
 
 // ─ STORAGE KEYS ─
 const LS_QS   = 'pnl_qs_state';
@@ -955,6 +987,7 @@ function saveState(){
       answers,
       weights,
       currentIdx,
+      orgPhaseEntered, orgSkipped,
       project: document.getElementById('metaProject').value,
       author:  document.getElementById('metaAuthor').value,
       savedAt: new Date().toISOString(),
@@ -973,6 +1006,8 @@ function loadState(){
     const s = JSON.parse(raw);
     answers   = s.answers   || {};
     currentIdx= s.currentIdx||0;
+    orgPhaseEntered = !!s.orgPhaseEntered;
+    orgSkipped = !!s.orgSkipped;
     // Apply saved weights on top of defaults
     if(s.weights){
       Object.entries(s.weights).forEach(([id,w])=>{
@@ -1022,10 +1057,20 @@ const IMPL_QUESTION={
 };
 
 function initAllQ(){
-  allQ = mode==='quick'
-    ? QUICK_SCAN.map(q=>({...q,weight:q.defaultWeight}))
-    : FULL_CATS.flatMap(cat=>cat.questions.map(q=>({...q,catName:cat.name,weight:q.defaultWeight})));
+  if(mode==='quick'){
+    allQ = QUICK_SCAN.map(q=>({...q,weight:q.defaultWeight}));
+  } else {
+    const flat = FULL_CATS.flatMap(cat=>cat.questions.map(q=>({...q,catName:cat.name,weight:q.defaultWeight})));
+    // Group into two clear phases — all Technology Fit questions (drive the platform score),
+    // then all Organisational Readiness questions (separate, skippable) — see techPhaseCount().
+    allQ = flat.filter(q=>q.axis!=='org').concat(flat.filter(q=>q.axis==='org'));
+  }
   if(blindMode) allQ = allQ.concat([{...IMPL_QUESTION,weight:IMPL_QUESTION.defaultWeight}]);
+}
+// Number of Technology Fit questions at the front of allQ — also the index of the phase boundary
+// (full mode only; meaningless/unused for Quick Scan, which has no phase break).
+function techPhaseCount(){
+  return allQ.filter(q=>q.axis!=='org').length;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1035,7 +1080,7 @@ function setMode(m){
   mode=m;
   document.getElementById('modeQuick').classList.toggle('active',m==='quick');
   document.getElementById('modeFull').classList.toggle('active',m==='full');
-  answers={}; currentIdx=0;
+  answers={}; currentIdx=0; orgPhaseEntered=false; orgSkipped=false;
   initAllQ();
   const hadSaved = loadState();          // restore this mode's session
   buildDotMap(); buildWD();
@@ -1050,10 +1095,11 @@ function setMode(m){
 // DOT MAP
 // ═══════════════════════════════════════════════════════════════════════════
 function buildDotMap(){
-  const map=document.getElementById('dotMap'); map.innerHTML=''; let lastCat=null;
+  const map=document.getElementById('dotMap'); map.innerHTML=''; let lastCat=null,lastAxis=null;
   allQ.forEach((q,i)=>{
-    if(mode==='full'&&q.catName!==lastCat&&i>0){const s=document.createElement('div');s.className='dot-sep';map.appendChild(s);}
-    lastCat=q.catName;
+    if(mode==='full'&&i>0&&q.axis!==lastAxis&&!blindMode){const s=document.createElement('div');s.className='dot-sep-phase';s.title=q.axis==='org'?'Organisational Readiness →':'Technology Fit →';map.appendChild(s);}
+    else if(mode==='full'&&q.catName!==lastCat&&i>0){const s=document.createElement('div');s.className='dot-sep';map.appendChild(s);}
+    lastCat=q.catName; lastAxis=q.axis;
     const d=document.createElement('div');
     d.className='dmi'+(q.quickScan?' qs':'');
     d.title=q.text.slice(0,55); d.onclick=()=>goTo(i); d.id='dmi-'+i;
@@ -1070,14 +1116,49 @@ function refreshDotMap(){
 // ═══════════════════════════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════════════════════════
-function goTo(idx){if(idx<0)return;if(idx>=allQ.length){showFinish();return;}currentIdx=idx;showWizard();renderStep(idx);saveState();}
+function goTo(idx){
+  if(idx<0)return;
+  if(idx>=allQ.length){showFinish();return;}
+  if(mode==='full'&&!blindMode&&idx===techPhaseCount()&&!orgPhaseEntered&&!orgSkipped){
+    currentIdx=idx; refreshDotMap(); showPhaseBreak(); saveState(); return;
+  }
+  if(allQ[idx]&&allQ[idx].axis==='org'){ orgPhaseEntered=true; orgSkipped=false; }
+  currentIdx=idx;showWizard();renderStep(idx);saveState();
+}
 function navigate(d){goTo(currentIdx+d);}
-function showWizard(){document.getElementById('wizardBody').style.display='flex';document.getElementById('finishScreen').classList.remove('active');document.getElementById('wizardNav').style.display='flex';}
+function showWizard(){document.getElementById('wizardBody').style.display='flex';document.getElementById('finishScreen').classList.remove('active');document.getElementById('phaseBreak').classList.remove('active');document.getElementById('wizardNav').style.display='flex';}
+
+// ─ PHASE BREAK — Technology Fit → Organisational Readiness (Full Assessment only) ─
+function showPhaseBreak(){
+  document.getElementById('wizardBody').style.display='none';
+  document.getElementById('finishScreen').classList.remove('active');
+  document.getElementById('wizardNav').style.display='none';
+  const orgCount=allQ.filter(q=>q.axis==='org').length;
+  document.getElementById('phaseBreakSub').textContent=`You've answered the ${techPhaseCount()} Technology Fit questions that drive the platform recommendation above. Next: ${orgCount} Organisational Readiness questions — these assess delivery risk (team, ownership, timeline, budget) separately and never change that recommendation. You can skip them and finish now, or answer them later from the finish screen.`;
+  document.getElementById('phaseBreak').classList.add('active');
+}
+function continueToOrgPhase(){
+  orgPhaseEntered=true; orgSkipped=false;
+  document.getElementById('phaseBreak').classList.remove('active');
+  showWizard(); renderStep(techPhaseCount()); saveState();
+}
+function skipOrgPhase(){
+  orgSkipped=true; orgPhaseEntered=false;
+  document.getElementById('phaseBreak').classList.remove('active');
+  currentIdx=allQ.length; // mark complete so a reload of this saved session reopens the finish screen, not the wizard
+  saveState();
+  showFinish();
+}
+function resumeOrgPhase(){
+  orgSkipped=false; orgPhaseEntered=true;
+  goTo(techPhaseCount());
+}
 
 function showFinish(){
   if(blindMode){ showFinishBlind(); return; }
   document.getElementById('wizardBody').style.display='none';
   document.getElementById('finishScreen').classList.add('active');
+  document.getElementById('phaseBreak').classList.remove('active');
   document.getElementById('wizardNav').style.display='none';
   currentIdx=allQ.length; refreshDotMap(); updateScores();
   const {lc,hy,hc}=computeScores();
@@ -1093,20 +1174,24 @@ function showFinish(){
     const why={lc:'Most answers point to a business-process workload where UI, workflow, and speed dominate.',hy:'Answers split between process and technical backend — a clear boundary is the likely shape.',hc:'Most answers point to a technical, API-driven, or high-scale workload.'};
     const val={lc:'Validate volume, integration complexity, and operational risk first.',hy:'Define the architecture boundary, ownership split, and observability strategy before delivery.',hc:'Validate team capability and build-vs-buy decision.'};
     const clrs={lc:'var(--lc)',hy:'var(--hy)',hc:'var(--hc)',undefined:'var(--muted)'};
+    const qsOr=computeOrgReadiness();
     document.getElementById('qsResultBox').innerHTML=`<div class="qs-result-box">
       <div class="qs-result-verdict" style="color:${isTieFs?'var(--muted)':clrs[winner.k]}">${isTieFs?tiedFs.map(s=>s.n).join(' & ')+' (Tie)':winner.n}${!isTieFs&&ev&&ev.level==='ko'?' (Hard Constraint)':''}</div>
       <div class="qs-result-why"><strong>Why:</strong> ${isTieFs?'Scores are equal. Apply project context and team judgement to decide.':ev&&ev.level==='ko'?ev.body:why[winner.k]}</div>
-      <div class="qs-result-val"><strong>Validate:</strong> ${isTieFs?'Run the full assessment for a more differentiated result.':val[winner.k]}</div></div>`;
+      <div class="qs-result-val"><strong>Validate:</strong> ${isTieFs?'Run the full assessment for a more differentiated result.':val[winner.k]}</div>
+      ${qsOr!==null?`<div class="qs-result-why" style="margin-top:8px;margin-bottom:0"><strong>Team readiness:</strong> ${orgReadinessNote(qsOr)} (${qsOr}%) — this does not affect the platform read above.</div>`:''}</div>`;
     document.getElementById('finishActions').innerHTML=`
       <button class="finish-btn finish-btn-primary" onclick="setMode('full')">Continue to full assessment →</button>
       <button class="finish-btn finish-btn-ghost" onclick="openExport()">↓ Export quick scan</button>
       <button class="finish-btn finish-btn-ghost" onclick="goTo(0)">← Review answers</button>
       <button class="finish-btn finish-btn-ghost" onclick="resetAll()">↺ Reset this scan</button>`;
   } else {
-    document.getElementById('finishSub').textContent='Recommendation reflects weighted scoring, hard constraints, and Hybrid feasibility gate.';
+    document.getElementById('finishSub').textContent='Recommendation reflects weighted scoring, hard constraints, and Hybrid feasibility gate.'
+      +(orgSkipped?' Organisational Readiness was skipped — the recommendation above is unaffected, but delivery risk has not been assessed.':'');
     document.getElementById('qsResultBox').innerHTML='';
     document.getElementById('finishActions').innerHTML=`
       <button class="finish-btn finish-btn-primary" onclick="openExport()">↓ Export decision report</button>
+      ${orgSkipped?'<button class="finish-btn finish-btn-ghost" onclick="resumeOrgPhase()">🧭 Answer Organisational Readiness questions</button>':''}
       <button class="finish-btn finish-btn-ghost" onclick="goTo(0)">← Review answers</button>
       <button class="finish-btn finish-btn-ghost" onclick="resetAll()">↺ Reset this scan</button>`;
   }
@@ -1133,7 +1218,7 @@ function startBlindMode(){
 function beginBlindQuestions(){
   document.getElementById('metaProject').value=document.getElementById('blindProject').value.trim();
   document.getElementById('metaAuthor').value=document.getElementById('blindAuthor').value.trim();
-  mode='full'; answers={}; currentIdx=0; blindResult=null;
+  mode='full'; answers={}; currentIdx=0; blindResult=null; orgPhaseEntered=false; orgSkipped=false;
   initAllQ(); buildDotMap();
   document.getElementById('blindIntro').classList.remove('active');
   showWizard(); renderStep(0);
@@ -1157,8 +1242,7 @@ function showFinishBlind(){
 
 function buildBlindResult(){
   const raw=computeScores();
-  const pen=penaliseHybrid(raw.lc,raw.hy,raw.hc);
-  const {lc,hy,hc}=pen;
+  const {lc,hy,hc}=raw;
   const ev=evaluateRules(answers,{lc,hy,hc});
   const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
   let winner=sorted[0];
@@ -1166,14 +1250,15 @@ function buildBlindResult(){
   else if(ev&&ev.level==='block')winner={name:sorted.find(s=>s.key!=='hy')?.name||sorted[1].name,key:sorted.find(s=>s.key!=='hy')?.key||sorted[1].key};
   const implIdx=answers[IMPL_QUESTION.id];
   const implLabel=implIdx!==undefined?IMPL_QUESTION.options[implIdx].label:null;
+  const or=computeOrgReadiness();
   return {
     type:'postnl-validation-response',
-    toolVersion:'v4.1',
+    toolVersion:'v4.2',
     project: document.getElementById('metaProject').value.trim()||'Unnamed Project',
     productOwner: document.getElementById('metaAuthor').value.trim()||'Not specified',
     submittedAt: new Date().toISOString(),
     answers: allQ.filter(q=>q.id!==IMPL_QUESTION.id).map(q=>({
-      id:q.id, category:q.catName, weight:q.weight,
+      id:q.id, category:q.catName, axis:q.axis, weight:q.weight,
       answerIndex: answers[q.id],
       answerLabel: answers[q.id]!==undefined?q.options[answers[q.id]].label:null,
     })),
@@ -1182,10 +1267,11 @@ function buildBlindResult(){
     modelResult:{
       rawScores: {lc:raw.lc,hy:raw.hy,hc:raw.hc},
       adjustedScores: {lc,hy,hc},
-      penalised: !!pen.penalised, penalty: pen.penalty||0,
+      penalised: false, penalty: 0,
       evaluatedRule: ev?{id:ev.id, level:ev.level, verdict:ev.verdict}:null,
       recommendationKey: winner.key, recommendationName: winner.name,
     },
+    orgReadiness:{ score: or, breakdown: orgReadinessBreakdown() },
   };
 }
 
@@ -1250,12 +1336,14 @@ function renderCompareTable(){
     <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Product Owner</th>
     <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Actual</th>
     <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Model Recommendation</th>
+    <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Org. Readiness</th>
     <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Match</th>
   </tr></thead><tbody>${rows.map(({r,match})=>`<tr>
     <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.project)||'—'}</td>
     <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.productOwner)||'—'}</td>
     <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.actualImplementationLabel)||'—'}</td>
     <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${escHtml(r.modelResult&&r.modelResult.recommendationName)||'—'}</td>
+    <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${r.orgReadiness&&r.orgReadiness.score!=null?r.orgReadiness.score+'%':'—'}</td>
     <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${match===null?'—':match?'✅':'❌'}</td>
   </tr>`).join('')}</tbody>`;
 }
@@ -1267,7 +1355,10 @@ function renderStep(idx){
   const q=allQ[idx]; const TOTAL=allQ.length;
   const layerTag = q.layer===1?'<span class="layer-label layer-1">Layer 1 · Hard Constraint</span>'
     :q.layer===3?'<span class="layer-label layer-3">Layer 3 · Hybrid Gate</span>':'';
-  document.getElementById('wizCat').innerHTML=q.catName
+  const phaseTag = (mode==='full'&&!q.quickScan&&!blindMode)
+    ? (q.axis==='org'?'<span class="tag tag-phase-org">🧭 Organisational Readiness</span>':'<span class="tag tag-phase-tech">🎯 Technology Fit</span>')
+    : '';
+  document.getElementById('wizCat').innerHTML=(phaseTag?phaseTag+' ':'')+q.catName
     +(q.quickScan?` <span class="tag tag-qs">Quick Scan</span>`:'')
     +(q.isNew&&!blindMode?` <span class="tag tag-new">New v4</span>`:'')
     +(layerTag&&!q.quickScan&&!blindMode?` ${layerTag}`:'');
@@ -1332,40 +1423,61 @@ function evaluateRules(a,scores){
   return null;
 }
 
-// Hybrid score penalty: reduce HY by 30% if readiness < 40%
-function penaliseHybrid(lc,hy,hc){
-  const hr=computeHR();
-  if(hr===null) return {lc,hy,hc};
-  if(hr<40){
-    const penalty=Math.round(hy*0.30);
-    return {lc,hy:Math.max(0,hy-penalty),hc,penalised:true,penalty};
-  }
-  return {lc,hy,hc};
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
-// HYBRID READINESS SCORE
+// ORGANISATIONAL READINESS SCORE — always computed, always shown, independent
+// of the lc/hy/hc platform score. Fixed weighting (not Weight-Drawer-adjustable):
+// this axis answers "are we ready to deliver?", not "what should we build?".
 // ═══════════════════════════════════════════════════════════════════════════
-function computeHR(){
-  const checks=[
-    {id:'arch_boundary',goodIdx:1,w:35},
-    {id:'team_ownership',goodIdx:0,w:30},
-    {id:'op_criticality',badIdx:[2,3],w:20},
-    {id:'observability',goodIdx:[0,1],w:15},
-  ];
+const ORG_READINESS_CHECKS = [
+  { id:'arch_boundary',   goodIdx:1,       base:20 },
+  { id:'team_ownership',  goodIdx:0,       base:18 },
+  { id:'op_criticality',  badIdx:[2,3],    base:14 },
+  { id:'team_skills',     goodIdx:[0,3],   base:14 },
+  { id:'time_to_market',  badIdx:[0],      base:12 },
+  { id:'maintainability', goodIdx:[0,2],   base:8  },
+  { id:'team_size',       badIdx:[0],      base:6  },
+  { id:'budget',          goodIdx:[1],     base:6  },
+  { id:'qs_capability',   goodIdx:[0,2],   base:14 }, // Quick Scan's sole org signal
+];
+function computeOrgReadiness(){
   let score=0,max=0;
-  checks.forEach(c=>{
-    max+=c.w; const a=answers[c.id]; if(a===undefined)return;
+  ORG_READINESS_CHECKS.forEach(c=>{
+    const q=allQ.find(x=>x.id===c.id); if(!q)return; // not part of the current mode's question set
+    max+=c.base;
+    const a=answers[c.id]; if(a===undefined)return;
     if(c.goodIdx!==undefined){
       const g=Array.isArray(c.goodIdx)?c.goodIdx.includes(a):a===c.goodIdx;
-      score+=g?c.w:c.w*0.3;
-    }
-    if(c.badIdx!==undefined&&!c.goodIdx){
+      score+=g?c.base:c.base*0.3;
+    } else {
       const b=Array.isArray(c.badIdx)?c.badIdx.includes(a):a===c.badIdx;
-      score+=b?0:c.w;
+      score+=b?0:c.base;
     }
   });
   return max>0?Math.round(score/max*100):null;
+}
+// How many org-axis questions have actually been answered — distinguishes "not yet assessed /
+// skipped" from a genuinely low score, so 0 answers never reads as "0% — Low readiness".
+function orgAnsweredCount(){
+  return ORG_READINESS_CHECKS.filter(c=>allQ.find(x=>x.id===c.id)&&answers[c.id]!==undefined).length;
+}
+function orgReadinessTier(or){
+  return or<40?'Low':or<70?'Moderate':'Good';
+}
+function orgReadinessNote(or){
+  return or<40?'⚠ Low readiness — capability, ownership, or timeline gaps should be addressed before committing.'
+    :or<70?'Moderate readiness — some organisational gaps to close before delivery.'
+    :'✓ Good readiness — organisational signals support timely, well-owned delivery.';
+}
+// Per-driver breakdown for the Organisational Readiness card / export — one row per answered org-axis question.
+function orgReadinessBreakdown(){
+  return ORG_READINESS_CHECKS.map(c=>{
+    const q=allQ.find(x=>x.id===c.id); if(!q)return null;
+    const a=answers[c.id]; if(a===undefined)return null;
+    let ready;
+    if(c.goodIdx!==undefined) ready=Array.isArray(c.goodIdx)?c.goodIdx.includes(a):a===c.goodIdx;
+    else ready=!(Array.isArray(c.badIdx)?c.badIdx.includes(a):a===c.badIdx);
+    return {id:c.id, label:q.text, answer:q.options[a].label, ready};
+  }).filter(Boolean);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1375,8 +1487,9 @@ function computeScores(){
   let lc=0,hy=0,hc=0,answered=0;
   allQ.forEach(q=>{
     if(answers[q.id]===undefined)return;
-    const o=q.options[answers[q.id]];
     answered++;
+    if(q.axis==='org')return; // Organisational Readiness is scored separately — see computeOrgReadiness()
+    const o=q.options[answers[q.id]];
     const w=q.weight??q.defaultWeight;
     lc+=o.lc*w; hy+=o.hy*w; hc+=o.hc*w;
   });
@@ -1386,18 +1499,51 @@ function computeScores(){
 function updateScores(){
   if(blindMode) return; // no live scoring feedback during a blind session — nothing here is visible anyway (sidebar hidden), but the constraint banner lives outside it
   const raw=computeScores();
-  const {lc:rlc,hy:rhy,hc:rhc,answered,total}=raw;
-  // Apply Hybrid penalty if applicable
-  const pen=mode==='full'?penaliseHybrid(rlc,rhy,rhc):{lc:rlc,hy:rhy,hc:rhc};
-  const {lc,hy,hc}=pen;
+  const {lc,hy,hc,answered,total}=raw;
 
   const mx=Math.max(lc,hy,hc,1);
   document.getElementById('lcBar').style.width=(lc/mx*100)+'%';
   document.getElementById('hyBar').style.width=(hy/mx*100)+'%';
   document.getElementById('hcBar').style.width=(hc/mx*100)+'%';
   document.getElementById('lcVal').textContent=lc;
-  document.getElementById('hyVal').textContent=hy+(pen.penalised?'*':'');
+  document.getElementById('hyVal').textContent=hy;
   document.getElementById('hcVal').textContent=hc;
+
+  // Organisational Readiness — independent of which platform wins. Hidden while still purely in
+  // the Technology Fit phase (Full mode); shows a neutral "not yet assessed" / "skipped" state
+  // rather than a misleading 0%/Low reading once it becomes relevant.
+  const or=computeOrgReadiness();
+  const orAnswered=orgAnsweredCount();
+  const orCard=document.getElementById('orgReadinessCard');
+  const stillInTechPhaseOnly = mode==='full'&&!blindMode&&!orgPhaseEntered&&!orgSkipped&&orAnswered===0;
+  if(answered<3||stillInTechPhaseOnly){
+    orCard.classList.remove('show');
+  } else if(orgSkipped&&orAnswered===0){
+    orCard.classList.add('show');
+    document.getElementById('orBadge').textContent='Skipped';
+    document.getElementById('orBadge').className='conf-val';
+    document.getElementById('orFill').style.width='0%';
+    document.getElementById('orVal').textContent='—';
+    document.getElementById('orNote').textContent='Skipped for this assessment — it does not affect the platform recommendation above. Answer it anytime from the finish screen.';
+    document.getElementById('orBreakdown').innerHTML='';
+  } else if(or===null||orAnswered===0){
+    orCard.classList.add('show');
+    document.getElementById('orBadge').textContent='Not yet assessed';
+    document.getElementById('orBadge').className='conf-val';
+    document.getElementById('orFill').style.width='0%';
+    document.getElementById('orVal').textContent='—';
+    document.getElementById('orNote').textContent='Answer the Organisational Readiness questions to see delivery-risk signals here.';
+    document.getElementById('orBreakdown').innerHTML='';
+  } else {
+    orCard.classList.add('show');
+    document.getElementById('orBadge').textContent=orgReadinessTier(or);
+    document.getElementById('orBadge').className='conf-val '+(or<40?'cv-low':or<70?'cv-med':'cv-high');
+    document.getElementById('orFill').style.width=or+'%';
+    document.getElementById('orVal').textContent=or+'%';
+    document.getElementById('orNote').textContent=orgReadinessNote(or);
+    const bd=orgReadinessBreakdown();
+    document.getElementById('orBreakdown').innerHTML=bd.map(b=>`<div class="ci"><span>${b.label.length>42?b.label.slice(0,42)+'…':b.label}</span><span class="flag ${b.ready?'f-ok':'f-gap'}">${b.ready?'READY':'GAP'}</span></div>`).join('');
+  }
 
   const exportBtn=document.getElementById('exportBtn');
   if(answered<3){
@@ -1425,7 +1571,6 @@ function updateScores(){
     }
     else if(ev.level==='warn'){recCls='rec-warn-hy';viability='cond';}
   }
-  if(pen.penalised&&winner.key==='hy'){viability='cond';}
 
   const gap=sorted[0].val-sorted[1].val;
   const minC=mode==='quick'?3:10;
@@ -1448,7 +1593,6 @@ function updateScores(){
   else if(ev&&ev.level==='warn'){rr=ev.body+' '+reasons[winner.key];}
   else{rr=reasons[winner.key];}
   if(!ev||ev.level==='warn') rv2=validations[winner.key]||'';
-  if(pen.penalised&&!ev) rv2=(rv2?rv2+' ':'')+'Note: Hybrid score reduced by '+pen.penalty+' points due to low readiness signals.';
 
   const tied=sorted.filter(s=>s.val===sorted[0].val);
   const isTie=!ev&&tied.length>1;
@@ -1464,27 +1608,20 @@ function updateScores(){
   showViab(viability);
   exportBtn.disabled=false;
 
-  // Architecture pattern (Hybrid)
+  // Architecture pattern (Hybrid) — narrative pattern only; readiness itself lives in the Organisational Readiness card
   const hybridWins=!isTie&&(winner.key==='hy'||(sorted[0].key==='hy'&&!ev));
   document.getElementById('archPattern').classList.toggle('show', hybridWins&&mode==='full');
-  if(hybridWins&&mode==='full'){
-    const hr=computeHR();
-    if(hr!==null){
-      document.getElementById('hrFill').style.width=hr+'%';
-      document.getElementById('hrVal').textContent=hr+'%';
-      document.getElementById('hrNote').textContent=hr<40?'⚠ Low readiness — define boundary and ownership before proceeding.':hr<70?'Moderate readiness — formalise ownership and observability plan.':'✓ Good readiness — boundary and ownership signals are positive.';
-    }
-  }
 
   // Risks
   const risks=RISK_RULES.filter(r=>{try{return r.condition(answers,{lc,hy,hc});}catch(e){return false;}});
   const rc=document.getElementById('risksCard'); rc.classList.toggle('show',risks.length>0);
   document.getElementById('risksList').innerHTML=risks.map(r=>`<div class="risk-item r-${r.level}"><div class="rdot"></div><span>${r.text}</span></div>`).join('');
 
-  // Signals
+  // Signals — Technology Fit drivers only; Organisational Readiness has its own breakdown above
   const sc=document.getElementById('signalsCard'); sc.classList.add('show');
   const sigs=[];
   allQ.forEach(q=>{
+    if(q.axis==='org')return;
     if(answers[q.id]===undefined)return;
     const o=q.options[answers[q.id]];
     const dom=Math.max(o.lc,o.hy,o.hc);
@@ -1540,9 +1677,15 @@ function buildWD(){
     cat.questions.forEach(q=>{
       const qi=allQ.findIndex(x=>x.id===q.id); if(qi===-1)return;
       const wn=allQ[qi].weight;
+      const isOrg=q.axis==='org';
+      const axisTag=isOrg?' · Org Readiness · fixed':' · Tech Fit';
       const row=document.createElement('div'); row.className='wrow'; row.id='wr-'+q.id;
-      row.innerHTML=`
-        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':q.layer===3?' · L3 hybrid gate':''}</span></div>
+      row.innerHTML=isOrg?`
+        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':q.layer===3?' · L3 hybrid gate':''}${axisTag}</span></div>
+        <div class="wsg" title="Organisational Readiness uses fixed weighting — it is not per-project adjustable, so it can never shift the platform recommendation.">
+          <span style="font-size:10px;color:var(--muted);font-style:italic">Fixed</span>
+        </div>`:`
+        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':q.layer===3?' · L3 hybrid gate':''}${axisTag}</span></div>
         <div class="wsg">
           <div class="wpips" id="pip-${q.id}">${[1,2,3].map(n=>`<div class="wpip${wn>=n?' on':''}"></div>`).join('')}</div>
           <button class="w-btn" id="wdec-${q.id}" onclick="cw('${q.id}',-1)" ${wn<=1?'disabled':''}>−</button>
@@ -1555,7 +1698,8 @@ function buildWD(){
   });
 }
 function cw(qid,d){
-  const qi=allQ.findIndex(q=>q.id===qid); const nw=Math.max(1,Math.min(3,allQ[qi].weight+d));
+  const qi=allQ.findIndex(q=>q.id===qid); if(qi===-1||allQ[qi].axis==='org')return; // org-axis weight is fixed, not user-adjustable
+  const nw=Math.max(1,Math.min(3,allQ[qi].weight+d));
   allQ[qi].weight=nw;
   document.getElementById('wval-'+qid).textContent=nw; document.getElementById('wval-'+qid).className='wv v'+nw;
   document.getElementById('wdec-'+qid).disabled=nw<=1; document.getElementById('winc-'+qid).disabled=nw>=3;
@@ -1573,8 +1717,7 @@ function closeWD(){document.getElementById('drawerOverlay').classList.remove('op
 // ═══════════════════════════════════════════════════════════════════════════
 function buildMd(){
   const raw=computeScores();
-  const pen=mode==='full'?penaliseHybrid(raw.lc,raw.hy,raw.hc):{lc:raw.lc,hy:raw.hy,hc:raw.hc};
-  const {lc,hy,hc,answered,total}=Object.assign({},raw,pen);
+  const {lc,hy,hc,answered,total}=raw;
   const project=document.getElementById('metaProject').value.trim()||'Unnamed Project';
   const author=document.getElementById('metaAuthor').value.trim()||'Not specified';
   const date=new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'});
@@ -1589,8 +1732,9 @@ function buildMd(){
   const gap=sorted[0].val-sorted[1].val;
   const minC=mode==='quick'?3:10;
   const conf=answered>=minC?(gap>8?'High':gap>3?'Medium':'Low'):'Low';
-  const viab=ev&&(ev.level==='ko'||ev.level==='block')?'NOT RECOMMENDED':ev&&ev.level==='warn'||pen.penalised?'VALID WITH CONDITIONS':'VALID';
-  const hr=computeHR();
+  const viab=ev&&(ev.level==='ko'||ev.level==='block')?'NOT RECOMMENDED':ev&&ev.level==='warn'?'VALID WITH CONDITIONS':'VALID';
+  const or=computeOrgReadiness();
+  const orBd=orgReadinessBreakdown();
   const verdicts={lc:'🔵 Low-Code',hy:'🟣 Hybrid',hc:'🟢 High-Code'};
   const rationale={
     lc:'The application profile — delivery speed, team fit, and process-driven logic — aligns with the Low-Code paradigm.',
@@ -1623,7 +1767,6 @@ function buildMd(){
   md+=`| Confidence | **${conf}** |\n`;
   md+=`| Viability | **${viab}** |\n`;
   if(ev)md+=`| Constraint / Gate | ⚠ ${ev.level.toUpperCase()}: ${ev.id} |\n`;
-  if(pen.penalised)md+=`| Hybrid penalty applied | Yes — reduced by ${pen.penalty} pts (readiness < 40%) |\n`;
   if(mode==='full')md+=`| Custom weights | ${wMod?'Yes — see below':'No — all defaults'} |\n`;
   md+=`\n---\n\n`;
   md+=`## Decision\n\n**${ev&&ev.level==='ko'?ev.verdict:isTieMd?tiedMd.map(s=>verdicts[s.key]).join(' & ')+' (Tie)':verdicts[winner.key]||winner.name}**\n\n`;
@@ -1645,16 +1788,25 @@ function buildMd(){
     md+=`| Layer | Platform | Responsibility |\n|---|---|---|\n`;
     md+=`| Process & UI | 🔵 Low-Code | Workflow, approvals, forms, dashboards, user interaction |\n`;
     md+=`| Backend & Events | 🟢 High-Code | Integrations, event processing, scale, custom logic |\n\n`;
-    if(hr!==null)md+=`> **Hybrid Readiness Score:** ${hr}% — ${hr<40?'Low. Define boundary and ownership before proceeding.':hr<70?'Moderate. Formalise ownership and observability plan.':'Good. Boundary and ownership signals are positive.'}\n\n`;
+    md+=`> **Organisational readiness for this pattern:** see the Organisational Readiness section below.\n\n`;
     md+=`> **Key success factor:** Success depends on a clearly defined specification of interfaces and a communication protocol for changes and timelines between the cooperating teams.\n\n`;
   }
 
-  md+=`## Score Summary\n\n| Platform | Raw Score | Final Score | Result |\n|---|---|---|---|\n`;
-  md+=`| 🔵 Low-Code | ${raw.lc} | ${lc} | ${isTieMd?tiedMd.some(s=>s.key==='lc')?'≈ Tied':'':winner.key==='lc'?'✅ Selected':''} |\n`;
-  md+=`| 🟣 Hybrid | ${raw.hy} | ${hy}${pen.penalised?'*':''} | ${isTieMd?tiedMd.some(s=>s.key==='hy')?'≈ Tied':'':winner.key==='hy'?'✅ Selected':''} |\n`;
-  md+=`| 🟢 High-Code | ${raw.hc} | ${hc} | ${isTieMd?tiedMd.some(s=>s.key==='hc')?'≈ Tied':'':winner.key==='hc'?'✅ Selected':''} |\n\n`;
-  if(pen.penalised)md+=`_* Hybrid score reduced by ${pen.penalty} pts due to Hybrid readiness < 40%._\n\n`;
+  md+=`## Score Summary — Technology Fit\n\n_Drives the platform recommendation. Organisational factors are scored separately below and do not affect this table._\n\n| Platform | Score | Result |\n|---|---|---|\n`;
+  md+=`| 🔵 Low-Code | ${lc} | ${isTieMd?tiedMd.some(s=>s.key==='lc')?'≈ Tied':'':winner.key==='lc'?'✅ Selected':''} |\n`;
+  md+=`| 🟣 Hybrid | ${hy} | ${isTieMd?tiedMd.some(s=>s.key==='hy')?'≈ Tied':'':winner.key==='hy'?'✅ Selected':''} |\n`;
+  md+=`| 🟢 High-Code | ${hc} | ${isTieMd?tiedMd.some(s=>s.key==='hc')?'≈ Tied':'':winner.key==='hc'?'✅ Selected':''} |\n\n`;
   md+=`## Viability: ${viab}\n\n`;
+
+  md+=`## Organisational Readiness\n\n_Does not affect the Technology Fit score or the platform recommendation above — it signals delivery risk and mitigation needs._\n\n`;
+  md+=orgSkipped&&orBd.length===0?`_Skipped by the assessor for this run — not evaluated._\n\n`
+    :(or===null||orBd.length===0)?`_Not enough organisational criteria answered yet._\n\n`
+    :`Score: **${or}%** — ${orgReadinessTier(or)}. ${orgReadinessNote(or)}\n\n`;
+  if(orBd.length>0){
+    md+=`| Driver | Answer | Signal |\n|---|---|---|\n`;
+    orBd.forEach(b=>{md+=`| ${b.label} | ${b.answer} | ${b.ready?'✅ Ready':'⚠ Gap'} |\n`;});
+    md+='\n';
+  }
 
   md+=`## Risks\n\n`;
   if(risks.length===0)md+=`No significant risks identified.\n\n`;
@@ -1699,7 +1851,7 @@ function buildMd(){
       md+=`---\n\n`;
     });
   }
-  md+=`_PostNL Platform Decision Model v4.1 — generated ${date}_\n`;
+  md+=`_PostNL Platform Decision Model v4.2 — generated ${date}_\n`;
   return md;
 }
 
@@ -1787,10 +1939,11 @@ p{margin:8px 0}
 
 function resetAll(){
   clearState(lsKey());                   // remove only this mode's saved data
-  answers={};currentIdx=0;initAllQ();buildDotMap();showWizard();renderStep(0);updateScores();
+  answers={};currentIdx=0;orgPhaseEntered=false;orgSkipped=false;initAllQ();buildDotMap();showWizard();renderStep(0);updateScores();
   ['lc','hy','hc'].forEach(k=>{document.getElementById(k+'Bar').style.width='0%';document.getElementById(k+'Val').textContent='0';});
   document.getElementById('exportBtn').disabled=true;
   document.getElementById('archPattern').classList.remove('show');
+  document.getElementById('orgReadinessCard').classList.remove('show');
   document.getElementById('risksCard').classList.remove('show');
   document.getElementById('signalsCard').classList.remove('show');
   document.getElementById('conBanner').classList.remove('visible','warn-level','block-level');
