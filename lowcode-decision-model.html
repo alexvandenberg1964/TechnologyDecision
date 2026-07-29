@@ -157,6 +157,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 
 /* REC BOX */
 .rec-box{border-radius:8px;padding:13px;border:1px solid var(--border);background:var(--surface);transition:all .3s ease}
+.rec-skip-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 9px;border-radius:5px;background:var(--warn-dim);color:var(--warn);border:1px solid rgba(180,83,9,.3);margin-bottom:9px}
 .rec-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .rec-verdict{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px;color:var(--muted)}
 .rec-reason{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:0}
@@ -364,6 +365,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
     <div class="finish-screen" id="finishScreen">
       <div class="finish-icon" id="finishIcon">✓</div>
       <div class="finish-title" id="finishTitle">Assessment complete</div>
+      <div class="rec-skip-badge" id="finishSkipBadge" style="display:none">⚠ Organisational Readiness: Skipped</div>
       <div class="finish-sub" id="finishSub"></div>
       <div id="qsResultBox"></div>
       <div class="finish-actions" id="finishActions"></div>
@@ -395,10 +397,20 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <div class="finish-icon" style="background:rgba(117,117,117,.12);border-color:var(--muted2)">🧭</div>
       <div class="finish-title">Technology Fit — complete</div>
       <div class="finish-sub" id="phaseBreakSub" style="max-width:480px"></div>
-      <div class="finish-actions">
+      <div class="finish-actions" id="phaseBreakActions">
         <button class="finish-btn finish-btn-primary" onclick="continueToOrgPhase()">Continue to Organisational Readiness →</button>
-        <button class="finish-btn finish-btn-ghost" onclick="skipOrgPhase()">Skip — finish assessment now</button>
+        <button class="finish-btn finish-btn-ghost" onclick="showSkipReasonPrompt()">Skip — finish assessment now</button>
         <button class="finish-btn finish-btn-ghost" onclick="goTo(techPhaseCount()-1)">← Back to review Technology Fit answers</button>
+      </div>
+      <div id="skipReasonPrompt" style="display:none;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-top:4px;text-align:left">
+        <div class="meta-row">
+          <div class="meta-lbl">Reason for skipping (required)</div>
+          <textarea class="meta-inp" id="skipReasonInput" rows="2" style="resize:vertical;font-family:inherit" placeholder="Why are you skipping the Organisational Readiness questions?" oninput="updateSkipConfirmState()"></textarea>
+        </div>
+        <div class="finish-actions" style="margin-top:0">
+          <button class="finish-btn finish-btn-primary" id="confirmSkipBtn" onclick="confirmSkipOrgPhase()" disabled>Confirm skip</button>
+          <button class="finish-btn finish-btn-ghost" onclick="cancelSkipReasonPrompt()">Cancel</button>
+        </div>
       </div>
     </div>
     <div class="wizard-nav" id="wizardNav">
@@ -419,11 +431,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <div class="score-row"><div class="score-label" style="color:var(--lc)">Low-Code</div><div class="score-track"><div class="score-fill" id="lcBar" style="background:var(--lc)"></div></div><div class="score-val" id="lcVal">0</div></div>
       <div class="score-row"><div class="score-label" style="color:var(--hy)">Hybrid</div><div class="score-track"><div class="score-fill" id="hyBar" style="background:var(--hy)"></div></div><div class="score-val" id="hyVal">0</div></div>
       <div class="score-row"><div class="score-label" style="color:var(--hc)">High-Code</div><div class="score-track"><div class="score-fill" id="hcBar" style="background:var(--hc)"></div></div><div class="score-val" id="hcVal">0</div></div>
-      <div class="conf-row"><span class="conf-lbl">Confidence</span><span class="conf-val cv-low" id="confBadge">—</span></div>
+      <div class="conf-row"><span class="conf-lbl" style="cursor:help" title="Measures how clearly the top two platform scores are separated on this specific set of answers — not whether those answers are accurate, complete, or honestly reported. A wide score gap can still be built on wrong or gamed input.">Score separation ⓘ</span><span class="conf-val cv-low" id="confBadge">—</span></div>
       <div class="viability-row"><span class="viab-lbl">Viability</span><span class="viab-val vv-valid" id="viabBadge" style="display:none">—</span></div>
     </div>
 
     <div class="rec-box" id="recBox">
+      <div class="rec-skip-badge" id="recSkipBadge" style="display:none">⚠ Organisational Readiness: Skipped</div>
       <div class="rec-label" id="recLabel">Recommendation</div>
       <div class="rec-verdict" id="recVerdict">—</div>
       <div class="rec-reason" id="recReason">Answer the criteria to receive a recommendation.</div>
@@ -468,16 +481,42 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       <div class="criteria-breakdown" id="breakdownList"></div>
     </div>
 
+    <div class="meta-wrap" id="deviationCard">
+      <div class="sc-title" style="margin-bottom:2px">⚠ Deviation from recommendation</div>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);cursor:pointer;line-height:1.4;font-weight:400;text-transform:none;letter-spacing:normal">
+        <input type="checkbox" id="devEnabled" onchange="toggleDeviation();saveState()" style="margin-top:2px;flex-shrink:0">
+        <span>This project will not follow the model's recommendation — record it here so it's visible in the exported report, not buried in the transcript.</span>
+      </label>
+      <div id="deviationFields" style="display:none;flex-direction:column;gap:9px;margin-top:2px">
+        <div class="meta-row"><div class="meta-lbl">Chosen platform</div>
+          <select class="meta-inp" id="devPlatform" onchange="saveState()">
+            <option value="">— Select —</option>
+            <option value="lc">🔵 Low-Code</option>
+            <option value="hy">🟣 Hybrid</option>
+            <option value="hc">🟢 High-Code</option>
+          </select>
+        </div>
+        <div class="meta-row"><div class="meta-lbl">Reason for deviation</div>
+          <textarea class="meta-inp" id="devReason" rows="3" style="resize:vertical;font-family:inherit" placeholder="Why does this project deviate from the model's recommendation?" oninput="saveState()"></textarea>
+        </div>
+        <div class="meta-row"><div class="meta-lbl">Approving architect — name</div><input class="meta-inp" id="devApproverName" type="text" placeholder="e.g. Jamie Voss" oninput="saveState()"></div>
+        <div class="meta-row"><div class="meta-lbl">Approving architect — role</div><input class="meta-inp" id="devApproverRole" type="text" placeholder="e.g. Lead Architect" oninput="saveState()"></div>
+      </div>
+    </div>
+
     <button class="sb-btn btn-ghost" onclick="openWeightDrawer()" style="justify-content:space-between">
       <span>⚖ Edit question weights</span><span class="wcb" id="wcb">modified</span>
     </button>
     <button class="sb-btn btn-ghost" onclick="openCostDrawer()" style="justify-content:space-between">
       <span>💰 Cost model reference</span><span style="font-size:11px;color:var(--muted2);font-family:'JetBrains Mono',monospace">3 models</span>
     </button>
+    <button class="sb-btn btn-ghost" onclick="window.open('CALIBRATION.md','_blank')" style="justify-content:space-between">
+      <span>📖 Scoring calibration &amp; rationale</span><span style="font-size:11px;color:var(--muted2);font-family:'JetBrains Mono',monospace">draft</span>
+    </button>
     <button class="sb-btn btn-primary" id="exportBtn" onclick="openExport()" disabled>↓&nbsp; Export decision report</button>
     <button class="sb-btn btn-ghost" onclick="resetAll()">↺&nbsp; Reset this scan</button>
     <div class="saved-badge" id="savedBadge"></div>
-    <div class="disclaimer">⚠ This model assumes Low-Code is the PostNL strategic default. Adjust weights for specific contexts.</div>
+    <div class="disclaimer">⚠ This model assumes Low-Code is the PostNL strategic default. Adjust weights for specific contexts. Every score value is documented in the <a href="CALIBRATION.md" target="_blank" style="color:inherit">calibration register</a> (draft — pending architecture panel sign-off).</div>
   </div>
 </div>
 
@@ -532,10 +571,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
       </div>
     </div>
 
-    <!-- AWS / High-Code -->
+    <!-- High-Code (cloud-native) -->
     <div class="cost-section">
       <div class="cost-section-hdr" onclick="toggleCostSection(this)">
-        <div class="cost-section-title"><span class="cost-section-icon">🟢</span> AWS-native / High-Code</div>
+        <div class="cost-section-title"><span class="cost-section-icon">🟢</span> High-Code <span style="font-size:11px;font-weight:400;color:var(--muted2)">(reference: <span class="cloud-ref-tag"></span>)</span></div>
         <span class="cost-section-chevron">▼</span>
       </div>
       <div class="cost-section-body">
@@ -552,7 +591,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
           <li>High availability and disaster recovery setup</li>
         </ul>
         <div class="cost-caveat warn">
-          <strong>Caveat:</strong> AWS is not automatically cheap. Poor architecture, overlogging, inefficient database access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive.
+          <strong>Caveat:</strong> <span class="cloud-ref-tag"></span> is not automatically cheap. Poor architecture, overlogging, inefficient database access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make it materially more expensive. This drawer illustrates High-Code cost drivers using <span class="cloud-ref-tag"></span> — PostNL's current reference platform, not a synonym for "High-Code."
         </div>
       </div>
     </div>
@@ -583,7 +622,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
           <li>Both cost models budgeted and governed independently</li>
         </ul>
         <div class="cost-caveat warn">
-          <strong>Note:</strong> Both caveats apply — Low-Code is not always more expensive, and AWS is not automatically cheaper. Evaluate each layer independently.
+          <strong>Note:</strong> Both caveats apply — Low-Code is not always more expensive, and High-Code cloud cost (reference: <span class="cloud-ref-tag"></span>) is not automatically cheaper. Evaluate each layer independently.
         </div>
       </div>
     </div>
@@ -627,18 +666,27 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
+// CLOUD REFERENCE PLATFORM
+// "High-Code" is the platform concept the model scores against; AWS is only
+// PostNL's *current* worked example/reference for its usage-based cost model —
+// not a synonym for High-Code (see kritische-review-architectuur-cto-mtit.md 1.3).
+// If the cloud strategy changes, update this one constant rather than the
+// language scattered through cost text.
+// ═══════════════════════════════════════════════════════════════════════════
+const HIGH_CODE_CLOUD_REF = 'AWS';
+
+// ═══════════════════════════════════════════════════════════════════════════
 // LAYER 1 — HARD CONSTRAINT RULES
 // level: 'ko' = score override | 'block' = Hybrid blocked → fallback | 'warn' = warning only
 // ═══════════════════════════════════════════════════════════════════════════
 const HARD_RULES = [
-  // NOTE: Full Assessment's ui_complexity no longer has a matching KO rule here (removed — see
-  // question definition below for rationale). "No meaningful UI" is now a maximally-weighted
-  // Layer 2 signal instead of an unconditional override; "specialised visualisation" now scores
-  // as a Hybrid signal instead of forcing High-Code. Quick Scan's qs_ui knockout is unchanged
-  // (Quick Scan only has the single "no UI" case, not the visualisation-bundling issue).
-  { id:'no_ui_qs', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
-    condition: a => a['qs_ui'] === 3,
-    body:'No meaningful user-facing UI. Low-Code adds platform cost with no UX benefit. Score overridden → High-Code.' },
+  // NOTE: neither Full Assessment's ui_complexity nor Quick Scan's qs_ui has a matching KO rule
+  // here (both removed — see the question definitions below for rationale). "No meaningful UI"
+  // is a maximally-weighted Layer 2 signal instead of an unconditional override in both modes;
+  // Full Assessment's "specialised visualisation" additionally scores as a Hybrid signal instead
+  // of forcing High-Code — Quick Scan has no equivalent option, so that bundling fix doesn't
+  // apply here (see kritische-review-architectuur-cto-mtit.md finding 1.6's open follow-up item,
+  // resolved: the qs_ui knockout was the only remaining piece, now closed).
   { id:'extreme_latency', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['performance'] === 3,
     body:'Critical latency or performance SLA required. Low-Code cannot meet sub-second or hard real-time requirements. Score overridden → High-Code.' },
@@ -676,8 +724,8 @@ const RISK_RULES = [
     text:'Observability gap. Custom metrics, traces, and SLOs require additional tooling beyond Low-Code platform monitoring.' },
   { id:'runtime_cost_cap', level:'m', condition:(a,s)=>a['runtime_cost']===2||a['runtime_cost']===3,
     text:'Low-Code cost model mismatch. Low-Code costs are capacity-oriented (runtime resources, DB size, environments, HA, scaling headroom, licensing). Usage-dependent workloads pay for unused capacity during low-traffic periods.' },
-  { id:'aws_cost_risk', level:'m', condition:(a,s)=>a['runtime_cost']===2&&(a['integration']===2||a['integration']===3),
-    text:'AWS-native cost risk. AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than Low-Code.' },
+  { id:'cloud_native_cost_risk', level:'m', condition:(a,s)=>a['runtime_cost']===2&&(a['integration']===2||a['integration']===3),
+    text:`High-Code cloud-native cost risk (reference platform: ${HIGH_CODE_CLOUD_REF}). Usage-based cloud cost is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make it materially more expensive than Low-Code.` },
   { id:'hybrid_cost_model', level:'m', condition:(a,s)=>s&&s.hy>s.lc&&s.hy>s.hc,
     text:'Hybrid dual cost model. Low-Code layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute, queues, events, logs, networking). Both models must be budgeted and governed separately.' },
   { id:'out_of_domain', level:'h', condition:(a,s)=>a['strategic_domain']===2||a['strategic_domain']===3,
@@ -700,14 +748,14 @@ const QUICK_SCAN = [
       { label:'Both business-facing screens and a technical backend', lc:1,hy:3,hc:1 },
       { label:'API-first service, event processor, or integration layer', lc:0,hy:1,hc:3 },
     ]},
-  { id:'qs_ui', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'tech',
+  { id:'qs_ui', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:3, axis:'tech',
     text:'How central is the UI or workflow to the solution\'s value?',
-    desc:'If the UI and workflow ARE the product, Low-Code excels. If the value is in the backend runtime, high-code is likely needed.',
+    desc:'If the UI and workflow ARE the product, Low-Code excels. If the value is in the backend runtime, high-code is likely needed. No UI at all weighs maximally toward High-Code (weight raised to 3, the scan\'s strongest signal) but is not an automatic override — see Full Assessment\'s equivalent ui_complexity fix (finding 1.6).',
     options:[
       { label:'Central — the UI and workflow are the main value', lc:3,hy:1,hc:0 },
       { label:'Useful — users need it to complete a business process', lc:2,hy:2,hc:0 },
       { label:'Secondary — thin UI over technical logic', lc:0,hy:2,hc:2 },
-      { label:'None — no meaningful user-facing UI', lc:0,hy:0,hc:3,knock:true,knockMsg:'No UI → Low-Code adds cost without UX benefit. Hard constraint: High-Code.' },
+      { label:'None — no meaningful user-facing UI', lc:0,hy:0,hc:3 },
     ]},
   { id:'qs_volume', quickScan:true, catName:'⚡ Quick Scan', defaultWeight:2, axis:'tech',
     text:'What is the expected volume or peak load?',
@@ -811,7 +859,7 @@ const FULL_CATS = [
     // NEW v4: Runtime cost dynamics (enriched with cost driver document)
     { id:'runtime_cost', defaultWeight:2, layer:2, isNew:true, axis:'tech',
       text:'What is the dominant cost model for this workload?',
-      desc:'Low-Code costs are capacity-oriented: runtime resources, database size, number of environments, HA/fallback, horizontal scaling headroom, and licensing. AWS costs are usage-based: compute duration, queue/event volume, database reads/writes, API calls, logs/metrics/traces, and data transfer. Hybrid lets each layer use the model that matches its workload shape.',
+      desc:`Low-Code costs are capacity-oriented: runtime resources, database size, number of environments, HA/fallback, horizontal scaling headroom, and licensing. High-Code costs are usage-based: compute duration, queue/event volume, database reads/writes, API calls, logs/metrics/traces, and data transfer — illustrated here with ${HIGH_CODE_CLOUD_REF}, PostNL's current reference cloud platform. Hybrid lets each layer use the model that matches its workload shape.`,
       options:[
         {label:'Capacity / platform model fits — steady load, predictable environments, fast delivery reduces build cost',lc:3,hy:1,hc:0},
         {label:'Mixed — some parts capacity-based, some parts usage-driven',lc:1,hy:3,hc:1},
@@ -954,7 +1002,7 @@ const FULL_CATS = [
       ]},
     { id:'budget', defaultWeight:1, layer:2, axis:'org',
       text:'What is the development budget profile?',
-      desc:'Low-Code licensing has up-front platform cost but reduces build and change cost when delivery speed, business involvement, and process fit are high. AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
+      desc:`Low-Code licensing has up-front platform cost but reduces build and change cost when delivery speed, business involvement, and process fit are high. High-Code cloud cost (illustrated here with ${HIGH_CODE_CLOUD_REF}) is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.`,
       options:[
         {label:'Low-Code licences in place — fast delivery and process fit reduce overall TCO',lc:3,hy:1,hc:0},
         {label:'Open budget — optimise for total cost of ownership across both models',lc:1,hy:2,hc:2},
@@ -969,6 +1017,13 @@ const FULL_CATS = [
 let mode='quick', answers={}, currentIdx=0, lastMd='', allQ=[];
 let blindMode=false, blindResult=null;
 let orgPhaseEntered=false, orgSkipped=false; // Full Assessment only — has the user entered/explicitly skipped the Organisational Readiness phase
+let orgSkipReason=''; // required free-text reason captured at the moment of skipping (finding 3.1)
+// When each currently-deviating Technology Fit weight was last changed away from its default
+// (finding 4.3 — "gaming" risk: nothing currently flags who tuned a weight away from default,
+// or when). Keyed by question id; a question is removed from here the moment its weight is set
+// back to the default, since there is then nothing to disclose. "From" is not stored separately
+// — it is always q.defaultWeight, the fixed baseline.
+let weightChangeLog={};
 
 // ─ STORAGE KEYS ─
 const LS_QS   = 'pnl_qs_state';
@@ -976,6 +1031,23 @@ const LS_FULL = 'pnl_full_state';
 const LS_MODE = 'pnl_active_mode';
 
 function lsKey(){ return mode==='quick' ? LS_QS : LS_FULL; }
+
+// Deviation from recommendation (finding 2.2) — read directly from the sidebar fields.
+// Not tied to blindMode: a deviation only makes sense for a real, attributable assessment.
+function getDeviation(){
+  const enabled=document.getElementById('devEnabled')?.checked;
+  if(!enabled) return null;
+  return {
+    platform: document.getElementById('devPlatform').value,
+    reason: document.getElementById('devReason').value.trim(),
+    approverName: document.getElementById('devApproverName').value.trim(),
+    approverRole: document.getElementById('devApproverRole').value.trim(),
+  };
+}
+function toggleDeviation(){
+  const on=document.getElementById('devEnabled').checked;
+  document.getElementById('deviationFields').style.display=on?'flex':'none';
+}
 
 // Save current session (answers + weights + meta) to localStorage
 function saveState(){
@@ -986,10 +1058,12 @@ function saveState(){
     const state={
       answers,
       weights,
+      weightChangeLog,
       currentIdx,
-      orgPhaseEntered, orgSkipped,
+      orgPhaseEntered, orgSkipped, orgSkipReason,
       project: document.getElementById('metaProject').value,
       author:  document.getElementById('metaAuthor').value,
+      deviation: getDeviation(),
       savedAt: new Date().toISOString(),
     };
     localStorage.setItem(lsKey(), JSON.stringify(state));
@@ -1008,6 +1082,7 @@ function loadState(){
     currentIdx= s.currentIdx||0;
     orgPhaseEntered = !!s.orgPhaseEntered;
     orgSkipped = !!s.orgSkipped;
+    orgSkipReason = s.orgSkipReason||'';
     // Apply saved weights on top of defaults
     if(s.weights){
       Object.entries(s.weights).forEach(([id,w])=>{
@@ -1015,9 +1090,19 @@ function loadState(){
         if(q) q.weight=w;
       });
     }
+    weightChangeLog = s.weightChangeLog||{};
     // Restore meta inputs
     if(s.project) document.getElementById('metaProject').value=s.project;
     if(s.author)  document.getElementById('metaAuthor').value=s.author;
+    // Restore deviation-from-recommendation fields (finding 2.2)
+    if(s.deviation){
+      document.getElementById('devEnabled').checked=true;
+      document.getElementById('devPlatform').value=s.deviation.platform||'';
+      document.getElementById('devReason').value=s.deviation.reason||'';
+      document.getElementById('devApproverName').value=s.deviation.approverName||'';
+      document.getElementById('devApproverRole').value=s.deviation.approverRole||'';
+      toggleDeviation();
+    }
     return true;
   } catch(e){ return false; }
 }
@@ -1080,7 +1165,7 @@ function setMode(m){
   mode=m;
   document.getElementById('modeQuick').classList.toggle('active',m==='quick');
   document.getElementById('modeFull').classList.toggle('active',m==='full');
-  answers={}; currentIdx=0; orgPhaseEntered=false; orgSkipped=false;
+  answers={}; currentIdx=0; orgPhaseEntered=false; orgSkipped=false; orgSkipReason=''; weightChangeLog={};
   initAllQ();
   const hadSaved = loadState();          // restore this mode's session
   buildDotMap(); buildWD();
@@ -1136,13 +1221,33 @@ function showPhaseBreak(){
   const orgCount=allQ.filter(q=>q.axis==='org').length;
   document.getElementById('phaseBreakSub').textContent=`You've answered the ${techPhaseCount()} Technology Fit questions that drive the platform recommendation above. Next: ${orgCount} Organisational Readiness questions — these assess delivery risk (team, ownership, timeline, budget) separately and never change that recommendation. You can skip them and finish now, or answer them later from the finish screen.`;
   document.getElementById('phaseBreak').classList.add('active');
+  cancelSkipReasonPrompt(); // always start from the plain action row, not a stale reason prompt
 }
 function continueToOrgPhase(){
-  orgPhaseEntered=true; orgSkipped=false;
+  orgPhaseEntered=true; orgSkipped=false; orgSkipReason='';
   document.getElementById('phaseBreak').classList.remove('active');
   showWizard(); renderStep(techPhaseCount()); saveState();
 }
-function skipOrgPhase(){
+// Skipping requires a reason (finding 3.1) — light friction, not a hard block: this is an
+// extra confirmation step with a required text field, never a disabled/forbidden action.
+function showSkipReasonPrompt(){
+  document.getElementById('phaseBreakActions').style.display='none';
+  document.getElementById('skipReasonPrompt').style.display='flex';
+  document.getElementById('skipReasonInput').value='';
+  document.getElementById('confirmSkipBtn').disabled=true;
+  document.getElementById('skipReasonInput').focus();
+}
+function cancelSkipReasonPrompt(){
+  document.getElementById('skipReasonPrompt').style.display='none';
+  document.getElementById('phaseBreakActions').style.display='flex';
+}
+function updateSkipConfirmState(){
+  document.getElementById('confirmSkipBtn').disabled=!document.getElementById('skipReasonInput').value.trim();
+}
+function confirmSkipOrgPhase(){
+  const reason=document.getElementById('skipReasonInput').value.trim();
+  if(!reason)return; // guard — the button is disabled until non-empty, this just defends against direct calls
+  orgSkipReason=reason;
   orgSkipped=true; orgPhaseEntered=false;
   document.getElementById('phaseBreak').classList.remove('active');
   currentIdx=allQ.length; // mark complete so a reload of this saved session reopens the finish screen, not the wizard
@@ -1150,7 +1255,7 @@ function skipOrgPhase(){
   showFinish();
 }
 function resumeOrgPhase(){
-  orgSkipped=false; orgPhaseEntered=true;
+  orgSkipped=false; orgPhaseEntered=true; orgSkipReason='';
   goTo(techPhaseCount());
 }
 
@@ -1169,12 +1274,13 @@ function showFinish(){
   const winner=ev&&(ev.level==='ko'||ev.level==='block')?{n:ev.verdict,k:ev.forceKey||sorted[1].k}:sorted[0];
   document.getElementById('finishIcon').textContent=ev&&(ev.level==='ko'||ev.level==='block')?'🚫':ev&&ev.level==='warn'?'⚠':isTieFs?'≈':'✓';
   document.getElementById('finishTitle').textContent=mode==='quick'?'Quick Scan Complete':'Full Assessment Complete';
+  document.getElementById('finishSkipBadge').style.display=(mode==='full'&&orgSkipped)?'flex':'none';
   if(mode==='quick'){
     document.getElementById('finishSub').textContent='Early orientation only. Run the full assessment for a traceable, defensible decision.';
     const why={lc:'Most answers point to a business-process workload where UI, workflow, and speed dominate.',hy:'Answers split between process and technical backend — a clear boundary is the likely shape.',hc:'Most answers point to a technical, API-driven, or high-scale workload.'};
     const val={lc:'Validate volume, integration complexity, and operational risk first.',hy:'Define the architecture boundary, ownership split, and observability strategy before delivery.',hc:'Validate team capability and build-vs-buy decision.'};
     const clrs={lc:'var(--lc)',hy:'var(--hy)',hc:'var(--hc)',undefined:'var(--muted)'};
-    const qsOr=computeOrgReadiness();
+    const qsOr=computeOrgReadiness(winner.k);
     document.getElementById('qsResultBox').innerHTML=`<div class="qs-result-box">
       <div class="qs-result-verdict" style="color:${isTieFs?'var(--muted)':clrs[winner.k]}">${isTieFs?tiedFs.map(s=>s.n).join(' & ')+' (Tie)':winner.n}${!isTieFs&&ev&&ev.level==='ko'?' (Hard Constraint)':''}</div>
       <div class="qs-result-why"><strong>Why:</strong> ${isTieFs?'Scores are equal. Apply project context and team judgement to decide.':ev&&ev.level==='ko'?ev.body:why[winner.k]}</div>
@@ -1187,7 +1293,7 @@ function showFinish(){
       <button class="finish-btn finish-btn-ghost" onclick="resetAll()">↺ Reset this scan</button>`;
   } else {
     document.getElementById('finishSub').textContent='Recommendation reflects weighted scoring, hard constraints, and Hybrid feasibility gate.'
-      +(orgSkipped?' Organisational Readiness was skipped — the recommendation above is unaffected, but delivery risk has not been assessed.':'');
+      +(orgSkipped?` Organisational Readiness was skipped — the recommendation above is unaffected, but delivery risk has not been assessed. Reason given: "${orgSkipReason}"`:'');
     document.getElementById('qsResultBox').innerHTML='';
     document.getElementById('finishActions').innerHTML=`
       <button class="finish-btn finish-btn-primary" onclick="openExport()">↓ Export decision report</button>
@@ -1218,7 +1324,7 @@ function startBlindMode(){
 function beginBlindQuestions(){
   document.getElementById('metaProject').value=document.getElementById('blindProject').value.trim();
   document.getElementById('metaAuthor').value=document.getElementById('blindAuthor').value.trim();
-  mode='full'; answers={}; currentIdx=0; blindResult=null; orgPhaseEntered=false; orgSkipped=false;
+  mode='full'; answers={}; currentIdx=0; blindResult=null; orgPhaseEntered=false; orgSkipped=false; orgSkipReason=''; weightChangeLog={};
   initAllQ(); buildDotMap();
   document.getElementById('blindIntro').classList.remove('active');
   showWizard(); renderStep(0);
@@ -1250,7 +1356,7 @@ function buildBlindResult(){
   else if(ev&&ev.level==='block')winner={name:sorted.find(s=>s.key!=='hy')?.name||sorted[1].name,key:sorted.find(s=>s.key!=='hy')?.key||sorted[1].key};
   const implIdx=answers[IMPL_QUESTION.id];
   const implLabel=implIdx!==undefined?IMPL_QUESTION.options[implIdx].label:null;
-  const or=computeOrgReadiness();
+  const or=computeOrgReadiness(winner.key);
   return {
     type:'postnl-validation-response',
     toolVersion:'v4.2',
@@ -1271,7 +1377,7 @@ function buildBlindResult(){
       evaluatedRule: ev?{id:ev.id, level:ev.level, verdict:ev.verdict}:null,
       recommendationKey: winner.key, recommendationName: winner.name,
     },
-    orgReadiness:{ score: or, breakdown: orgReadinessBreakdown() },
+    orgReadiness:{ score: or, breakdown: orgReadinessBreakdown(winner.key) },
   };
 }
 
@@ -1429,23 +1535,38 @@ function evaluateRules(a,scores){
 // this axis answers "are we ready to deliver?", not "what should we build?".
 // ═══════════════════════════════════════════════════════════════════════════
 const ORG_READINESS_CHECKS = [
-  { id:'arch_boundary',   goodIdx:1,       base:20 },
-  { id:'team_ownership',  goodIdx:0,       base:18 },
-  { id:'op_criticality',  badIdx:[2,3],    base:14 },
-  { id:'team_skills',     goodIdx:[0,3],   base:14 },
-  { id:'time_to_market',  badIdx:[0],      base:12 },
-  { id:'maintainability', goodIdx:[0,2],   base:8  },
-  { id:'team_size',       badIdx:[0],      base:6  },
-  { id:'budget',          goodIdx:[1],     base:6  },
-  { id:'qs_capability',   goodIdx:[0,2],   base:14 }, // Quick Scan's sole org signal
+  { id:'arch_boundary',   goodIdx:1,          base:20 },
+  { id:'team_ownership',  goodIdx:0,          base:18 },
+  { id:'op_criticality',  badIdx:[2,3],       base:14 },
+  { id:'team_skills',     relativeToWinner:true, base:14 },
+  { id:'time_to_market',  badIdx:[0],         base:12 },
+  { id:'maintainability', goodIdx:[0,2],      base:8  },
+  { id:'team_size',       badIdx:[0],         base:6  },
+  { id:'budget',          goodIdx:[1],        base:6  },
+  { id:'qs_capability',   relativeToWinner:true, base:14 }, // Quick Scan's sole org signal
 ];
-function computeOrgReadiness(){
+// finding 4.2: team_skills/qs_capability readiness must be judged against the platform that
+// ACTUALLY won the Technology Fit score, not a fixed "good answer" list — a strong Low-Code
+// team is only "ready" if Low-Code is what's being built; the same team is not "ready" for a
+// High-Code-winning project just because it has a clear profile. Both questions already score
+// each option against lc/hy/hc (like every Technology Fit question) even though that scoring
+// isn't used for the platform recommendation (org-axis answers are excluded in computeScores());
+// that same lc/hy/hc shape is reused here as the answer to "which platform does this team profile
+// best fit?" — ready means the winning platform is (tied for) that option's strongest fit.
+function isReadyRelativeToWinner(q, answerIdx, winnerKey){
+  const o=q.options[answerIdx];
+  const max=Math.max(o.lc,o.hy,o.hc);
+  return o[winnerKey]===max;
+}
+function computeOrgReadiness(winnerKey){
   let score=0,max=0;
   ORG_READINESS_CHECKS.forEach(c=>{
     const q=allQ.find(x=>x.id===c.id); if(!q)return; // not part of the current mode's question set
     max+=c.base;
     const a=answers[c.id]; if(a===undefined)return;
-    if(c.goodIdx!==undefined){
+    if(c.relativeToWinner){
+      score+=(winnerKey&&isReadyRelativeToWinner(q,a,winnerKey))?c.base:c.base*0.3;
+    } else if(c.goodIdx!==undefined){
       const g=Array.isArray(c.goodIdx)?c.goodIdx.includes(a):a===c.goodIdx;
       score+=g?c.base:c.base*0.3;
     } else {
@@ -1469,12 +1590,13 @@ function orgReadinessNote(or){
     :'✓ Good readiness — organisational signals support timely, well-owned delivery.';
 }
 // Per-driver breakdown for the Organisational Readiness card / export — one row per answered org-axis question.
-function orgReadinessBreakdown(){
+function orgReadinessBreakdown(winnerKey){
   return ORG_READINESS_CHECKS.map(c=>{
     const q=allQ.find(x=>x.id===c.id); if(!q)return null;
     const a=answers[c.id]; if(a===undefined)return null;
     let ready;
-    if(c.goodIdx!==undefined) ready=Array.isArray(c.goodIdx)?c.goodIdx.includes(a):a===c.goodIdx;
+    if(c.relativeToWinner) ready=!!winnerKey&&isReadyRelativeToWinner(q,a,winnerKey);
+    else if(c.goodIdx!==undefined) ready=Array.isArray(c.goodIdx)?c.goodIdx.includes(a):a===c.goodIdx;
     else ready=!(Array.isArray(c.badIdx)?c.badIdx.includes(a):a===c.badIdx);
     return {id:c.id, label:q.text, answer:q.options[a].label, ready};
   }).filter(Boolean);
@@ -1496,10 +1618,40 @@ function computeScores(){
   return{lc,hy,hc,answered,total:allQ.length};
 }
 
+// Pure winner selection: Layer 1 hard constraints override the Layer 2 weighted score,
+// Layer 3 Hybrid-gate blocks fall back to the next-best platform. No DOM access, so this
+// is the single implementation reused by updateScores() below AND by the regression tests
+// in tests/ — testing this function is testing the actual recommendation logic, not a
+// reimplementation of it (see kritische-review-architectuur-cto-mtit.md finding 1.4).
+function determineWinner(raw, answers){
+  const {lc,hy,hc}=raw;
+  const ev=evaluateRules(answers,{lc,hy,hc});
+  const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
+  let winner=sorted[0], recCls='rec-'+winner.key, viability='valid';
+  if(ev){
+    if(ev.level==='ko'){winner={name:ev.verdict,val:0,key:ev.forceKey};recCls='rec-ko';viability='not';}
+    else if(ev.level==='block'){
+      // Hybrid blocked → fall to second best
+      const fb=sorted.find(s=>s.key!=='hy')||sorted[0];
+      winner={name:ev.verdict+' → '+fb.name,val:fb.val,key:fb.key};
+      recCls='rec-blocked'; viability='not';
+    }
+    else if(ev.level==='warn'){recCls='rec-warn-hy';viability='cond';}
+  }
+  return {ev,sorted,winner,recCls,viability};
+}
+
 function updateScores(){
   if(blindMode) return; // no live scoring feedback during a blind session — nothing here is visible anyway (sidebar hidden), but the constraint banner lives outside it
   const raw=computeScores();
   const {lc,hy,hc,answered,total}=raw;
+  // Computed here (not just after the answered<3 guard below) because Organisational Readiness
+  // needs winner.key too (finding 4.2 — team_skills/qs_capability readiness is judged against
+  // the actual winner). Harmless to compute early: it's just a sort + rule check, and org-axis
+  // questions are only reachable after Technology Fit is fully answered anyway.
+  const dw=determineWinner(raw,answers);
+  const {ev,sorted,winner,viability}=dw;
+  let {recCls}=dw;
 
   const mx=Math.max(lc,hy,hc,1);
   document.getElementById('lcBar').style.width=(lc/mx*100)+'%';
@@ -1512,7 +1664,7 @@ function updateScores(){
   // Organisational Readiness — independent of which platform wins. Hidden while still purely in
   // the Technology Fit phase (Full mode); shows a neutral "not yet assessed" / "skipped" state
   // rather than a misleading 0%/Low reading once it becomes relevant.
-  const or=computeOrgReadiness();
+  const or=computeOrgReadiness(winner.key);
   const orAnswered=orgAnsweredCount();
   const orCard=document.getElementById('orgReadinessCard');
   const stillInTechPhaseOnly = mode==='full'&&!blindMode&&!orgPhaseEntered&&!orgSkipped&&orAnswered===0;
@@ -1520,11 +1672,11 @@ function updateScores(){
     orCard.classList.remove('show');
   } else if(orgSkipped&&orAnswered===0){
     orCard.classList.add('show');
-    document.getElementById('orBadge').textContent='Skipped';
-    document.getElementById('orBadge').className='conf-val';
+    document.getElementById('orBadge').textContent='⚠ Skipped';
+    document.getElementById('orBadge').className='conf-val cv-med';
     document.getElementById('orFill').style.width='0%';
     document.getElementById('orVal').textContent='—';
-    document.getElementById('orNote').textContent='Skipped for this assessment — it does not affect the platform recommendation above. Answer it anytime from the finish screen.';
+    document.getElementById('orNote').textContent=`Skipped for this assessment — it does not affect the platform recommendation above. Answer it anytime from the finish screen. Reason given: "${orgSkipReason}"`;
     document.getElementById('orBreakdown').innerHTML='';
   } else if(or===null||orAnswered===0){
     orCard.classList.add('show');
@@ -1541,7 +1693,7 @@ function updateScores(){
     document.getElementById('orFill').style.width=or+'%';
     document.getElementById('orVal').textContent=or+'%';
     document.getElementById('orNote').textContent=orgReadinessNote(or);
-    const bd=orgReadinessBreakdown();
+    const bd=orgReadinessBreakdown(winner.key);
     document.getElementById('orBreakdown').innerHTML=bd.map(b=>`<div class="ci"><span>${b.label.length>42?b.label.slice(0,42)+'…':b.label}</span><span class="flag ${b.ready?'f-ok':'f-gap'}">${b.ready?'READY':'GAP'}</span></div>`).join('');
   }
 
@@ -1555,22 +1707,7 @@ function updateScores(){
     exportBtn.disabled=true; updateConBanner(null); return;
   }
 
-  const ev=evaluateRules(answers,{lc,hy,hc});
   updateConBanner(ev);
-
-  const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
-  let winner=sorted[0]; let recCls='rec-'+winner.key; let viability='valid';
-
-  if(ev){
-    if(ev.level==='ko'){winner={name:ev.verdict,val:0,key:ev.forceKey};recCls='rec-ko';viability='not';}
-    else if(ev.level==='block'){
-      // Hybrid blocked → fall to second best
-      const fb=sorted.find(s=>s.key!=='hy')||sorted[0];
-      winner={name:ev.verdict+' → '+fb.name,val:fb.val,key:fb.key};
-      recCls='rec-blocked'; viability='not';
-    }
-    else if(ev.level==='warn'){recCls='rec-warn-hy';viability='cond';}
-  }
 
   const gap=sorted[0].val-sorted[1].val;
   const minC=mode==='quick'?3:10;
@@ -1639,6 +1776,9 @@ function setRec(cls,v,r,val){
   document.getElementById('recVerdict').textContent=v;
   document.getElementById('recReason').textContent=r;
   const ve=document.getElementById('recVal'); ve.textContent=val||''; ve.classList.toggle('show',!!val);
+  // Wherever the recommendation is shown, also show that delivery-risk assessment was skipped (finding 3.1) —
+  // only once there IS a recommendation (cls is set) so the empty "answer the criteria" state stays clean.
+  document.getElementById('recSkipBadge').style.display=(mode==='full'&&orgSkipped&&cls)?'flex':'none';
 }
 function setConf(level,answered,total){
   const b=document.getElementById('confBadge');
@@ -1701,6 +1841,12 @@ function cw(qid,d){
   const qi=allQ.findIndex(q=>q.id===qid); if(qi===-1||allQ[qi].axis==='org')return; // org-axis weight is fixed, not user-adjustable
   const nw=Math.max(1,Math.min(3,allQ[qi].weight+d));
   allQ[qi].weight=nw;
+  // finding 4.3: record when this question's weight last moved away from default, so the
+  // export report can flag it prominently instead of only via a small inline note at the
+  // bottom transcript. Removed from the log entirely once it's back at default — there is
+  // nothing to disclose once a weight matches the baseline again.
+  if(nw!==allQ[qi].defaultWeight) weightChangeLog[qid]=new Date().toISOString();
+  else delete weightChangeLog[qid];
   document.getElementById('wval-'+qid).textContent=nw; document.getElementById('wval-'+qid).className='wv v'+nw;
   document.getElementById('wdec-'+qid).disabled=nw<=1; document.getElementById('winc-'+qid).disabled=nw>=3;
   document.querySelectorAll(`#pip-${qid} .wpip`).forEach((p,i)=>p.classList.toggle('on',i<nw));
@@ -1708,7 +1854,7 @@ function cw(qid,d){
   document.getElementById('wcb').classList.toggle('v',allQ.some(q=>q.weight!==q.defaultWeight));
   updateScores(); saveState();
 }
-function resetWeights(){allQ.forEach(q=>{q.weight=q.defaultWeight;});buildWD();document.getElementById('wcb').classList.remove('v');updateScores();saveState();}
+function resetWeights(){allQ.forEach(q=>{q.weight=q.defaultWeight;});weightChangeLog={};buildWD();document.getElementById('wcb').classList.remove('v');updateScores();saveState();}
 function openWeightDrawer(){document.getElementById('drawerOverlay').classList.add('open');document.getElementById('weightDrawer').classList.add('open');}
 function closeWD(){document.getElementById('drawerOverlay').classList.remove('open');document.getElementById('weightDrawer').classList.remove('open');}
 
@@ -1721,7 +1867,6 @@ function buildMd(){
   const project=document.getElementById('metaProject').value.trim()||'Unnamed Project';
   const author=document.getElementById('metaAuthor').value.trim()||'Not specified';
   const date=new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'});
-  const wMod=mode==='full'&&allQ.some(q=>q.weight!==q.defaultWeight);
   const ev=evaluateRules(answers,{lc,hy,hc});
   const sorted=[{name:'Low-Code',val:lc,key:'lc'},{name:'Hybrid',val:hy,key:'hy'},{name:'High-Code',val:hc,key:'hc'}].sort((a,b)=>b.val-a.val);
   let winner=sorted[0];
@@ -1733,8 +1878,8 @@ function buildMd(){
   const minC=mode==='quick'?3:10;
   const conf=answered>=minC?(gap>8?'High':gap>3?'Medium':'Low'):'Low';
   const viab=ev&&(ev.level==='ko'||ev.level==='block')?'NOT RECOMMENDED':ev&&ev.level==='warn'?'VALID WITH CONDITIONS':'VALID';
-  const or=computeOrgReadiness();
-  const orBd=orgReadinessBreakdown();
+  const or=computeOrgReadiness(winner.key);
+  const orBd=orgReadinessBreakdown(winner.key);
   const verdicts={lc:'🔵 Low-Code',hy:'🟣 Hybrid',hc:'🟢 High-Code'};
   const rationale={
     lc:'The application profile — delivery speed, team fit, and process-driven logic — aligns with the Low-Code paradigm.',
@@ -1744,7 +1889,7 @@ function buildMd(){
   const tradeoffs={
     lc:'Trades engineering flexibility for faster delivery, lower skill requirements, and platform-managed operations. **Cost model:** capacity-oriented — runtime resources, DB size, number of environments, HA/fallback, and horizontal scaling headroom. Fast delivery and business involvement reduce build and change cost, which can make Low-Code the better total-cost choice even with licensing overhead.',
     hy:'Trades operational simplicity for best-of-breed fit. **Cost model:** dual — Low-Code layer incurs capacity-based costs (environments, runtime, DB, HA); high-code layer incurs usage-based costs (compute duration, queue/event volume, logs, metrics, traces, data transfer). Each layer uses the model that matches its workload shape, but both must be budgeted and governed separately.',
-    hc:'Trades time-to-market for full technical control, runtime flexibility, and portability. **Cost model:** usage-based — you pay across compute, queues, event routing, databases, storage, observability, networking, and security services. Note: AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.',
+    hc:`Trades time-to-market for full technical control, runtime flexibility, and portability. **Cost model:** usage-based — you pay across compute, queues, event routing, databases, storage, observability, networking, and security services. Note: illustrated here with ${HIGH_CODE_CLOUD_REF}, PostNL's current reference cloud platform — it is not automatically cheaper, and poor architecture, overlogging, NAT Gateway misuse, or overprovisioning can make it materially more expensive.`,
   };
   const risks=RISK_RULES.filter(r=>{try{return r.condition(answers,{lc,hy,hc});}catch(e){return false;}});
   const assumptions=[];
@@ -1754,9 +1899,18 @@ function buildMd(){
   if(answers['team_ownership']===0)assumptions.push('Separate team ownership for UI/process and backend/integration layers is maintained.');
   if(answers['op_criticality']!==undefined&&answers['op_criticality']<=1)assumptions.push('Standard Low-Code SLAs are acceptable for this solution\'s operational criticality.');
   if(assumptions.length===0)assumptions.push('No specific assumptions recorded — review relevant criteria before finalising.');
+  const deviation=getDeviation(); // finding 2.2 — null unless explicitly recorded in the sidebar
+  // finding 4.3: every Technology Fit question whose weight currently differs from default,
+  // with when it was last changed — the "gaming" risk the axis-split already solved for
+  // Organisational Readiness, now made visible for Technology Fit too instead of only a small
+  // inline note in the bottom transcript.
+  const weightDeviations=mode==='full'?allQ.filter(q=>q.axis!=='org'&&q.weight!==q.defaultWeight).map(q=>({
+    text:q.text, from:q.defaultWeight, to:q.weight, at:weightChangeLog[q.id]||null,
+  })):[];
 
   let md='# Platform Decision Report\n\n';
-  md+=`> **PostNL Engineering Governance** — Platform Decision Model v4\n\n---\n\n`;
+  md+=`> **PostNL Engineering Governance** — Platform Decision Model v4\n`;
+  md+=`> Score values calibrated per [CALIBRATION.md](CALIBRATION.md) v0.4 (draft — pending architecture panel sign-off)\n\n---\n\n`;
   md+=`## Report Metadata\n\n| Field | Value |\n|---|---|\n`;
   md+=`| Title | Platform decision for ${project} |\n`;
   md+=`| Status | Proposed |\n`;
@@ -1764,10 +1918,13 @@ function buildMd(){
   md+=`| Date | ${date} |\n`;
   md+=`| Mode | ${mode==='quick'?'Quick Scan (5Q)':'Full Assessment (26Q)'} |\n`;
   md+=`| Criteria answered | ${answered} / ${total} |\n`;
-  md+=`| Confidence | **${conf}** |\n`;
+  md+=`| Score separation | **${conf}** |\n`;
   md+=`| Viability | **${viab}** |\n`;
   if(ev)md+=`| Constraint / Gate | ⚠ ${ev.level.toUpperCase()}: ${ev.id} |\n`;
-  if(mode==='full')md+=`| Custom weights | ${wMod?'Yes — see below':'No — all defaults'} |\n`;
+  if(mode==='full')md+=`| Weight deviations | ${weightDeviations.length>0?`⚠ **${weightDeviations.length} — see below**`:'None — all defaults'} |\n`;
+  if(mode==='full'&&orgSkipped)md+=`| Organisational Readiness | ⚠ **Skipped — see below** |\n`;
+  if(deviation)md+=`| Deviation from recommendation | 🔴 **Yes — see below** |\n`;
+  md+=`\n> ℹ **Score separation** measures how clearly the top two platform scores are separated on this specific set of answers — it is **not** a judgement on whether those answers are accurate, complete, or honestly reported. A wide score gap can still be built on wrong or gamed input.\n`;
   md+=`\n---\n\n`;
   md+=`## Decision\n\n**${ev&&ev.level==='ko'?ev.verdict:isTieMd?tiedMd.map(s=>verdicts[s.key]).join(' & ')+' (Tie)':verdicts[winner.key]||winner.name}**\n\n`;
   if(ev&&(ev.level==='ko'||ev.level==='block')){
@@ -1782,6 +1939,33 @@ function buildMd(){
     md+=`${rationale[winner.key]||''}\n\n`;
   }
   if(!isTieMd)md+=`> **Validation required:** ${winner.key==='lc'?'Validate volume, integration complexity, and operational risk first.':winner.key==='hy'?'Define and formalise the architectural boundary, ownership split, and observability plan.':'Validate team capability and build-vs-buy decision.'}\n\n`;
+
+  if(weightDeviations.length>0){
+    md+=`## ⚖ Weight Deviations\n\n`;
+    md+=`> ${weightDeviations.length} Technology Fit question weight${weightDeviations.length>1?'s deviate':' deviates'} from the model's default weighting — review each one below before treating the Decision above as unbiased. Nothing prevents a weight being tuned toward a pre-decided outcome (e.g. raising \`vendor\` or \`runtime_cost\` to ×3); this section exists so a reviewer sees that immediately rather than finding it buried in the answer transcript. See kritische-review-architectuur-cto-mtit.md finding 4.3.\n\n`;
+    md+=`| Question | Default → Current | Last changed |\n|---|---|---|\n`;
+    weightDeviations.forEach(w=>{
+      const when=w.at?new Date(w.at).toLocaleString('en-GB',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'_unknown (session predates weight logging)_';
+      md+=`| ${w.text} | ×${w.from} → **×${w.to}** | ${when} |\n`;
+    });
+    md+=`\n> All weight changes in a session are made by the assessor named above (${author}) — this tool has no separate per-change attribution.\n\n`;
+  }
+
+  if(mode==='full'&&orgSkipped){
+    md+=`## ⚠ Organisational Readiness: Skipped\n\n`;
+    md+=`> Organisational Readiness was **not assessed** for this run — delivery-risk signals (team capability, ownership, timeline, budget) are unknown. This does not affect the platform recommendation above, but it means the recommendation has not been checked against whether the organisation is actually ready to deliver it.\n\n`;
+    md+=`> **Reason given:** ${orgSkipReason||'_Not specified_'}\n\n`;
+  }
+
+  if(deviation){
+    md+=`## 🔴 Deviation from Recommendation\n\n`;
+    md+=`> This assessment does **not** follow the model's recommendation above. Recorded for governance visibility — see kritische-review-architectuur-cto-mtit.md finding 2.2.\n\n`;
+    md+=`| Field | Value |\n|---|---|\n`;
+    md+=`| Model recommendation | ${ev&&ev.level==='ko'?ev.verdict:isTieMd?tiedMd.map(s=>verdicts[s.key]).join(' & ')+' (Tie)':verdicts[winner.key]||winner.name} |\n`;
+    md+=`| Chosen platform instead | ${verdicts[deviation.platform]||'_Not specified_'} |\n`;
+    md+=`| Reason for deviation | ${deviation.reason||'_Not specified_'} |\n`;
+    md+=`| Approved by | ${deviation.approverName||'_Not specified_'}${deviation.approverRole?` (${deviation.approverRole})`:''} |\n\n`;
+  }
 
   if(!isTieMd&&(winner.key==='hy'||ev?.level==='warn')){
     md+=`## Architecture Pattern (Hybrid)\n\n`;
@@ -1799,7 +1983,7 @@ function buildMd(){
   md+=`## Viability: ${viab}\n\n`;
 
   md+=`## Organisational Readiness\n\n_Does not affect the Technology Fit score or the platform recommendation above — it signals delivery risk and mitigation needs._\n\n`;
-  md+=orgSkipped&&orBd.length===0?`_Skipped by the assessor for this run — not evaluated._\n\n`
+  md+=orgSkipped&&orBd.length===0?`_Skipped by the assessor for this run — not evaluated. Reason given: "${orgSkipReason||'Not specified'}" — see also "⚠ Organisational Readiness: Skipped" above._\n\n`
     :(or===null||orBd.length===0)?`_Not enough organisational criteria answered yet._\n\n`
     :`Score: **${or}%** — ${orgReadinessTier(or)}. ${orgReadinessNote(or)}\n\n`;
   if(orBd.length>0){
@@ -1816,8 +2000,8 @@ function buildMd(){
   md+=`## Cost Model\n\n`;
   const costModels={
     lc:`**Platform: Low-Code (Capacity-based)**\n\nCost drivers: application runtime capacity, database size and capacity, file storage, number of environments (dev/test/acc/prod), HA and fallback requirements, horizontal scaling headroom, and enterprise licensing / internal chargeback.\n\n> ⚠ Low-Code can be the better total-cost choice when fast delivery, business involvement, process fit, and available Low-Code capability reduce build and change costs significantly.`,
-    hy:`**Platform: Hybrid (Dual cost model)**\n\n- **Low-Code layer (capacity-based):** runtime capacity, DB size, environments, HA/fallback, scaling headroom, licensing\n- **High-code layer (usage-based):** compute duration and request volume, queue/event/message volume, DB reads/writes/storage, API and load balancing, logs/metrics/traces/alarms, networking/NAT/KMS/WAF, HA/DR setup\n\nThe boundary between layers allows each to use the cost model that matches its workload shape. Both must be budgeted and governed separately.\n\n> ⚠ AWS is not automatically cheaper — overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive.`,
-    hc:`**Platform: High-Code / AWS-native (Usage-based)**\n\nCost drivers: compute duration and request volume, queue/event/message volume, database reads/writes/storage/provisioned capacity, API calls/load balancing/data transfer, logs/metrics/traces/alarms/retention, networking/NAT/security/KMS/secrets/WAF, HA and DR setup.\n\n> ⚠ AWS is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, excessive data transfer, or overprovisioning can make AWS materially more expensive than a well-licenced Low-Code setup.`,
+    hy:`**Platform: Hybrid (Dual cost model)**\n\n- **Low-Code layer (capacity-based):** runtime capacity, DB size, environments, HA/fallback, scaling headroom, licensing\n- **High-code layer (usage-based):** compute duration and request volume, queue/event/message volume, DB reads/writes/storage, API and load balancing, logs/metrics/traces/alarms, networking/NAT/KMS/WAF, HA/DR setup\n\nThe boundary between layers allows each to use the cost model that matches its workload shape. Both must be budgeted and governed separately.\n\n> ⚠ Illustrated here with ${HIGH_CODE_CLOUD_REF}, PostNL's current reference cloud platform — usage-based cloud cost is not automatically cheaper: overlogging, inefficient DB access, NAT Gateway misuse, excessive data transfer, or overprovisioning can make it materially more expensive.`,
+    hc:`**Platform: High-Code (Usage-based, reference: ${HIGH_CODE_CLOUD_REF})**\n\nCost drivers: compute duration and request volume, queue/event/message volume, database reads/writes/storage/provisioned capacity, API calls/load balancing/data transfer, logs/metrics/traces/alarms/retention, networking/NAT/security/KMS/secrets/WAF, HA and DR setup.\n\n> ⚠ ${HIGH_CODE_CLOUD_REF} is not automatically cheaper — poor architecture, overlogging, NAT Gateway misuse, excessive data transfer, or overprovisioning can make it materially more expensive than a well-licenced Low-Code setup. ${HIGH_CODE_CLOUD_REF} is PostNL's current reference cloud platform for High-Code, not a synonym for it — cost drivers above generalise to other cloud-native platforms.`,
   };
   md+=(isTieMd?tiedMd.map(s=>costModels[s.key]||'').join('\n\n'):costModels[winner.key]||costModels['lc'])+'\n\n';
   md+=`## Assumptions\n\n`;assumptions.forEach(a=>{md+=`- ${a}\n`;});md+='\n---\n\n';
@@ -1939,7 +2123,7 @@ p{margin:8px 0}
 
 function resetAll(){
   clearState(lsKey());                   // remove only this mode's saved data
-  answers={};currentIdx=0;orgPhaseEntered=false;orgSkipped=false;initAllQ();buildDotMap();showWizard();renderStep(0);updateScores();
+  answers={};currentIdx=0;orgPhaseEntered=false;orgSkipped=false;orgSkipReason='';weightChangeLog={};initAllQ();buildDotMap();showWizard();renderStep(0);updateScores();
   ['lc','hy','hc'].forEach(k=>{document.getElementById(k+'Bar').style.width='0%';document.getElementById(k+'Val').textContent='0';});
   document.getElementById('exportBtn').disabled=true;
   document.getElementById('archPattern').classList.remove('show');
@@ -1950,6 +2134,10 @@ function resetAll(){
   hideViab();setRec('','—','Answer the criteria to receive a recommendation.','');setConf(null);
   updateSavedBadge();
 }
+
+// Populate every static "current cloud reference" tag from the single HIGH_CODE_CLOUD_REF
+// constant, so the cost drawer never hardcodes AWS as a synonym for High-Code.
+document.querySelectorAll('.cloud-ref-tag').forEach(el=>{ el.textContent = HIGH_CODE_CLOUD_REF; });
 
 // ─ INIT: restore last session ─
 (function(){

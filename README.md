@@ -2,7 +2,7 @@
 
 **v4.1 — Low-Code vs. High-Code vs. Hybrid**
 
-An interactive decision-support tool for PostNL engineering teams evaluating whether to use **Low-Code**, **AWS-native High-Code**, or a **Hybrid architecture** for new or modernised applications.
+An interactive decision-support tool for PostNL engineering teams evaluating whether to use **Low-Code**, **High-Code**, or a **Hybrid architecture** for new or modernised applications. Cost-model examples are illustrated with AWS, PostNL's current reference cloud platform — AWS is not a synonym for "High-Code," and the tool's language and cost model are decoupled from it (see `CALIBRATION.md` and `HIGH_CODE_CLOUD_REF` in the source) so a future cloud-strategy change doesn't require rewriting the model.
 
 ---
 
@@ -12,7 +12,7 @@ The tool guides you through a structured assessment and produces a scored recomm
 
 | Layer | What it checks | Effect |
 |---|---|---|
-| **1 — Hard constraints** | Technical or strategic blockers (e.g. zero-trust requirements, extreme latency SLAs, no-UI workloads) | Overrides scoring — forces a platform regardless of weighted score |
+| **1 — Hard constraints** | Technical or strategic blockers (e.g. zero-trust requirements, extreme latency SLAs, scale-to-zero/burst elasticity) | Overrides scoring — forces a platform regardless of weighted score |
 | **2 — Weighted scoring** | 24 questions across four dimensions | Produces Low-Code / Hybrid / High-Code scores |
 | **3 — Hybrid feasibility gate** | Boundary clarity, team ownership, criticality, observability | Penalises hybrid 30% if readiness < 40% |
 
@@ -55,6 +55,8 @@ The exported DR includes:
 
 - Project metadata (name, author, date)
 - Decision summary and confidence level
+- Weight deviations (Full Assessment), if any question's weight was changed from its default — which question, default → current, and when it was last changed, shown near the top rather than only as a small note in the answer transcript
+- Deviation from recommendation, if recorded (chosen platform, reason, approving architect — see "Recording a deviation" below)
 - Recommended architecture pattern (if hybrid)
 - Score table with raw and adjusted scores
 - Identified risks and trade-offs
@@ -76,11 +78,49 @@ The exported DR includes:
 
 ---
 
+## Skipping Organisational Readiness
+
+In Full Assessment, after the Technology Fit questions you can skip the Organisational Readiness phase and finish immediately — it never changes the platform recommendation, so this must stay optional. Skipping requires a short reason ("Reason for skipping") before the "Confirm skip" button becomes active; this is deliberately light friction, not a block. Once skipped, a "⚠ Organisational Readiness: Skipped" badge appears everywhere the recommendation is shown (sidebar, finish screen) and at the top of the exported report — not just in a section further down — so a skipped delivery-risk assessment stays visible rather than quietly disappearing under deadline pressure.
+
+---
+
+## Recording a deviation
+
+If a project will not follow the model's recommendation, tick **⚠ Deviation from recommendation** in the sidebar (above the export buttons) and record the platform chosen instead, the reason, and the approving architect's name and role. This is deliberately not a blocker — the assessment still completes and exports normally — but the deviation is then shown prominently in the exported Decision Report (a flag in the metadata table plus its own section right after the Decision), so honest exceptions are visible and auditable instead of being hidden by quietly answering questions to avoid a hard constraint.
+
+---
+
+## Scoring calibration
+
+Every `lc`/`hy`/`hc` score value and every question/hard-rule weight in the model is documented in [`CALIBRATION.md`](CALIBRATION.md) — accessible from the tool itself via the **📖 Scoring calibration & rationale** button in the sidebar. It is currently a **draft**: it records the reasoning behind today's values so an architecture panel has a concrete starting point, but no value is considered validated until the panel process described in that document has actually run.
+
+The same document also anchors each answer *option* to a concrete example application (§9), so two assessors interpreting e.g. "how complex is the core business logic?" have a real reference point instead of guessing — 16 Technology Fit questions reuse examples from `testset-real-world-applicaties-technology-fit.md`, and 8 Organisational Readiness questions get newly constructed illustrative scenarios (that axis has no testset equivalent).
+
+---
+
+## Regression tests
+
+The scoring logic (hard constraints, weighted scoring, the Hybrid feasibility gate) has automated regression coverage in `tests/` — run it with:
+
+```
+node tests/run-tests.js
+```
+
+No test framework and no dependencies: the script extracts the actual data and scoring functions straight out of `lowcode-decision-model.html` and runs them in a Node `vm` context, so it tests the shipped logic itself rather than a reimplementation of it. Coverage is 20 realistic scenarios from `testset-real-world-applicaties-technology-fit.md` (`tests/fixtures/technology-fit-testset.js`) plus targeted edge cases for the hard-constraint and Hybrid-gate rules that testset deliberately doesn't touch (`tests/fixtures/edge-case-scenarios.js`). Run this after any change to `HARD_RULES`, `FULL_CATS`, `QUICK_SCAN`, or the winner-selection logic in `determineWinner()`.
+
+---
+
 ## Project structure
 
 ```
 TechnologyDecision/
-└── lowcode-decision-model.html   # Complete self-contained application
+├── lowcode-decision-model.html   # Complete self-contained application
+├── CALIBRATION.md                # Score/weight rationale register — see "Scoring calibration" below
+└── tests/
+    ├── run-tests.js              # Regression test runner — node tests/run-tests.js
+    └── fixtures/
+        ├── technology-fit-testset.js   # 20 scenarios derived from the real-world testset
+        └── edge-case-scenarios.js      # Hard-constraint / Hybrid-gate edge cases
 ```
 
 No build step, no package manager, no external dependencies. The entire application — logic, styling, and data — is in a single HTML file.
