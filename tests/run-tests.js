@@ -66,13 +66,14 @@ function runScenario(sandbox, scenario) {
     initAllQ();
     const raw = computeScores();
     const dw = determineWinner(raw, answers);
-    const orBd = orgReadinessBreakdown(dw.winner.key);
+    const orBd = orgReadinessBreakdown(dw.isTie ? null : dw.winner.key);
     const teamSkillsRow = orBd.find(b => b.id === 'team_skills');
     const qsCapabilityRow = orBd.find(b => b.id === 'qs_capability');
     return JSON.stringify({
       lc: raw.lc, hy: raw.hy, hc: raw.hc, answered: raw.answered,
       winnerKey: dw.winner.key, winnerName: dw.winner.name,
       evId: dw.ev ? dw.ev.id : null, evLevel: dw.ev ? dw.ev.level : null,
+      isTie: dw.isTie, tiedKeys: dw.tied.map(s => s.key),
       teamSkillsReady: teamSkillsRow ? teamSkillsRow.ready : null,
       qsCapabilityReady: qsCapabilityRow ? qsCapabilityRow.ready : null,
     });
@@ -106,6 +107,14 @@ function check(expect, result) {
   }
   if (expect.qsCapabilityReady !== undefined && result.qsCapabilityReady !== expect.qsCapabilityReady) {
     failures.push(`expected qs_capability readiness ${expect.qsCapabilityReady}, got ${result.qsCapabilityReady}`);
+  }
+  if (expect.isTie !== undefined && result.isTie !== expect.isTie) {
+    failures.push(`expected isTie=${expect.isTie}, got ${result.isTie}`);
+  }
+  if (expect.tiedKeys) {
+    const got = [...result.tiedKeys].sort().join(',');
+    const want = [...expect.tiedKeys].sort().join(',');
+    if (got !== want) failures.push(`expected tiedKeys [${want}], got [${got}]`);
   }
   return failures;
 }

@@ -10,13 +10,15 @@ An interactive decision-support tool for PostNL engineering teams evaluating whe
 
 The tool guides you through a structured assessment and produces a scored recommendation with full rationale. It implements a three-layer model:
 
-| Layer | What it checks | Effect |
-|---|---|---|
-| **1 — Hard constraints** | Technical or strategic blockers (e.g. zero-trust requirements, extreme latency SLAs, scale-to-zero/burst elasticity) | Overrides scoring — forces a platform regardless of weighted score |
-| **2 — Weighted scoring** | 24 questions across four dimensions | Produces Low-Code / Hybrid / High-Code scores |
-| **3 — Hybrid feasibility gate** | Boundary clarity, team ownership, criticality, observability | Penalises hybrid 30% if readiness < 40% |
+| Layer                           | What it checks                                                                                                       | Effect                                                             |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **1 — Hard constraints**        | Technical or strategic blockers (e.g. zero-trust requirements, extreme latency SLAs, scale-to-zero/burst elasticity) | Overrides scoring — forces a platform regardless of weighted score |
+| **2 — Weighted scoring**        | 24 questions across four dimensions                                                                                  | Produces Low-Code / Hybrid / High-Code scores                      |
+| **3 — Hybrid feasibility gate** | Boundary clarity, team ownership, criticality, observability                                                         | Penalises hybrid 30% if readiness < 40%                            |
 
 At the end you can export a formal **Decision Report (DR)** in Markdown, suitable for governance boards or architecture reviews.
+
+No platform is treated as a default: weight defaults reflect general guidance, not a preference, and an exact score tie is shown as-is — all tied platforms presented as equally valid options — rather than silently resolved to whichever one happens to be listed first.
 
 ---
 
@@ -29,6 +31,7 @@ Rapid orientation — useful early in a project to get a directional signal befo
 Defensible, auditable scoring. Questions are weighted (1 = standard, 2 = important, 3 = critical) and weights can be adjusted per project context.
 
 Categories covered:
+
 - Application Characteristics
 - Technical Constraints
 - Team & Organisation
@@ -95,6 +98,8 @@ If a project will not follow the model's recommendation, tick **⚠ Deviation fr
 Every `lc`/`hy`/`hc` score value and every question/hard-rule weight in the model is documented in [`CALIBRATION.md`](CALIBRATION.md) — accessible from the tool itself via the **📖 Scoring calibration & rationale** button in the sidebar. It is currently a **draft**: it records the reasoning behind today's values so an architecture panel has a concrete starting point, but no value is considered validated until the panel process described in that document has actually run.
 
 The same document also anchors each answer *option* to a concrete example application (§9), so two assessors interpreting e.g. "how complex is the core business logic?" have a real reference point instead of guessing — 16 Technology Fit questions reuse examples from `testset-real-world-applicaties-technology-fit.md`, and 8 Organisational Readiness questions get newly constructed illustrative scenarios (that axis has no testset equivalent).
+
+Those examples also show up right where they're useful: every Full Assessment question has a **🗂️ Examples** badge that opens a popup listing all of that question's options side by side with their example application — so you can compare "is my application more like *this* one?" while you're actually answering, not just when you happen to open `CALIBRATION.md` separately. Hidden during Blind Assessment, like every other scoring hint.
 
 ---
 

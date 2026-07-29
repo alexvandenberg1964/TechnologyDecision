@@ -139,4 +139,26 @@ module.exports = [
     answers: { ...answersFor(2), team_skills: 0 },
     expect: { winnerKey: 'lc', teamSkillsReady: true },
   },
+  {
+    // finding 1.2 / "Low-Code is the strategic default": an exact score tie must be treated as
+    // a real, first-class outcome — both platforms shown as equally valid options — not silently
+    // resolved to whichever key happens to sort first (lc, by array order). domain:2 gives
+    // lc0/hy2/hc6; vendor:0 gives lc6/hy2/hc0 — lc and hc tie at 6, hy trails at 4.
+    name: 'Tie handling: an exact Low-Code/High-Code score tie is flagged as isTie, not silently resolved to Low-Code',
+    mode: 'full',
+    answers: { domain: 2, vendor: 0 },
+    expect: {
+      isTie: true, tiedKeys: ['lc', 'hc'], evId: null, evLevel: null,
+      rawScore: { lc: 6, hy: 4, hc: 6 },
+    },
+  },
+  {
+    // Readiness cannot honestly be judged "relative to the winner" (finding 4.2's mechanism)
+    // when there is no single winner — team_skills:0 should read neither ready nor unready,
+    // it should read unknown (null), not silently compared against whichever key sorts first.
+    name: 'Tie handling: team_skills readiness is null (unknown), not silently judged against a false single winner, when tied',
+    mode: 'full',
+    answers: { domain: 2, vendor: 0, team_skills: 0 },
+    expect: { isTie: true, tiedKeys: ['lc', 'hc'], teamSkillsReady: null },
+  },
 ];
