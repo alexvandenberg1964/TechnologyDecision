@@ -1,12 +1,20 @@
 // Targeted edge-case scenarios for the parts of the scoring logic the 20-application
 // testset deliberately does not exercise: Quick Scan (a separate, coarser question set), and
-// the Layer 3 Hybrid Feasibility Gate (which depends on Organisational Readiness answers — out
-// of scope for testset-real-world-applicaties-technology-fit.md by design).
+// the org-axis answers (arch_boundary, team_ownership, op_criticality) that feed Organisational
+// Readiness — out of scope for testset-real-world-applicaties-technology-fit.md by design.
 //
 // These are the "Scenario A/B/B2"-style checks referenced in
 // kritische-review-architectuur-cto-mtit.md finding 1.4 — previously run by hand during
 // the ui_complexity refactor (finding 1.6), never captured in the repo. Capturing them
 // here is what finding 1.4 asks for.
+//
+// The three "Hybrid Feasibility Gate" scenarios below used to assert that arch_boundary /
+// team_ownership / op_criticality could block or warn a Hybrid-winning score (the old Layer 3
+// hard rules). That gate was removed: those are axis:'org' answers, and letting them override
+// the platform recommendation contradicted the tech/org separation (see
+// analyse-balans-vragenlijst.md §5) and the tool's own claim that Organisational Readiness never
+// changes the recommendation. They still drive the Organisational Readiness score — see
+// ORG_READINESS_CHECKS — just no longer the winner. The scenarios are kept to pin that.
 
 const testset = require('./technology-fit-testset');
 const answersFor = id => testset.find(app => app.id === id).answers;
@@ -93,22 +101,22 @@ module.exports = [
     expect: { winnerKey: 'lc', evId: null, evLevel: null, rawScore: { lc: 72, hy: 21, hc: 9 } },
   },
   {
-    name: 'Hybrid Feasibility Gate: undefined architectural boundary blocks a Hybrid-winning score',
+    name: 'Organisational Readiness: undefined architectural boundary no longer blocks a Hybrid-winning score',
     mode: 'full',
     answers: { ...answersFor(9), arch_boundary: 2 },
-    expect: { winnerKeyNot: 'hy', evId: 'hybrid_no_boundary', evLevel: 'block' },
+    expect: { winnerKey: 'hy', evId: null, evLevel: null },
   },
   {
-    name: 'Hybrid Feasibility Gate: unclear team ownership blocks a Hybrid-winning score',
+    name: 'Organisational Readiness: unclear team ownership no longer blocks a Hybrid-winning score',
     mode: 'full',
     answers: { ...answersFor(10), team_ownership: 2 },
-    expect: { winnerKeyNot: 'hy', evId: 'hybrid_no_ownership', evLevel: 'block' },
+    expect: { winnerKey: 'hy', evId: null, evLevel: null },
   },
   {
-    name: 'Hybrid Feasibility Gate: mission-critical is a warning, not a block — Hybrid still wins',
+    name: 'Organisational Readiness: mission-critical no longer warns — Hybrid still wins on score alone',
     mode: 'full',
     answers: { ...answersFor(18), op_criticality: 3 },
-    expect: { winnerKey: 'hy', evId: 'hybrid_mission_critical', evLevel: 'warn' },
+    expect: { winnerKey: 'hy', evId: null, evLevel: null },
   },
   {
     // finding 4.2: the old ORG_READINESS_CHECKS entry `team_skills: goodIdx:[0,3]` marked a

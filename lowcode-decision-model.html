@@ -89,7 +89,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;heigh
 .layer-label{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid}
 .layer-1{background:var(--danger-lt);color:var(--danger);border-color:rgba(220,38,38,.3)}
 .layer-2{background:var(--lc-dim);color:var(--lc);border-color:rgba(0,100,210,.25)}
-.layer-3{background:var(--hy-dim);color:var(--hy);border-color:rgba(123,63,190,.25)}
 .q-text{font-size:18px;font-weight:700;letter-spacing:-.02em;line-height:1.35;margin-bottom:8px}
 .q-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
 .options{display:flex;flex-direction:column;gap:7px}
@@ -695,16 +694,13 @@ const HARD_RULES = [
   { id:'zero_trust', level:'ko', forceKey:'hc', verdict:'High-Code (Hard Constraint)',
     condition: a => a['security'] === 3,
     body:'Custom cryptography or zero-trust architecture required. Low-Code does not support full security stack control. Score overridden → High-Code.' },
-  // LAYER 3 — Hybrid feasibility gate (block, not warn)
-  { id:'hybrid_no_boundary', level:'block', verdict:'Hybrid Blocked — No Boundary',
-    condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['arch_boundary'] === 2,
-    body:'Hybrid scores highest but no clear architectural boundary or team ownership has been defined. Hybrid without a clear boundary consistently fails. Falling back to second-best platform.' },
-  { id:'hybrid_no_ownership', level:'block', verdict:'Hybrid Blocked — Ownership Undefined',
-    condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['team_ownership'] === 2,
-    body:'Hybrid scores highest but team ownership between UI/process and backend/integration is not split. Clear ownership is a prerequisite for Hybrid. Falling back to second-best platform.' },
-  { id:'hybrid_mission_critical', level:'warn', verdict:'Hybrid — Operational Risk ⚠',
-    condition: (a, s) => s.hy > s.lc && s.hy > s.hc && a['op_criticality'] === 3,
-    body:'Hybrid scores highest but the solution is mission-critical. Dual-platform incident response requires mature cross-team governance. Validate readiness before committing.' },
+  // arch_boundary / team_ownership / op_criticality used to block or warn on a Hybrid-winning
+  // score here (the old "Layer 3 — Hybrid feasibility gate"). Removed: those are axis:'org'
+  // questions — letting them override the platform recommendation contradicted the tech/org
+  // separation (see analyse-balans-vragenlijst.md §5 "geen scoreverschuiving") and the tool's
+  // own claim that Organisational Readiness never changes the recommendation. They still drive
+  // the Organisational Readiness score and its breakdown — see ORG_READINESS_CHECKS — just no
+  // longer gate or fall back the winner.
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -784,10 +780,11 @@ const QUICK_SCAN = [
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FULL ASSESSMENT (24 questions across 4 dimensions)
-// Structured in 3 decision layers:
+// Structured in 2 decision layers, cross-cut by axis (tech drives the platform
+// recommendation via computeScores(); org feeds Organisational Readiness only —
+// see ORG_READINESS_CHECKS — and never the recommendation):
 //   Layer 1 = Hard constraints (baked into HARD_RULES, flagged on questions)
 //   Layer 2 = Weighted scoring
-//   Layer 3 = Hybrid feasibility check questions
 // ═══════════════════════════════════════════════════════════════════════════
 const FULL_CATS = [
   { name:'🏗️ Application Characteristics', questions:[
@@ -920,8 +917,8 @@ const FULL_CATS = [
         {label:'9–20 people (dedicated team)',lc:1,hy:2,hc:2},
         {label:'20+ people or distributed squads',lc:0,hy:1,hc:3},
       ]},
-    // NEW v4: Team ownership split (Layer 3 — Hybrid gate)
-    { id:'team_ownership', defaultWeight:2, layer:3, isNew:true, axis:'org',
+    // NEW v4: Team ownership split — feeds Organisational Readiness only (see ORG_READINESS_CHECKS)
+    { id:'team_ownership', defaultWeight:2, layer:2, isNew:true, axis:'org',
       text:'Is team ownership clearly separated between UI/process and backend/integration?',
       desc:'Hybrid requires a dedicated owner for each layer. Without clear split ownership, the boundary collapses over time and Hybrid becomes a liability.',
       options:[
@@ -973,8 +970,8 @@ const FULL_CATS = [
         {label:'Speed and technical flexibility both matter equally',lc:1,hy:3,hc:1},
         {label:'Long-term engineered control and flexibility are critical',lc:0,hy:1,hc:3},
       ]},
-    // Layer 3 — Hybrid gate
-    { id:'arch_boundary', defaultWeight:2, layer:3, isNew:true, axis:'org',
+    // Feeds Organisational Readiness only (see ORG_READINESS_CHECKS)
+    { id:'arch_boundary', defaultWeight:2, layer:2, isNew:true, axis:'org',
       text:'Is there a clear, defined, and owned architectural boundary between the UI/process layer and the backend/event layer?',
       desc:'Hybrid only works with an explicit boundary — Low-Code for process/UI, high-code for events/integrations/scale — that is actively governed. Without this, Hybrid becomes structural debt.',
       options:[
@@ -1609,8 +1606,7 @@ function renderCompareTable(){
 // ═══════════════════════════════════════════════════════════════════════════
 function renderStep(idx){
   const q=allQ[idx]; const TOTAL=allQ.length;
-  const layerTag = q.layer===1?'<span class="layer-label layer-1">Layer 1 · Hard Constraint</span>'
-    :q.layer===3?'<span class="layer-label layer-3">Layer 3 · Hybrid Gate</span>':'';
+  const layerTag = q.layer===1?'<span class="layer-label layer-1">Layer 1 · Hard Constraint</span>':'';
   const phaseTag = (mode==='full'&&!q.quickScan&&!blindMode)
     ? (q.axis==='org'?'<span class="tag tag-phase-org">🧭 Organisational Readiness</span>':'<span class="tag tag-phase-tech">🎯 Technology Fit</span>')
     : '';
@@ -1632,7 +1628,6 @@ function renderStep(idx){
     q.quickScan?'<span class="tag tag-qs">Quick Scan</span>':'',
     q.isNew?'<span class="tag tag-new">New v4</span>':'',
     q.layer===1&&!q.quickScan?'<span class="layer-label layer-1">Hard Constraint question</span>':'',
-    q.layer===3&&!q.quickScan?'<span class="layer-label layer-3">Hybrid Gate question</span>':'',
     QUESTION_EXAMPLES[q.id]?`<span class="ex-badge" onclick="openExamplesModal('${q.id}')">🗂️ Examples</span>`:'',
   ].filter(Boolean).join('');
   card.innerHTML=`
@@ -1984,11 +1979,11 @@ function buildWD(){
       const axisTag=isOrg?' · Org Readiness · fixed':' · Tech Fit';
       const row=document.createElement('div'); row.className='wrow'; row.id='wr-'+q.id;
       row.innerHTML=isOrg?`
-        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':q.layer===3?' · L3 hybrid gate':''}${axisTag}</span></div>
+        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':''}${axisTag}</span></div>
         <div class="wsg" title="Organisational Readiness uses fixed weighting — it is not per-project adjustable, so it can never shift the platform recommendation.">
           <span style="font-size:10px;color:var(--muted);font-style:italic">Fixed</span>
         </div>`:`
-        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':q.layer===3?' · L3 hybrid gate':''}${axisTag}</span></div>
+        <div class="wrow-lbl">${q.text}<span class="wrow-id">${q.id}${q.isNew?' · new v4':''}${q.layer===1?' · L1 hard':''}${axisTag}</span></div>
         <div class="wsg">
           <div class="wpips" id="pip-${q.id}">${[1,2,3].map(n=>`<div class="wpip${wn>=n?' on':''}"></div>`).join('')}</div>
           <button class="w-btn" id="wdec-${q.id}" onclick="cw('${q.id}',-1)" ${wn<=1?'disabled':''}>−</button>
@@ -2196,7 +2191,7 @@ function buildMd(){
         const qi=allQ.findIndex(x=>x.id===q.id); const cq=allQ[qi];
         const w=cq?.weight??q.defaultWeight;
         const wn=(cq&&w!==q.defaultWeight)?` _(custom ×${w}, default ×${q.defaultWeight})_`:` _(×${w})_`;
-        const ln=q.isNew?' 🆕':''; const ll=q.layer===1?' [L1·Hard]':q.layer===3?' [L3·Gate]':'';
+        const ln=q.isNew?' 🆕':''; const ll=q.layer===1?' [L1·Hard]':'';
         if(answers[q.id]===undefined){md+=`**${q.text}**${ln}${ll}${wn}\n_Not answered_\n\n`;return;}
         const o=q.options[answers[q.id]];
         const dom=Math.max(o.lc,o.hy,o.hc);

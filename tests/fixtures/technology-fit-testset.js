@@ -4,9 +4,7 @@
 // option index (0-based) of the matching FULL_CATS question in lowcode-decision-model.html,
 // for the 16 Technology Fit ("axis:'tech'") questions only — Organisational Readiness is
 // deliberately out of scope for this testset (see the .md file's intro) and is left
-// unanswered here, which is also why hybrid_no_boundary/hybrid_no_ownership/
-// hybrid_mission_critical never fire against this fixture set (they depend on org-axis
-// answers that are always `undefined` here).
+// unanswered here.
 //
 // Question order below matches the 16-row table order used in every application section
 // of the .md file: domain, ui_complexity, business_logic, uniqueness, strategic_domain,

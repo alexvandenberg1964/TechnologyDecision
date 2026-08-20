@@ -8,13 +8,14 @@ An interactive decision-support tool for PostNL engineering teams evaluating whe
 
 ## What it does
 
-The tool guides you through a structured assessment and produces a scored recommendation with full rationale. It implements a three-layer model:
+The tool guides you through a structured assessment and produces a scored recommendation with full rationale. The platform recommendation itself is driven only by **Technology Fit** — questions about what the application *is* and technically *requires*:
 
-| Layer                           | What it checks                                                                                                       | Effect                                                             |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **1 — Hard constraints**        | Technical or strategic blockers (e.g. zero-trust requirements, extreme latency SLAs, scale-to-zero/burst elasticity) | Overrides scoring — forces a platform regardless of weighted score |
-| **2 — Weighted scoring**        | 24 questions across four dimensions                                                                                  | Produces Low-Code / Hybrid / High-Code scores                      |
-| **3 — Hybrid feasibility gate** | Boundary clarity, team ownership, criticality, observability                                                         | Penalises hybrid 30% if readiness < 40%                            |
+| Layer                     | What it checks                                                                                                       | Effect                                                             |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **1 — Hard constraints**   | Technical or strategic blockers (e.g. zero-trust requirements, extreme latency SLAs, scale-to-zero/burst elasticity) | Overrides scoring — forces a platform regardless of weighted score |
+| **2 — Weighted scoring**   | The Technology Fit questions (`axis:'tech'`), weighted                                                               | Produces Low-Code / Hybrid / High-Code scores                      |
+
+Separately, **Organisational Readiness** questions (`axis:'org'` — team skills/size/ownership, time-to-market, operational criticality, architectural boundary clarity, budget) never contribute to that score or override the winner — they answer a different question, "are we ready to deliver this?", and are reported as their own readiness percentage and breakdown. Organisational answers can never move the technology recommendation; see "Skipping Organisational Readiness" below.
 
 At the end you can export a formal **Decision Report (DR)** in Markdown, suitable for governance boards or architecture reviews.
 
